@@ -133,3 +133,40 @@ def test_reservations_do_not_reuse_deleted_ids_or_need_counters(tmp_path):
         ids = list(pool.map(allocate, range(30)))
     assert len(set(ids)) == 30
     assert not (tmp_path / "allocations.json").exists()
+
+
+def test_shared_index_updates_preserve_other_runs_and_can_be_rebuilt(
+    tmp_path, monkeypatch
+):
+    store = Store(tmp_path / "store")
+    first = insert(store, tmp_path, "first")
+    second = insert(store, tmp_path, "second")
+    index_path = store.root / "index.json"
+    index = json.loads(index_path.read_text())
+    assert set(index) == {"first", "second"}
+    assert index["first"]["bytes"] == sum(
+        p.stat().st_size for p in first.directory.rglob("*") if p.is_file()
+    )
+    assert index["first"]["file_count"] == 2
+    assert not (store.root / "cache").exists()
+    store.delete(["first"])
+    assert json.loads(index_path.read_text()) == {"second": index["second"]}
+    index_path.unlink()
+    assert store.get("second").record == second.record
+    monkeypatch.setattr(core, "file_sha256", lambda *a: pytest.fail("payload hash"))
+    assert store.reindex() == {"second": index["second"]}
+    assert json.loads(index_path.read_text()) == {"second": index["second"]}
+
+
+def test_concurrent_completions_do_not_lose_index_entries(tmp_path):
+    store = Store(tmp_path / "store")
+
+    def create(number):
+        with store.create("exp001", identity=f"run-{number}") as run:
+            (run.directory / "data").write_bytes(b"payload")
+
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        list(pool.map(create, range(12)))
+    assert set(json.loads((store.root / "index.json").read_text())) == {
+        r["id"] for r in store.list()
+    }

@@ -1,17 +1,35 @@
 ---
 import type { RunTreeNode } from '../lib/run-lineage';
 import { runWalltime, dataSize } from '../lib/run-metrics';
-interface Props { node: RunTreeNode; path?: string[]; }
-const { node } = Astro.props;
+interface Props { node: RunTreeNode; experiment: string; nested?: boolean }
+const { node, experiment, nested = false } = Astro.props;
+const ownExperiment = (node.row?.record.experiment ?? node.id.split('-')[0]) === experiment;
+const storage = node.row?.storage;
+const details = [node.issue, node.repeated ? 'Shared dependency; expanded above' : undefined,
+  !storage ? 'Run unavailable' : undefined,
+].filter(Boolean).join('; ');
+
 ---
-<ol class="tree">
-  <li><code>{node.id}</code> — {node.row?.storage ?? 'Unavailable'} · {runWalltime(node.row?.record)} · {dataSize(node.row?.bytes)}
-    {node.issue && <strong> · {node.issue}</strong>}
-    {node.children.map(child => <Astro.self node={child} />)}
+<ol class:list={['tree', { nested }]} aria-label={nested ? undefined : `Run tree for ${node.id}`}>
+  <li>
+    <div class:list={['node', ownExperiment ? 'own-experiment' : 'external-experiment']} title={details || undefined}>
+      <code>{node.id}</code>
+      {(storage === 'R2' || storage === 'Both') && <span class="tag">R2</span>}
+      {(storage === 'Local' || storage === 'Both') && <span class="tag">Local</span>}
+      <span class="tag" title="Producing execution walltime; excludes upstream runs and import time">{runWalltime(node.row?.record)}</span>
+      <span class="tag" title="Retained run size per stored copy">{dataSize(node.row?.bytes)}</span>
+    </div>
+    {ownExperiment && node.children.map(child => <Astro.self node={child} experiment={experiment} nested />)}
   </li>
 </ol>
 <style>
-  .tree { margin: .35rem 0; padding-left: 1.25rem; font-size: .75rem; }
-  code { font-size: inherit; }
-  strong { color: #b42318; }
+  .tree { list-style: none; margin: 0; padding: 0; font-size: .75rem; line-height: 1.5; }
+  li { list-style: none; margin: 0; padding: 0; position: relative; }
+  .nested { margin-left: .3rem; padding-left: 1rem; border-left: 1px solid rgb(var(--ink) / .2); }
+  .nested > li::before { content: ''; position: absolute; left: -1rem; top: .7rem; width: .75rem; border-top: 1px solid rgb(var(--ink) / .2); }
+  .node { display: flex; align-items: center; gap: .35rem; width: fit-content; margin: .1rem 0; padding: .05rem .3rem; border: 1px solid transparent; border-radius: 3px; white-space: nowrap; }
+  .own-experiment { background: rgb(var(--ink) / .08); }
+  .external-experiment { background: none; border-color: rgb(var(--ink) / .22); }
+  .node code { font-size: .75rem; padding: 0; background: none; border: 0; box-shadow: none; }
+  .tag { font: 500 .6rem/1.4 system-ui, sans-serif; color: rgb(var(--ink) / .65); }
 </style>

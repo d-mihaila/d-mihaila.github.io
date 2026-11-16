@@ -16,9 +16,40 @@ uv run python experiments/exp168/present.py --source ANALYSE_ID
 
 Replace `ANALYSE_ID` with the completed analysis run ID.
 
-Analysis currently reads the fixed `exp168-r029-compute` recurrence-on run and the
-pinned recurrence-off run in `recipe.py`. It accepts no `--source` argument, so a new
-simulation is not automatically analysed.
+Analysis reads the byte-preserved Figure 1/2 evidence in the consolidated
+`exp168-r038-compute` run, with original configurations resolved by `recipe.py`.
+A new comparison simulation is not automatically analysed.
+
+## Fixed-wiring transition
+
+The third results section reuses Figure 1B's actual sampled dense-input EE/II-on
+network. External→E gain stays at 1; External→I gain falls from 1 to 0 between
+1,050 and 1,550 ms, followed by a hold through 3,550 ms. Wiring, source rate and
+all sampled matrices stay fixed. The baseline is AI-like; low firing limits
+single-cell CV estimates. All retained evidence is independent of scratch files.
+
+To import an already completed trajectory, without simulating:
+
+```sh
+uv run python experiments/exp168/compute.py import-transition COMPLETED_TRAJECTORY_DIRECTORY
+uv run python experiments/exp168/analyse.py --transition-source COMPUTE_ID
+uv run python experiments/exp168/present.py --source ANALYSE_ID --base-present exp168-r040-present
+```
+
+The import directory must contain the native bundle, start snapshot, events and
+summary, with the original fixed checkpoint in its parent directory. Import
+validates the graph and every sampled matrix against the scientific source.
+The optional `--base-present` preserves the earlier figures byte-for-byte after
+checking that their comparison configurations and metrics match the analysis.
+
+An explicitly authorised replay uses retained Pingstore evidence:
+
+```sh
+uv run python experiments/exp168/compute.py transition --source COMPUTE_ID
+```
+
+Pass its new compute ID to analysis as above. Figures and results are selected
+through the new presentation run; report prose contains no selected run ID.
 
 To run automated checks:
 

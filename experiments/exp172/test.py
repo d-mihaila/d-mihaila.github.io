@@ -641,7 +641,7 @@ def test_cue_sweep_selects_joint_background_and_preserves_control_scope():
         )
 
 
-def test_contrast_cue_switches_excess_without_changing_background_or_uniform_cue():
+def test_contrast_cue_matches_mean_without_changing_background_or_uniform_cue():
     from experiments.exp172.recipe import contrast_rate_profiles, inputs
 
     cfg = configuration(dt_ms=1.0, duration_ms=40.0, switch_ms=20.0)
@@ -658,13 +658,35 @@ def test_contrast_cue_switches_excess_without_changing_background_or_uniform_cue
     for sender, attended_epoch in (("A", 0), ("B", 1)):
         key = "X_" + sender
         np.testing.assert_allclose(
-            changed[key][attended_epoch] - cfg["spatial_baseline_hz"],
-            3 * (rates[key] - cfg["spatial_baseline_hz"]),
+            changed[key][attended_epoch] - cfg["spatial_mean_hz"],
+            3 * (rates[key] - cfg["spatial_mean_hz"]),
         )
         np.testing.assert_array_equal(changed[key][1 - attended_epoch], rates[key])
-        window = slice(0, 20) if attended_epoch == 0 else slice(20, 40)
-        assert np.all(stronger[key][window] >= original[key][window])
+        np.testing.assert_allclose(
+            changed[key].mean(axis=1), cfg["spatial_mean_hz"], atol=1e-12
+        )
+        assert (changed[key] >= 0).all()
     np.testing.assert_array_equal(stronger["X_C"], original["X_C"])
     assert not stronger["U"].any()
     with pytest.raises(ValueError):
         contrast_rate_profiles(cfg, 0.5)
+
+
+def test_mean_matched_contrast_profiles_across_sweep_and_swapped_centres():
+    from experiments.exp172.recipe import (
+        contrast_rate_profiles,
+        contrast_sweep_configuration,
+    )
+
+    cfg = configuration()
+    assert contrast_sweep_configuration()["profile_version"] == "mean-matched/v1"
+    for swap in (False, True):
+        for ratio in contrast_sweep_configuration()["rates_hz"]:
+            profiles = contrast_rate_profiles(cfg, ratio, swap)
+            for profile in profiles.values():
+                np.testing.assert_allclose(
+                    profile.mean(axis=1), 26.0, rtol=0, atol=1e-12
+                )
+                assert np.isfinite(profile).all() and (profile >= 0).all()
+    with pytest.raises(ValueError, match="invalid rates"):
+        contrast_rate_profiles(cfg, 7.0)

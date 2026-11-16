@@ -1,6 +1,7 @@
 """Render two-panel rasters for both recurrence cases."""
 
 import argparse
+import shutil
 import sys
 from dataclasses import replace
 from pathlib import Path
@@ -112,7 +113,66 @@ def panel(ax, events_path, cfg, title):
     ax.spines[["top", "right"]].set_visible(False)
 
 
-def present(source, *, run_id=None):
+def transition_figure(origin, data, directory):
+    """Render the native continuous trajectory and its recorded input-gain control."""
+    import matplotlib.pyplot as plt
+
+    cfg = data["configuration"]
+    control = cfg["input_i_gain"]
+    duration = cfg["duration_ms"]
+    figure, axes = plt.subplots(
+        3,
+        1,
+        figsize=(12, 7),
+        sharex=True,
+        gridspec_kw={"height_ratios": [3, 1, 1]},
+        layout="constrained",
+    )
+    panel(
+        axes[0],
+        recipe.transition_file(origin, "events.npz"),
+        cfg,
+        "Fixed wiring, EE/II active; external source rate fixed",
+    )
+    axes[0].set_xlabel("")
+    with np.load(
+        recipe.transition_file(origin, "events.npz"), allow_pickle=False
+    ) as events:
+        for population, color in (("E", theme.INK_BLACK), ("I", theme.DEEP_RED)):
+            bins = np.arange(0, duration + 1, 1.0)
+            counts, _ = np.histogram(events[population + "_time_ms"], bins)
+            axes[1].plot(
+                bins[:-1],
+                counts / cfg["n_" + population.lower()] * 1000,
+                color=color,
+                lw=0.7,
+                label=population,
+            )
+    times = [0, control["start_ms"], control["end_ms"], duration]
+    axes[2].plot(
+        times, [cfg["input_e_gain"]] * 4, color=theme.INK_BLACK, label="External→E"
+    )
+    axes[2].plot(
+        times,
+        [control["before"], control["before"], control["after"], control["after"]],
+        color=theme.DEEP_RED,
+        label="External→I",
+    )
+    axes[1].set_ylabel("Rate (Hz)")
+    axes[2].set(ylabel="Input gain", xlabel="Time (ms)")
+    for ax in axes:
+        ax.axvspan(
+            control["start_ms"], control["end_ms"], color=theme.GREY_LIGHT, alpha=0.15
+        )
+    for ax in axes[1:]:
+        ax.legend(loc="upper right", ncol=2)
+    theme.label_panels(axes)
+    for extension in ("png", "svg", "pdf"):
+        figure.savefig(directory / f"gain-transition.{extension}", dpi=180)
+    plt.close(figure)
+
+
+def present(source, *, base_present=None, run_id=None):
     started = perf_counter()
     analysed = source_run(
         REPO / ".pingstore", source, experiment=recipe.SLUG, stage="analyse"
@@ -127,6 +187,18 @@ def present(source, *, run_id=None):
         for recurrence in recipe.RECURRENT_CASES
     }
     numbers = load_json(analysed.file("numbers.json"))
+    inputs = {"analyse": analysed}
+    base = None
+    if base_present:
+        base = source_run(
+            REPO / ".pingstore", base_present, experiment=recipe.SLUG, stage="present"
+        )
+        baseline = load_json(base.file("numbers.json"))
+        if any(baseline[key] != numbers[key] for key in ("configurations", "metrics")):
+            raise ValueError(
+                "existing figures and current analysis use different comparison evidence"
+            )
+        inputs["comparison_figures"] = base
     import matplotlib
 
     matplotlib.use("Agg")
@@ -137,7 +209,7 @@ def present(source, *, run_id=None):
         REPO,
         recipe.SLUG,
         "present",
-        inputs={"analyse": analysed},
+        inputs=inputs,
         configuration=analysed.details["execution"]["configuration"],
         run_id=run_id,
     ) as run:
@@ -145,13 +217,20 @@ def present(source, *, run_id=None):
             ("on", "recurrence-on-rasters"),
             ("off", "recurrence-off-rasters"),
         ):
+            if base:
+                for extension in ("png", "svg", "pdf"):
+                    shutil.copy2(
+                        base.file(f"{prefix}.{extension}"),
+                        run.export / f"{prefix}.{extension}",
+                    )
+                continue
             origin = origins[recurrence]
-            configurations = origin.details["execution"]["configuration"]["conditions"]
+            configurations = recipe.case_configuration(origin, recurrence)
             figure, axes = plt.subplots(2, 1, figsize=(12, 8.5), layout="constrained")
             for index, state in enumerate(recipe.CONDITIONS):
                 panel(
                     axes[index],
-                    origin.file(state, "events.npz"),
+                    recipe.case_file(origin, recurrence, state, "events.npz"),
                     configurations[state],
                     f"{chr(65 + index)}  {state}",
                 )
@@ -159,9 +238,16 @@ def present(source, *, run_id=None):
                 figure.savefig(run.export / f"{prefix}.{extension}", dpi=180)
             plt.close(figure)
         for recurrence in recipe.RECURRENT_CASES:
+            if base:
+                for extension in ("svg", "png"):
+                    name = f"recurrence-{recurrence}-circuit.{extension}"
+                    shutil.copy2(base.file(name), run.export / name)
+                continue
             origin = origins[recurrence]
             state = recipe.CONDITIONS[0]
-            bundle = lang.load_bundle(origin.file(state, "network.bundle"))
+            bundle = lang.load_bundle(
+                recipe.case_file(origin, recurrence, state, "network.bundle")
+            )
             circuit = network_diagram(bundle, recurrence)
             with matplotlib.rc_context({"savefig.bbox": None}):
                 for extension in ("svg", "png"):
@@ -169,7 +255,20 @@ def present(source, *, run_id=None):
                         circuit,
                         run.export / f"recurrence-{recurrence}-circuit.{extension}",
                     )
-        write_json_atomic(run.export / "numbers.json", {**numbers, "figure": "both"})
+        if "gain_transition" in numbers:
+            transition_origin = source_run(
+                REPO / ".pingstore", pins["transition_compute"]["run_id"]
+            )
+            transition_figure(transition_origin, numbers["gain_transition"], run.export)
+        write_json_atomic(
+            run.export / "numbers.json",
+            {
+                **numbers,
+                "figure": "both-and-transition"
+                if "gain_transition" in numbers
+                else "both",
+            },
+        )
         run.details["execution"]["elapsed_s"] = perf_counter() - started
     return run.run_id
 
@@ -178,4 +277,5 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", required=True)
     parser.add_argument("--run-id")
+    parser.add_argument("--base-present")
     present(**vars(parser.parse_args()))

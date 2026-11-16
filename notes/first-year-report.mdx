@@ -4,7 +4,7 @@ author: Eoin Murray
 collection: notes
 description: "First year report draft on the computational functions, mechanisms and applications of gamma oscillations."
 created_at: "2026-11-09T12:20:04Z"
-updated_at: "2026-11-12T15:27:46Z"
+updated_at: "2026-11-16T14:50:05Z"
 ---
 
 1. **Introduction**
@@ -70,19 +70,26 @@ updated_at: "2026-11-12T15:27:46Z"
       1. We do not yet have an emergence of PING under training conditions.
 
 4. **Proposed research**
-   1. _Function: investigating the proposed roles_
+   1. _Computing under uncertainty and time/resource constraints_
 
-      Investigate the proposed functional roles listed in Section 2.3 using the methods in Section 4.2.
+      When does gamma-mediated coordination help a distributed network make useful decisions with uncertain inputs and limited processing time or resources? Building on the PING proof of principle, the proposed work will investigate how networks allocate processing between competing inputs as their reliability, relevance and urgency change. The aim is to identify conditions in which rhythmic coordination improves computation, and conditions in which asynchronous alternatives perform as well or better.
 
-   2. _Methods_
+   2. _Selective routing and the control of distributed computation_
 
-      1. A spiking agent for spatial navigation and action selection — navigation benchmarks and attractor models: [\[68\]](#ref-68); [\[69\]](#ref-69). These motivate tasks, rather than demonstrate a gamma-dependent navigation mechanism.
-      2. Tasks under training — [\[58\]](#ref-58); [\[70\]](#ref-70); [\[60\]](#ref-60).
-      3. Simulated demonstration of phenomena — test selective routing against [\[25\]](#ref-25); [\[66\]](#ref-66); [\[29\]](#ref-29); [\[30\]](#ref-30), with asynchronous and rate-matched controls.
+      Communication through coherence and competitive entrainment propose ways for oscillatory populations to select which signals influence a receiver: [\[2\]](#ref-2); [\[25\]](#ref-25); [\[66\]](#ref-66); [\[67\]](#ref-67). These motivate a broader research hypothesis: dynamic coordination between populations could control which parts of a distributed computation interact, for how long, and in what sequence. Extending selective transmission to flexible, multi-stage computation is a proposal to test, rather than a conclusion established by the existing proof of principle.
 
-   3. _Application: practical benchmarks and neuromorphic implementation_
+      The exploratory questions are how routing responds to changing goals and input reliability, whether local circuit interactions can support this control, and how coordination is maintained or reconfigured across multiple receivers and processing stages. Limits imposed by interference and transmission delays must constrain the account: [\[26\]](#ref-26); [\[29\]](#ref-29); [\[30\]](#ref-30).
 
-      Hardware and implementation context: [\[71\]](#ref-71); [\[72\]](#ref-72); [\[73\]](#ref-73). These describe neuromorphic approaches; they do not establish a practical advantage from gamma.
+   3. _Research programme and discriminating tests_
+
+      1. _Tasks that require selective computation._ Begin with competing evidence streams whose reliability and task relevance can be varied independently. Introduce changing goals, decision deadlines and limits on activity or connectivity. Navigation or action selection could later provide a richer test if success depends on these demands; navigation benchmarks and continuous attractor models supply task context [\[68\]](#ref-68); [\[69\]](#ref-69), but do not themselves establish a need for spikes or gamma.
+      2. _Learning and emergence._ Use task training to ask whether useful coordination can emerge, how it depends on the trainable connections and objective, and whether it generalises to new uncertainty levels or deadlines. Training methods: [\[58\]](#ref-58); [\[70\]](#ref-70); [\[60\]](#ref-60). Compare learned coordination with imposed rhythms; neither should be assumed to arise from task performance alone.
+      3. _Causal comparisons and failure conditions._ Compare rhythmic and asynchronous networks, including rate-matched controls where feasible, while accounting for inhibition, excitability, connectivity and shared input. Perturb relative timing and test whether changes in routing alter task performance beyond these competing explanations. Map where rhythmic coordination helps, fails or incurs an avoidable cost.
+      4. _Performance under constraints._ Measure accuracy and decision latency across input uncertainty and processing budgets. Where models explicitly estimate uncertainty, assess calibration as well as accuracy. Treat spike counts and synaptic operations as resource proxies, and test whether any benefit persists after accounting for the cost and delay of establishing or switching coordination.
+
+   4. _Applications and neuromorphic implementation_
+
+      Use the findings to identify tasks and operating conditions in which gamma-mediated coordination could offer a practical advantage. Neuromorphic implementation would test whether improvements survive hardware timing, communication overhead and measured energy costs. Hardware and implementation context: [\[71\]](#ref-71); [\[72\]](#ref-72); [\[73\]](#ref-73). These describe neuromorphic approaches; they do not establish a practical advantage from gamma.
 5. **Discussion and outlook**
    1. _What the completed work establishes_
    2. _Biological implications and limits_

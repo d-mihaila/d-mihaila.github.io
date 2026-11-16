@@ -531,8 +531,9 @@ runs remain authoritative. `PINGLAB_RUNS_ROOT` overrides the local runs director
 Figures prefer SVG, then PNG. Animation JSON, images and video use the selected run.
 Bound values come from recorded data; missing or nonfinite values fail explicitly.
 Dataset tables show report dependencies and other stored runs without retention or
-verification classifications. Run sizes use cached insertion/migration statistics;
-an absent size cache shows unknown rather than scanning payloads during rendering.
+verification classifications. Run sizes come from the disposable `.pingstore/index.json`, read once per request
+or build. If it is absent, sizes show unknown. `pingstore reindex` explicitly
+rebuilds statistics from file names and sizes without hashing payloads.
 
 ## Publication
 

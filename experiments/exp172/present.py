@@ -895,13 +895,13 @@ def render_contrast_examples(computed, measured, output):
             x, profile["B"], color="#2457c5", ls="--", label="B · unattended", lw=1.6
         )
         ax.axhline(
-            measured["configuration"]["spatial_baseline_hz"],
+            measured["configuration"]["spatial_mean_hz"],
             color=theme.GREY_MID,
             ls=":",
             lw=0.8,
         )
         ax.set(
-            title=f"{title} · {example['contrast_ratio']:g}×",
+            title=f"{title} · {example['contrast_ratio']:g}× · equal mean",
             xlabel="Spatial position (unit circle)",
             xlim=(0, 1),
             ylim=(0, upper),
@@ -1118,6 +1118,11 @@ def load_cue_comparisons(
         inputs.update(
             contrast_analyse=contrast_analysis, contrast_compute=contrast_compute
         )
+    if contrast_sweep is not None and (
+        contrast_sweep["settings"].get("profile_version") != "mean-matched/v1"
+        or not contrast_sweep.get("matched_mean_sensory_rates")
+    ):
+        raise ValueError("Figures 4–5 require a new mean-matched contrast sweep")
     return cue_sweep, contrast_sweep, contrast_compute
 
 

@@ -1,6 +1,7 @@
 """Simulate the EE/II-on comparison, or run a short explicit diagnostic."""
 
 import argparse
+import shutil
 import sys
 from pathlib import Path
 from time import perf_counter
@@ -9,10 +10,10 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(REPO), str(REPO / "libraries")]
 import numpy as np
 from experiments.exp168 import dataset, recipe
-from pingstore.library import stage_run
+from pingstore.library import load_json, source_run, stage_run
 
 
-def execute(cfg, directory, diagram):
+def execute(cfg, directory, diagram, *, bundle=None, checkpoint=None):
     from snnlab.sim import (
         DenseArrayBinding,
         Performance,
@@ -23,7 +24,7 @@ def execute(cfg, directory, diagram):
     )
 
     directory.mkdir(parents=True)
-    bundle = recipe.author_network(cfg)
+    bundle = bundle if bundle is not None else recipe.author_network(cfg)
     bundle.write(directory / "network.bundle", visualise=False)
     if diagram:
         bundle.visualise(directory.parent / "circuit.svg", view="circuit")
@@ -38,6 +39,7 @@ def execute(cfg, directory, diagram):
         bundle=bundle,
         input_bindings=(DenseArrayBinding("X", drive),),
         seed=cfg["seed"],
+        checkpoint=checkpoint,
         device=cfg["device"],
         performance=Performance(**cfg["performance"]),
         diagnostics=False,
@@ -61,6 +63,153 @@ def execute(cfg, directory, diagram):
         arrays[population + "_time_ms"] = rows[:, 0] * cfg["dt_ms"]
         arrays[population + "_cell"] = rows[:, 2]
     np.savez_compressed(directory / "events.npz", **arrays)
+
+
+def import_transition(directory, *, source=recipe.SOURCES["on"]["run_id"], run_id=None):
+    """Validate and retain completed evidence, without executing a simulation."""
+    import torch
+    from snnlab.sim import GraphExecutor, plan_graph
+
+    started = perf_counter()
+    directory = Path(directory).resolve()
+    origin = source_run(
+        REPO / ".pingstore", source, experiment=recipe.SLUG, stage="compute"
+    )
+    cfg = recipe.transition_configuration(
+        recipe.case_configuration(origin, "on")["PING"]
+    )
+    graph = load_json(
+        recipe.case_file(origin, "on", "PING", "network.bundle", "graph.json")
+    )
+    recorded_graph = load_json(directory / "network.bundle" / "graph.json")
+    if recorded_graph != recipe.transition_graph(graph, cfg):
+        raise ValueError("imported graph differs from the fixed-wiring gain protocol")
+    summary = load_json(directory / "summary.json")
+    if (
+        summary["gain_E"],
+        summary["gain_I"],
+        summary["duration_ms"],
+        summary["source_rate_hz"],
+        summary["input_probability"],
+    ) != (
+        [1.0, 1.0],
+        [1.0, 0.0],
+        cfg["duration_ms"],
+        cfg["external_rate_hz"],
+        cfg["input_connection_probability"],
+    ):
+        raise ValueError("imported execution settings disagree with the protocol")
+    snapshot = load_json(directory / "start" / "snapshot.json")
+    if (
+        snapshot["network"] != recorded_graph
+        or snapshot["execution"]["duration_ms"] != cfg["duration_ms"]
+    ):
+        raise ValueError("native start snapshot disagrees with the imported execution")
+    checkpoint = directory.parent / "fixed-weights.pt"
+    torch.set_num_threads(cfg["torch_threads"])
+    model = GraphExecutor(
+        plan_graph(recorded_graph),
+        seed=cfg["seed"],
+        compile_mode=None,
+        precision="highest",
+        cuda_graphs="off",
+    )
+    model.load_state_dict(torch.load(checkpoint, weights_only=True))
+    original_snapshot = load_json(
+        recipe.case_file(origin, "on", "PING", "start", "snapshot.json")
+    )
+    with np.load(
+        recipe.case_file(origin, "on", "PING", "start", "parameters.npz"),
+        allow_pickle=False,
+    ) as parameters:
+        for name, weight in model.parameter_map().items():
+            if not np.array_equal(
+                weight.detach().numpy(),
+                parameters[original_snapshot["parameters"][name]["key"]],
+            ):
+                raise ValueError(f"imported parameter differs from Figure 1: {name}")
+    with np.load(directory / "events.npz", allow_pickle=False) as events:
+        for population in ("E", "I"):
+            times, cells = events[population + "_time_ms"], events[population + "_cell"]
+            if (
+                times.shape != cells.shape
+                or not np.isfinite(times).all()
+                or np.any(times < 0)
+                or np.any(times >= cfg["duration_ms"])
+                or np.any(cells < 0)
+                or np.any(cells >= cfg["n_" + population.lower()])
+            ):
+                raise ValueError("imported spike events have invalid times or cells")
+    with stage_run(
+        REPO,
+        recipe.SLUG,
+        "compute",
+        inputs={"fixed_network": origin},
+        configuration={"transition": cfg},
+        operation="import-completed-transition",
+        run_id=run_id,
+    ) as run:
+        for name in ("network.bundle", "start"):
+            shutil.copytree(directory / name, run.export / name)
+        for name in ("events.npz", "summary.json"):
+            shutil.copy2(directory / name, run.export / name)
+        shutil.copy2(checkpoint, run.export / "fixed-weights.pt")
+        # Historical snapshot bytes retain their original checkpoint path; replay
+        # uses the retained run-local checkpoint, never that historical path.
+        run.details["scientific_artifacts"] = dict(
+            checkpoint="fixed-weights.pt",
+            transition_prefix="",
+            parameter_source=dict(run_id=origin.run_id, snapshot="PING/start"),
+            validation=dict(
+                all_sampled_parameters_identical=True,
+                graph_only_input_gain_changes=True,
+            ),
+        )
+        run.details["scientific_execution"] = dict(
+            elapsed_seconds=summary["elapsed_s"], origin="local"
+        )
+        run.details["import_provenance"] = dict(
+            original_directory=str(directory),
+            original_summary="summary.json",
+            native_snapshot_checkpoint_path_is_historical=True,
+        )
+        run.details["execution"]["elapsed_s"] = perf_counter() - started
+    return run.run_id
+
+
+def simulate_transition(source, *, run_id=None):
+    """Explicitly replay the retained transition using the original sampled weights."""
+    import torch
+    from snnlab import lang
+
+    started = perf_counter()
+    origin = source_run(
+        REPO / ".pingstore", source, experiment=recipe.SLUG, stage="compute"
+    )
+    cfg = origin.details["execution"]["configuration"]["transition"]
+    graph = load_json(recipe.transition_file(origin, "network.bundle", "graph.json"))
+    torch.set_num_threads(cfg["torch_threads"])
+    with stage_run(
+        REPO,
+        recipe.SLUG,
+        "compute",
+        inputs={"transition_template": origin},
+        configuration={"transition": cfg},
+        run_id=run_id,
+    ) as run:
+        execute(
+            cfg,
+            run.export / "transition",
+            True,
+            bundle=lang.Bundle(graph, None, {}, []),
+            checkpoint=origin.file("fixed-weights.pt"),
+        )
+        shutil.copy2(origin.file("fixed-weights.pt"), run.export / "fixed-weights.pt")
+        run.details["scientific_artifacts"] = dict(
+            transition_prefix="transition", checkpoint="fixed-weights.pt"
+        )
+        run.details["execution"]["elapsed_s"] = perf_counter() - started
+    return run.run_id
 
 
 def simulate_conditions(
@@ -183,6 +332,13 @@ if __name__ == "__main__":
     diagnostic_parser.add_argument("--rate-hz", type=float)
     diagnostic_parser.add_argument("--probability", type=float)
     diagnostic_parser.add_argument("--gain", type=float)
+    import_parser = commands.add_parser("import-transition")
+    import_parser.add_argument("directory", type=Path)
+    import_parser.add_argument("--source", default=recipe.SOURCES["on"]["run_id"])
+    import_parser.add_argument("--run-id")
+    transition_parser = commands.add_parser("transition")
+    transition_parser.add_argument("--source", required=True)
+    transition_parser.add_argument("--run-id")
     args = parser.parse_args()
     if args.command == "simulate":
         simulate_conditions(
@@ -196,5 +352,9 @@ if __name__ == "__main__":
             ping_gain=args.ping_gain,
             run_id=args.run_id,
         )
+    elif args.command == "import-transition":
+        import_transition(args.directory, source=args.source, run_id=args.run_id)
+    elif args.command == "transition":
+        simulate_transition(args.source, run_id=args.run_id)
     else:
         diagnostic(args)

@@ -48,7 +48,7 @@ def raster_from_events(times, cells, cfg, population):
     return matrix, selected
 
 
-def measure(path, cfg):
+def measure(path, cfg, *, transition=False):
     start, end = cfg["measurement_ms"]
     duration_s = (end - start) / 1000
     out = {}
@@ -69,6 +69,24 @@ def measure(path, cfg):
             out[population + "_rhythmicity"] = native["contrast"]
             out[population + "_median_cv"] = cv["aggregate"]
             out[population + "_cv_cells"] = int(cv["valid"].sum())
+            if transition:
+                from scipy.signal import periodogram
+
+                cv5 = analysis.isi_cv(
+                    raster, cfg["dt_ms"], min_spikes=5, ddof=0, aggregation="median"
+                )
+                out[population + "_median_cv_min5"] = cv5["aggregate"]
+                out[population + "_cv_min5_cells"] = int(cv5["valid"].sum())
+                counts = raster.reshape(
+                    round(end - start), round(1 / cfg["dt_ms"]), size
+                ).sum(axis=(1, 2))
+                frequencies, power = periodogram(
+                    counts, fs=1000.0, window="hann", detrend="constant"
+                )
+                band = (frequencies >= 20) & (frequencies <= 100)
+                out[population + "_gamma_peak_hz"] = float(
+                    frequencies[band][np.argmax(power[band])]
+                )
             width = round(1.0 / cfg["dt_ms"])
             samples.append(
                 raster[:, :200].reshape(round(end - start), width, 200).any(axis=1)
@@ -84,33 +102,51 @@ def measure(path, cfg):
     return {k: float(v) if isinstance(v, np.floating) else v for k, v in out.items()}
 
 
-def analyse(*, run_id=None):
+def analyse(*, transition_source=None, run_id=None):
     started = perf_counter()
     origins = {
-        "on": _origin("exp168-r029-compute", None),
-        "off": _origin(
-            recipe.SOURCES["off"]["run_id"],
-            recipe.SOURCES["off"]["payload_digest"],
-        ),
+        recurrence: _origin(recipe.SOURCES[recurrence]["run_id"], None)
+        for recurrence in recipe.RECURRENT_CASES
     }
     configurations = {}
     metrics = {}
     for recurrence, origin in origins.items():
-        source_configurations = origin.details["execution"]["configuration"][
-            "conditions"
-        ]
+        source_configurations = recipe.case_configuration(origin, recurrence)
         configurations[recurrence] = source_configurations
         metrics[recurrence] = {
             state: measure(
-                origin.file(state, "events.npz"), source_configurations[state]
+                recipe.case_file(origin, recurrence, state, "events.npz"),
+                source_configurations[state],
             )
             for state in recipe.CONDITIONS
         }
+    inputs = {"compute_on": origins["on"], "compute_off": origins["off"]}
+    transition_data = None
+    if transition_source:
+        transition_origin = source_run(
+            REPO / ".pingstore",
+            transition_source,
+            experiment=recipe.SLUG,
+            stage="compute",
+        )
+        inputs["transition_compute"] = transition_origin
+        cfg = transition_origin.details["execution"]["configuration"]["transition"]
+        transition_data = dict(
+            configuration=cfg,
+            metrics={
+                window: measure(
+                    recipe.transition_file(transition_origin, "events.npz"),
+                    {**cfg, "measurement_ms": bounds},
+                    transition=True,
+                )
+                for window, bounds in cfg["windows"].items()
+            },
+        )
     with stage_run(
         REPO,
         recipe.SLUG,
         "analyse",
-        inputs={"compute_on": origins["on"], "compute_off": origins["off"]},
+        inputs=inputs,
         configuration={
             "method": "snnlab.analysis.rhythmicity_metrics",
             "bin_ms": 1.0,
@@ -127,6 +163,7 @@ def analyse(*, run_id=None):
                 schema="exp168.analysis.both/v1",
                 configurations=configurations,
                 metrics=metrics,
+                **({"gain_transition": transition_data} if transition_data else {}),
                 analysis={
                     "bin_ms": 1.0,
                     "max_lag_ms": 100.0,
@@ -149,4 +186,5 @@ def analyse(*, run_id=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-id")
+    parser.add_argument("--transition-source")
     analyse(**vars(parser.parse_args()))

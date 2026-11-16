@@ -21,7 +21,7 @@ from experiments.exp022.custom.checkpoints import (
 from pingstore.library import PingstoreError, SourceRun, file_sha256, source_run
 
 SOURCE_REFERENCE = {
-    "run_id": "exp022-r007-compute",
+    "run_id": "exp022-r037-compute",
 }
 CELL_FILES = ("config.json", "metrics.json", "weights.pth", "weights_final.pth")
 

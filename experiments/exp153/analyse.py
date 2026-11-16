@@ -7,6 +7,7 @@ and continuous observed-peak phase for a 1,500 ms onset display.
 
 import argparse
 import copy
+import gzip
 import json
 import sys
 from pathlib import Path
@@ -136,7 +137,13 @@ def analyse_susceptibility(*, source, run_id=None):
 
 
 def read_trajectory(computed, condition, cfg):
-    saved = load_json(computed.file(condition["label"] + "-trajectory.json"))
+    name = condition["label"] + "-trajectory.json"
+    path = computed.file(name)
+    if path.is_file():
+        saved = load_json(path)
+    else:
+        with gzip.open(computed.file(name + ".gz"), "rt") as handle:
+            saved = json.load(handle)
     model = load_json(computed.file(condition["label"] + "-model.json"))
     duration, interval = (
         cfg["duration_ms"],

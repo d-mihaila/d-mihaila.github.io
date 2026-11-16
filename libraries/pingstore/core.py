@@ -306,6 +306,23 @@ class Store:
             write_json_atomic(temporary / "run.json", record)
             return self._commit(temporary, record)
 
+    def _read_index(self):
+        path = self.root / "index.json"
+        return load_json(path) if path.exists() else {}
+
+    def reindex(self):
+        """Explicitly rebuild disposable statistics using file names and sizes only."""
+        with operation_lock(self.root):
+            index = {}
+            for record in self.list():
+                files = inventory(run_root(self.root, record["id"]))
+                index[record["id"]] = {
+                    "bytes": sum(files.values()),
+                    "file_count": len(files),
+                }
+            write_json_atomic(self.root / "index.json", index)
+            return index
+
     def _commit(self, temporary, record):
         validate_run(record)
         destination = run_root(self.root, record["id"])
@@ -313,10 +330,9 @@ class Store:
             raise FileExistsError(destination)
         write_json_atomic(temporary / "run.json", record)
         files = inventory(temporary)
-        write_json_atomic(
-            self.root / "cache" / f"{record['id']}.json",
-            {"bytes": sum(files.values()), "file_count": len(files)},
-        )
+        index = self._read_index()
+        index[record["id"]] = {"bytes": sum(files.values()), "file_count": len(files)}
+        write_json_atomic(self.root / "index.json", index)
         os.rename(temporary, destination)
         return self.get(record["id"])
 
@@ -366,9 +382,11 @@ class Store:
                 raise PingstoreError(
                     f"dependent runs: {dependants}; pass allow_dependants=True to proceed"
                 )
+            index = self._read_index()
             for identity in identities:
                 shutil.rmtree(run_root(self.root, identity))
-                (self.root / "cache" / f"{identity}.json").unlink(missing_ok=True)
+                index.pop(identity, None)
+            write_json_atomic(self.root / "index.json", index)
         return identities
 
     def backup(self, destination, identities=None):

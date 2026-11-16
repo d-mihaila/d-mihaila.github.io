@@ -14,3 +14,28 @@ import RunFigure from '../../../site/src/components/RunFigure.astro';
   X→E and X→I. X supplies the same shared external spike-source pool. Every
   weighted connection is labelled $W_{\mathrm{target},\mathrm{source}}$.
 </RunFigure>
+
+## B. Fixed-wiring input-gain protocol
+
+The third results section reuses Figure 1B's actual sampled dense-input network,
+with all four recurrent pathways active. Its architecture is shown in Figure A1.
+Only native external-input gain modulation changes; the saved external and
+recurrent weight matrices, source spike process, neuron dynamics, delays and
+timestep remain fixed. The protocol holds both gains at one, linearly reduces
+External→I gain to zero, then holds it there while External→E gain stays at one.
+The gain times, duration, source rate and measurement windows are bound to the
+selected native evidence in Figure 3 and Table 5.
+
+The completed trajectory was imported without another simulation. Import checks
+compare every sampled matrix against Figure 1B's native start parameters and
+compare the complete graph with the same graph plus the two recorded input-gain
+controls. Original native snapshot bytes are preserved; their historical
+checkpoint path is provenance only. The retained run-local checkpoint supports
+explicit replay without a scratch-directory dependency.
+
+SNNLab computes rhythmicity and ISI CV from retained spike events. Correlations
+use the first 200 E and 200 I cells in 20 ms bins. Hann periodograms of 1 ms
+population spike counts give the dominant hold frequency in the 20–100 Hz band.
+The short, low-rate baseline limits single-cell irregularity estimates; the
+five-spike CV is a secondary diagnostic, while Table 5 retains the 20-spike
+criterion used by the earlier comparisons.

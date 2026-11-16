@@ -1136,6 +1136,10 @@ def contrast_analysis_run(computed, run_id=None):
     started = perf_counter()
     descriptor = json.loads(computed.file("contrast-plan.json").read_text())
     settings = descriptor["settings"]
+    if settings.get("profile_version") != "mean-matched/v1":
+        raise ValueError(
+            "Legacy contrast evidence is not mean matched; compute a new sweep"
+        )
     plan = contrast_sweep_plan(settings)
     previous_rows = []
     if "previous_analyse" in computed.details["inputs"]:
@@ -1238,6 +1242,10 @@ def contrast_analysis_run(computed, run_id=None):
                     cfg, item["contrast_ratio"]
                 ).items():
                     np.testing.assert_array_equal(z[key], expected)
+                    np.testing.assert_allclose(
+                        z[key].mean(axis=1), cfg["spatial_mean_hz"], rtol=0, atol=1e-12
+                    )
+                    assert (z[key] >= 0).all()
             with np.load(computed.file(item["id"], "spikes.npz")) as z:
                 spikes = dict(z)
             assert set(spikes) == {c + "_" + p for c in "ABC" for p in "EI"}
@@ -1290,6 +1298,7 @@ def contrast_analysis_run(computed, run_id=None):
             summary=aggregate_background(rows, settings, control_key="contrast_ratio"),
             unchanged_weights=True,
             verified_contrast_profiles=True,
+            matched_mean_sensory_rates=True,
             unchanged_background_rates=True,
             uniform_cue_disabled=True,
             equal_contrast_reproduced_all_seeds=True,
@@ -1307,7 +1316,7 @@ def contrast_analysis_run(computed, run_id=None):
                 )
                 for ratio in settings["example_ratios"]
             ],
-            limitation="Contrast cues change both spatial contrast and mean sensory drive; five tuning input seeds in one fixed circuit, not held-out validation",
+            limitation="Mean external sensory rates are matched; realised spike counts and sender firing rates may differ; five tuning input seeds in one fixed circuit, not held-out validation",
         )
         dump(
             run.export / "results.json",

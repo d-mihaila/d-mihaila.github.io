@@ -11,8 +11,10 @@ const record = (id: string, stage = 'present', created_at = '2026-11-12T10:00:00
   id, experiment: 'exp001', stage, created_at, depends_on: [] as string[], metadata: {},
 });
 async function fixture(operation: (root: string) => Promise<void>) {
-  const root = await mkdtemp(join(tmpdir(), 'pingstore-reader-'));
-  try { await operation(root); } finally { await rm(root, { recursive: true, force: true }); }
+  const directory = await mkdtemp(join(tmpdir(), 'pingstore-reader-'));
+  const root = join(directory, 'runs');
+  await mkdir(root);
+  try { await operation(root); } finally { await rm(directory, { recursive: true, force: true }); }
 }
 async function save(root: string, value: ReturnType<typeof record>) {
   await mkdir(join(root, value.id), { recursive: true });
@@ -55,3 +57,20 @@ test('old metadata and unsafe backup inventories fail clearly', () => {
   assert.throws(() => validateRecord({ schema: 'pingstore.run/v4' }, 'one'), /migrate/);
   assert.throws(() => parseCatalog(JSON.stringify({ runs: { one: { record: record('one'), bytes: 0, files: { '../escape': 0 } } } })));
 });
+
+test('one local index supplies sizes and missing statistics stay unknown', () => fixture(async root => {
+  await save(root, record('a'));
+  await save(root, record('b'));
+  const store = new RunStore({ runsRoot: root });
+  assert.equal((await store.index()).runs.a.bytes, undefined);
+  await writeFile(join(root, '../index.json'), JSON.stringify({ a: { bytes: 123, file_count: 4 } }));
+  await withRunContext(async () => {
+    const first = await store.index();
+    assert.equal(first.runs.a.bytes, 123);
+    assert.equal(first.runs.a.file_count, 4);
+    assert.equal(first.runs.b.bytes, undefined);
+    await writeFile(join(root, '../index.json'), JSON.stringify({ a: { bytes: 456, file_count: 5 } }));
+    assert.equal((await store.index()).runs.a.bytes, 123);
+  });
+  assert.equal((await store.index()).runs.a.bytes, 456);
+}));

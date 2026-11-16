@@ -323,7 +323,7 @@ def used_window_configuration():
 
 
 def contrast_rate_profiles(cfg, ratio, swap=False):
-    """Two epochs of spatial rates: attended Gaussian excess is ratio times larger."""
+    """Scale Gaussian modulation while matching both spatial means in each epoch."""
     if not np.isfinite(ratio) or ratio < 1:
         raise ValueError("Contrast ratio must be finite and at least one")
     x = np.arange(cfg["network"]["input_channels"]) / cfg["network"]["input_channels"]
@@ -334,11 +334,20 @@ def contrast_rate_profiles(cfg, ratio, swap=False):
         bump = (cfg["spatial_mean_hz"] - cfg["spatial_baseline_hz"]) * g / g.mean()
         rates["X_" + sender] = np.stack(
             [
-                cfg["spatial_baseline_hz"]
-                + (ratio if sender == "AB"[epoch] else 1) * bump
+                cfg["spatial_baseline_hz"] + bump
+                if epoch != (0 if sender == "A" else 1) or ratio == 1
+                else cfg["spatial_mean_hz"]
+                + ratio * (bump - (cfg["spatial_mean_hz"] - cfg["spatial_baseline_hz"]))
                 for epoch in range(2)
             ]
         )
+        if (
+            not np.isfinite(rates["X_" + sender]).all()
+            or (rates["X_" + sender] < 0).any()
+        ):
+            raise ValueError(
+                "Mean-matched contrast produces invalid rates; reduce the ratio"
+            )
     return rates
 
 
@@ -475,7 +484,8 @@ def contrast_sweep_configuration():
         example_ratios=[1.25, 3.0],
         cue_hz=0.0,
         reference_ratio=1.0,
-        definition="Attended/unattended Gaussian excess-amplitude ratio above a fixed uniform baseline",
+        profile_version="mean-matched/v1",
+        definition="Attended/unattended Gaussian modulation-amplitude ratio at equal spatial mean; attended baseline compensates the bump increase",
         spread="sample standard deviation across input seeds",
     )
 

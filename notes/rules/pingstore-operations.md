@@ -4,7 +4,7 @@ author: Eoin Murray
 collection: notes
 description: Run insertion, deletion, backup, restore and migration.
 created_at: "2026-10-29T17:42:34Z"
-updated_at: "2026-11-12T20:22:47Z"
+updated_at: "2026-11-12T20:51:41Z"
 ---
 
 # Pingstore operations
@@ -42,6 +42,15 @@ Experiment scripts may keep using `stage_run(repo, experiment, stage, inputs=...
 Use `run.details` for scientific execution/configuration/provenance. After completion,
 `source_run(...).record` is the small run metadata, and `.details` reads `details.json`.
 No automatic export flattening or scientific payload hashing occurs.
+
+## Local size index
+
+`.pingstore/index.json` maps run IDs to `bytes` and `file_count`. Insertion and
+deletion update it atomically under the local writer lock. Runs remain authoritative;
+removing this disposable index does not remove runs. Astro reads it once per request
+or build and displays unknown sizes when it is missing. Rebuild explicitly with
+`uv run pingstore reindex` or `Store(...).reindex()`. Rebuilding scans file names and
+sizes without hashing or reading payload contents. There is no per-run cache directory.
 
 ## R2
 

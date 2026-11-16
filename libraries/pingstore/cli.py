@@ -25,6 +25,9 @@ def parser():
     )
     listing.add_argument("--experiment")
     listing.add_argument("--stage")
+    commands.add_parser(
+        "reindex", help="rebuild local size statistics without hashing payloads"
+    )
     for name in ("backup", "restore", "delete"):
         command = commands.add_parser(name)
         command.add_argument("ids", nargs="*" if name == "backup" else "+")
@@ -62,6 +65,8 @@ def main(argv=None):
             result = store.get(args.id).record
         elif args.command == "list":
             result = store.list(experiment=args.experiment, stage=args.stage)
+        elif args.command == "reindex":
+            result = store.reindex()
         elif args.command == "backup":
             result = store.backup(args.destination, args.ids or None)
         elif args.command == "restore":

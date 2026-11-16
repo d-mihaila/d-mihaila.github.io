@@ -1,6 +1,7 @@
 """Resolved configuration, source pins and native EE/II-on authoring."""
 
 import math
+from copy import deepcopy
 
 from snnlab import lang
 
@@ -9,12 +10,69 @@ CONDITIONS = ("AI", "PING")
 RECURRENT_CASES = ("on", "off")
 
 SOURCES = {
+    "on": dict(run_id="exp168-r038-compute", prefix=""),
     "off": dict(
-        run_id="exp168-r002-compute",
-        payload_digest="sha256:b9d00b62553a82b0d86241c9607c0b8a65e11e75b39ba9d64942f7c034588218",
+        run_id="exp168-r038-compute",
+        prefix="exp168-r002-compute",
         label="AI and PING with EE and II absent",
     ),
 }
+
+
+def case_configuration(origin, recurrence):
+    """Resolve original settings inside the byte-preserving consolidated run."""
+    details = origin.details
+    if SOURCES[recurrence]["prefix"]:
+        details = details["consolidation"]["sources"][SOURCES[recurrence]["prefix"]][
+            "record"
+        ]
+    return deepcopy(details["execution"]["configuration"]["conditions"])
+
+
+def case_file(origin, recurrence, *parts):
+    prefix = SOURCES[recurrence]["prefix"]
+    return origin.file(*((prefix,) if prefix else ()), *parts)
+
+
+def transition_configuration(source_configuration):
+    """The executed fixed-wiring protocol; all other settings come from its source."""
+    cfg = deepcopy(source_configuration)
+    if cfg["recurrence"] != "on" or cfg["input_connection_probability"] != 0.05:
+        raise ValueError("transition requires the Figure 1 dense, EE/II-on network")
+    cfg.update(
+        condition="gain-transition",
+        duration_ms=3550.0,
+        measurement_ms=[0.0, 3550.0],
+        input_e_gain=1.0,
+        input_i_gain=dict(before=1.0, after=0.0, start_ms=1050.0, end_ms=1550.0),
+        windows=dict(baseline=[250.0, 1050.0], hold=[1750.0, 3550.0]),
+    )
+    return cfg
+
+
+def transition_graph(source_graph, cfg):
+    graph = deepcopy(source_graph)
+    control = cfg["input_i_gain"]
+    for projection in graph["projections"]:
+        if projection["id"] in {"X_to_E", "X_to_I"}:
+            before, after = (
+                (control["before"], control["after"])
+                if projection["id"] == "X_to_I"
+                else (cfg["input_e_gain"], cfg["input_e_gain"])
+            )
+            projection["modulation"] = dict(
+                kind="ramp_gain",
+                before=before,
+                after=after,
+                start_ms=control["start_ms"],
+                end_ms=control["end_ms"],
+            )
+    return graph
+
+
+def transition_file(origin, *parts):
+    prefix = origin.details["scientific_artifacts"]["transition_prefix"]
+    return origin.file(*((prefix,) if prefix else ()), *parts)
 
 
 def _validate_positive_int(name, value):

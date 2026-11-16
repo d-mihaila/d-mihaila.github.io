@@ -119,13 +119,13 @@ export class RunStore {
         let entries;
         try { entries = await readdir(this.root, { withFileTypes: true }); }
         catch (error) { if (!absent(error)) throw error; entries = []; }
+        let statistics: Record<string, { bytes?: number; file_count?: number }> = {};
+        try { statistics = JSON.parse(await readFile(join(this.root, '../index.json'), 'utf8')); }
+        catch (error) { if (!absent(error)) throw error; }
         for (const entry of entries) {
           if (entry.name.startsWith('.') || (!entry.isDirectory() && !entry.isSymbolicLink())) continue;
           const record = await this.json(entry.name);
-          let sizes: { bytes?: number; file_count?: number } = {};
-          try { sizes = JSON.parse(await readFile(join(this.root, '../cache', `${entry.name}.json`), 'utf8')); }
-          catch (error) { if (!absent(error)) throw error; }
-          rows[entry.name] = { record, storage: rows[entry.name] ? 'Both' : 'Local', ...sizes };
+          rows[entry.name] = { record, storage: rows[entry.name] ? 'Both' : 'Local', ...statistics[entry.name] };
         }
       }
       return buildRunIndex(rows, this.source);

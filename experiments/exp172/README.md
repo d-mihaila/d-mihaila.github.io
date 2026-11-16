@@ -111,9 +111,11 @@ uv run python experiments/exp172/present.py --source BASELINE_ANALYSE_ID --mecha
 
 Analysis checks unchanged configurations and native weights, fixed sensory/background rate arrays, all 35 trials, and exact reproduction of all five 3-Hz reference trials. S/F/L use the existing decoder and windows. Figure 6 reuses Figure 5’s renderer, seed SD and missing-latency handling, with faint latency error bars. At zero cue the attended labels describe nominal time periods only.
 
-## Contrast as the cue (Figures 7–8)
+## Mean-matched contrast as the cue (Figures 4–5)
 
-At C background 32 Hz/channel and uniform cue zero, multiply only the attended Gaussian excess above the fixed 22-Hz/channel baseline. A is stronger before the switch, B afterwards. The unattended Gaussian stays at its original amplitude. Ratios are 1, 1.25, 1.5, 2, 3, 4, 5 and 6 across seeds 185–189 (40 trials). Ratio 1 must reproduce every no-cue control from the cue sweep. Contrast also changes mean sensory drive; this tests stimulus-strength selection rather than selection of equal-strength stimuli.
+At C background 32 Hz/channel and uniform cue zero, scale the attended Gaussian modulation about the shared 26-Hz/channel spatial mean. Its baseline is 26 − 4r Hz/channel for amplitude ratio r; its Gaussian excess is r times the original bump. A has higher modulation before the switch, B afterwards. The unattended profile stays unchanged. Ratios are 1, 1.25, 1.5, 2, 3, 4, 5 and 6 across seeds 185–189 (40 trials). All rates remain nonnegative, without clipping. Ratio 1 must reproduce every no-cue control from the cue sweep exactly. Expected external mean rates are matched, but realised spike counts and sender firing rates may differ.
+
+This implementation is tagged `mean-matched/v1` and needs a fresh compute → analyse → present sequence. Legacy unequal-mean sweeps cannot be extended into or presented as this condition; completed runs remain immutable.
 
 ```sh
 uv run python experiments/exp172/compute.py --contrast-source CUE_ANALYSE_ID --parallel
@@ -121,9 +123,9 @@ uv run python experiments/exp172/analyse.py --source CONTRAST_COMPUTE_ID
 uv run python experiments/exp172/present.py --source BASELINE_ANALYSE_ID --mechanism-source MECHANISM_ANALYSE_ID --candidate-source CANDIDATE_ANALYSE_ID --background-source BACKGROUND_ANALYSE_ID --arrival-source ARRIVAL_ANALYSE_ID --cue-source CUE_ANALYSE_ID --contrast-source CONTRAST_ANALYSE_ID
 ```
 
-Native weights and background input remain fixed. Input-rate exports store two epoch profiles for each sensory source; analysis validates their exact contrast switch and confirms zero uniform cue. Figure 7 plots saved 1.25× and 3× pre-switch profiles; Figure 8 reuses the seed-averaged sweep renderer and latency convention.
+Native weights and background input remain fixed. Input-rate exports store two epoch profiles for each sensory source; analysis validates their exact contrast switch, equal spatial means, nonnegative rates and zero uniform cue. Figure 4 plots saved 1.25× and 3× pre-switch profiles; Figure 5 reuses the seed-averaged sweep renderer and latency convention.
 
-To extend an existing contrast sweep, pass `--contrast-extend-source PREVIOUS_CONTRAST_ANALYSE_ID` to the compute command. Only missing ratios are simulated. Analysis retains the previous validated seed rows through an explicit pinned input, validates the new trials and recomputes the combined averages. Existing raw runs remain immutable; only the small input-profile files needed for Figure 7 are carried into the new compute export.
+To extend an existing contrast sweep, pass `--contrast-extend-source PREVIOUS_CONTRAST_ANALYSE_ID` to the compute command. The previous sweep must use the same mean-matched profile version and settings. Only missing ratios are simulated. Analysis retains the previous validated seed rows through an explicit pinned input, validates the new trials and recomputes the combined averages. Existing raw runs remain immutable; only the small input-profile files needed for Figure 4 are carried into the new compute export.
 
 ## Figures 2–3: raster and phase illustration
 

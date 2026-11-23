@@ -2,108 +2,74 @@
 title: "First Year Report"
 author: Eoin Murray
 collection: notes
-description: "First year report draft on the computational functions, mechanisms and applications of gamma oscillations."
+description: "First year report table of contents on the computational functions, mechanisms and applications of gamma oscillations."
 created_at: "2026-11-09T12:20:04Z"
-updated_at: "2026-11-16T14:50:05Z"
+updated_at: "2026-11-23T13:49:49Z"
 ---
 
 1. **Introduction**
-   1. _Main research question and hypotheses_
-
-      Under what conditions do gamma oscillations contribute causally to neural computation, and can it be applied in useful ways?
-   2. _Research strategy: A) functions, B) mechanisms and C) applications_
-
-      Starting reviews: [\[1\]](#ref-1); [\[2\]](#ref-2); [\[3\]](#ref-3).
+    1. _Main research question and hypotheses_
+    2. _Research strategy: functions, mechanisms and applications_ — [\[1\]](#ref-1); [\[2\]](#ref-2); [\[3\]](#ref-3).
 2. **Background and literature review**
     1. _Experimental evidence for oscillations and gamma_
-
-        1. Mention oscillations as a solution for various simple/core computational problems.
-        2. _History and experimental foundations_ — [\[4\]](#ref-4); [\[5\]](#ref-5); [\[6\]](#ref-6).
-        3. _What counts as gamma evidence_ — [\[7\]](#ref-7); [\[8\]](#ref-8); [\[9\]](#ref-9). Distinguish rhythmic gamma from broadband high-frequency activity and aperiodic spectral changes.
+        1. **The computational problem.** Introduce how neural populations select, coordinate and transmit information. Establish why the timing of activity, alongside firing rates, might matter.
+        2. **What constitutes an oscillation.** Define neural oscillations and gamma, typically around 30–90 Hz, while noting that band boundaries vary. Distinguish rhythmic population activity from individual neurons firing on every cycle.
+        3. **Historical foundations.** Trace the experimental development of gamma research, using Ahmed and Cash [\[4\]](#ref-4) to frame the relationship between apparently desynchronised cortical activity and local synchrony.
+        4. **Stimulus-related synchronisation.** Present Gray et al. [\[5\]](#ref-5): synchronisation between visual cortical populations associated with global stimulus properties. Separate the observation from its proposed binding interpretation.
+        5. **Attention-related synchronisation.** Introduce Fries et al. [\[6\]](#ref-6) as evidence that gamma synchronisation changes with selective attention. Reserve the detailed functional interpretation for section 2.3.
+        6. **What recordings measure.** Explain how EEG, ECoG and LFP relate to extracellular currents, and why recorded gamma depends on spatial scale and recording method [\[7\]](#ref-7).
+        7. **Rhythmic gamma versus spectral power.** Distinguish narrowband oscillations, broadband high-frequency activity and aperiodic spectral changes [\[8\]](#ref-8); [\[9\]](#ref-9). End by establishing that increased gamma-band power alone does not demonstrate a stronger oscillation.
     2. _Gamma theories and circuit dynamics_
-
-        1. _Pyramidal–interneuron network gamma (PING) and interneuron network gamma (ING)_ — [\[1\]](#ref-1); [\[10\]](#ref-10); [\[11\]](#ref-11); [\[12\]](#ref-12).
-        2. _Synaptic dynamics, irregular firing and noisy drive_ — [\[13\]](#ref-13); [\[14\]](#ref-14); [\[15\]](#ref-15).
-        3. _Balanced and asynchronous comparison regimes_ — [\[16\]](#ref-16); [\[17\]](#ref-17); [\[18\]](#ref-18).
-        4. _Interneuron diversity and biological constraints_ — [\[19\]](#ref-19); [\[20\]](#ref-20).
-    3. _Proposed functional roles_
-
-        1. _Efficiency, robustness and local selection_ — [\[21\]](#ref-21); [\[22\]](#ref-22); [\[23\]](#ref-23). Compare gamma and asynchronous computation with [\[24\]](#ref-24); assess the broader functional claim against [\[3\]](#ref-3).
-        2. _Selective communication, attention and sensory routing_ — theory: [\[2\]](#ref-2); [\[25\]](#ref-25); [\[26\]](#ref-26); recordings: [\[27\]](#ref-27); [\[28\]](#ref-28). Constraints and alternatives: [\[29\]](#ref-29); [\[30\]](#ref-30); [\[31\]](#ref-31); [\[32\]](#ref-32).
-        3. _Perceptual binding and grouping_ — [\[5\]](#ref-5). Critiques and negative evidence: [\[33\]](#ref-33); [\[34\]](#ref-34); [\[35\]](#ref-35).
-        4. _Sensory gain, temporal gating and phase coding_ — [\[36\]](#ref-36); [\[37\]](#ref-37); [\[38\]](#ref-38). Scope and counterarguments: [\[39\]](#ref-39); [\[3\]](#ref-3).
-        5. _Prediction-error signalling_ — framework: [\[40\]](#ref-40); experimental evidence: [\[41\]](#ref-41); [\[42\]](#ref-42). Alternative predictive functions and critical review: [\[43\]](#ref-43); [\[44\]](#ref-44).
-        6. _Memory organisation, sequencing and routing_ — models and review: [\[45\]](#ref-45); [\[46\]](#ref-46); recordings: [\[47\]](#ref-47); [\[48\]](#ref-48). Interpret coupling cautiously using [\[49\]](#ref-49); [\[50\]](#ref-50); the recordings alone do not establish a necessary gamma mechanism.
-        7. _Synaptic plasticity_ — [\[51\]](#ref-51); [\[52\]](#ref-52). Compare with spike-timing-dependent plasticity: [\[53\]](#ref-53). Separate phase sensitivity and gamma-associated plasticity from evidence that gamma is required for learning.
-
-        Include criticisms and counterarguments for each proposed role.
-
-     4. _Causal evidence and outstanding gaps_
-
-        1. Gamma could be epiphenomenon, evolutionary history not solid.
-        2. Mention limitations of current experimental mechanisms for larger network based phenomena.
-        3. _Cell-type and timing interventions_ — [\[36\]](#ref-36); [\[22\]](#ref-22); [\[54\]](#ref-54); [\[55\]](#ref-55). Assess what each intervention isolates; changing inhibition can also change firing rates and excitability.
-        4. _Coherence as cause or consequence_ — [\[31\]](#ref-31); [\[56\]](#ref-56); [\[57\]](#ref-57). Connectivity, power and frequency shifts provide competing explanations that must be tested.
-        5. _Inference and measurement limits_ — [\[50\]](#ref-50); [\[49\]](#ref-49); [\[9\]](#ref-9). The references above do not establish an evolutionary explanation for gamma.
-
-3. **Work completed: methods and results**
-   1. _Computational methods and modelling assumptions_
-
-      1. Simulation — circuit and regime context: [\[11\]](#ref-11); [\[17\]](#ref-17); [\[24\]](#ref-24).
-      2. Training (mention that EI IE weights are not trained) — surrogate-gradient methods: [\[58\]](#ref-58); [\[59\]](#ref-59); [\[60\]](#ref-60); inhibitory plasticity as a distinct alternative: [\[61\]](#ref-61).
-      3. snnlab toolbox — document the implementation and version used; the methodological references above do not describe snnlab itself.
-
-   2. _Function: computational benefits investigated_
-
-      1. Training on tasks: MNIST — [\[62\]](#ref-62); Spiking Heidelberg Digits (SHD) — [\[63\]](#ref-63); scikit-learn digits tooling — [\[64\]](#ref-64). Verify dataset provenance separately from the software citation.
-      2. Robustness (parameter regimes of asynchronous irregular activity, AI, and PING) — comparison literature: [\[17\]](#ref-17); [\[14\]](#ref-14); [\[24\]](#ref-24).
-      3. Efficiency and latency — biological energy-budget context: [\[65\]](#ref-65). Spike counts and simulated latency do not by themselves establish energy savings.
-      4. Selective transmission of competing spatial inputs — model comparisons: [\[25\]](#ref-25); [\[23\]](#ref-23); [\[66\]](#ref-66); [\[67\]](#ref-67); limitations: [\[29\]](#ref-29); [\[30\]](#ref-30).
-
-   3. _Mechanism: evidence obtained and unresolved explanations_
-
-      Interpret the completed results against the circuit models in Section 2.2 and competing explanations in Section 2.4; literature citations supply context, not evidence for our own results.
-
-   4. _Applications: performance demonstrated_
-   5. _Limitations and assessment of hypotheses_
-
-      1. We do not yet have an emergence of PING under training conditions.
-
-4. **Proposed research**
-   1. _Computing under uncertainty and time/resource constraints_
-
-      When does gamma-mediated coordination help a distributed network make useful decisions with uncertain inputs and limited processing time or resources? Building on the PING proof of principle, the proposed work will investigate how networks allocate processing between competing inputs as their reliability, relevance and urgency change. The aim is to identify conditions in which rhythmic coordination improves computation, and conditions in which asynchronous alternatives perform as well or better.
-
-   2. _Selective routing and the control of distributed computation_
-
-      Communication through coherence and competitive entrainment propose ways for oscillatory populations to select which signals influence a receiver: [\[2\]](#ref-2); [\[25\]](#ref-25); [\[66\]](#ref-66); [\[67\]](#ref-67). These motivate a broader research hypothesis: dynamic coordination between populations could control which parts of a distributed computation interact, for how long, and in what sequence. Extending selective transmission to flexible, multi-stage computation is a proposal to test, rather than a conclusion established by the existing proof of principle.
-
-      The exploratory questions are how routing responds to changing goals and input reliability, whether local circuit interactions can support this control, and how coordination is maintained or reconfigured across multiple receivers and processing stages. Limits imposed by interference and transmission delays must constrain the account: [\[26\]](#ref-26); [\[29\]](#ref-29); [\[30\]](#ref-30).
-
-   3. _Research programme and discriminating tests_
-
-      1. _Tasks that require selective computation._ Begin with competing evidence streams whose reliability and task relevance can be varied independently. Introduce changing goals, decision deadlines and limits on activity or connectivity. Navigation or action selection could later provide a richer test if success depends on these demands; navigation benchmarks and continuous attractor models supply task context [\[68\]](#ref-68); [\[69\]](#ref-69), but do not themselves establish a need for spikes or gamma.
-      2. _Learning and emergence._ Use task training to ask whether useful coordination can emerge, how it depends on the trainable connections and objective, and whether it generalises to new uncertainty levels or deadlines. Training methods: [\[58\]](#ref-58); [\[70\]](#ref-70); [\[60\]](#ref-60). Compare learned coordination with imposed rhythms; neither should be assumed to arise from task performance alone.
-      3. _Causal comparisons and failure conditions._ Compare rhythmic and asynchronous networks, including rate-matched controls where feasible, while accounting for inhibition, excitability, connectivity and shared input. Perturb relative timing and test whether changes in routing alter task performance beyond these competing explanations. Map where rhythmic coordination helps, fails or incurs an avoidable cost.
-      4. _Performance under constraints._ Measure accuracy and decision latency across input uncertainty and processing budgets. Where models explicitly estimate uncertainty, assess calibration as well as accuracy. Treat spike counts and synaptic operations as resource proxies, and test whether any benefit persists after accounting for the cost and delay of establishing or switching coordination.
-
-   4. _Applications and neuromorphic implementation_
-
-      Use the findings to identify tasks and operating conditions in which gamma-mediated coordination could offer a practical advantage. Neuromorphic implementation would test whether improvements survive hardware timing, communication overhead and measured energy costs. Hardware and implementation context: [\[71\]](#ref-71); [\[72\]](#ref-72); [\[73\]](#ref-73). These describe neuromorphic approaches; they do not establish a practical advantage from gamma.
+        1. Pyramidal–interneuron network gamma (PING) and interneuron network gamma (ING) — [\[1\]](#ref-1); [\[10\]](#ref-10); [\[11\]](#ref-11); [\[12\]](#ref-12).
+        2. Synaptic dynamics, irregular firing and noisy drive — [\[13\]](#ref-13); [\[14\]](#ref-14); [\[15\]](#ref-15).
+        3. Balanced and asynchronous comparison regimes — [\[16\]](#ref-16); [\[17\]](#ref-17); [\[18\]](#ref-18).
+        4. Interneuron diversity and biological constraints — [\[19\]](#ref-19); [\[20\]](#ref-20).
+    3. _Proposed functional roles and competing explanations_
+        1. Efficiency, robustness and local selection — [\[21\]](#ref-21); [\[22\]](#ref-22); [\[23\]](#ref-23); [\[24\]](#ref-24); [\[3\]](#ref-3).
+        2. Selective communication, attention and sensory routing — [\[2\]](#ref-2); [\[25\]](#ref-25); [\[26\]](#ref-26); [\[27\]](#ref-27); [\[28\]](#ref-28); [\[29\]](#ref-29); [\[30\]](#ref-30); [\[31\]](#ref-31); [\[32\]](#ref-32).
+        3. Perceptual binding and grouping — [\[5\]](#ref-5); [\[33\]](#ref-33); [\[34\]](#ref-34); [\[35\]](#ref-35).
+        4. Sensory gain, temporal gating and phase coding — [\[36\]](#ref-36); [\[37\]](#ref-37); [\[38\]](#ref-38); [\[39\]](#ref-39); [\[3\]](#ref-3).
+        5. Prediction-error signalling and alternative predictive functions — [\[40\]](#ref-40); [\[41\]](#ref-41); [\[42\]](#ref-42); [\[43\]](#ref-43); [\[44\]](#ref-44).
+        6. Memory organisation, sequencing and routing — [\[45\]](#ref-45); [\[46\]](#ref-46); [\[47\]](#ref-47); [\[48\]](#ref-48); [\[49\]](#ref-49); [\[50\]](#ref-50).
+        7. Synaptic plasticity and spike timing — [\[51\]](#ref-51); [\[52\]](#ref-52); [\[53\]](#ref-53).
+    4. _Causal evidence and outstanding gaps_
+        1. Epiphenomenal and evolutionary accounts
+        2. Experimental limits on studying distributed network phenomena
+        3. Cell-type and timing interventions — [\[36\]](#ref-36); [\[22\]](#ref-22); [\[54\]](#ref-54); [\[55\]](#ref-55).
+        4. Coherence as cause or consequence — [\[31\]](#ref-31); [\[56\]](#ref-56); [\[57\]](#ref-57).
+        5. Inference and measurement limits — [\[50\]](#ref-50); [\[49\]](#ref-49); [\[9\]](#ref-9).
+3. **Methods**
+    1. _Computational methods and modelling assumptions_
+        1. Simulation and circuit regimes — [\[11\]](#ref-11); [\[17\]](#ref-17); [\[24\]](#ref-24).
+        2. Training, surrogate gradients and fixed excitatory–inhibitory connections — [\[58\]](#ref-58); [\[59\]](#ref-59); [\[60\]](#ref-60); [\[61\]](#ref-61).
+        3. SNNLab toolbox and implementation
+4. **Research Plan**
+    1. _Efficiency, robustness_ — [\[21\]](#ref-21); [\[22\]](#ref-22); [\[23\]](#ref-23); [\[24\]](#ref-24); [\[3\]](#ref-3).
+        1. Task training: MNIST, Spiking Heidelberg Digits and scikit-learn digits — [\[62\]](#ref-62); [\[63\]](#ref-63); [\[64\]](#ref-64).
+        2. Robustness in asynchronous irregular and PING regimes — [\[17\]](#ref-17); [\[14\]](#ref-14); [\[24\]](#ref-24).
+        3. Efficiency, latency and biological energy costs — [\[65\]](#ref-65).
+        4. Mechanism: evidence obtained and unresolved explanations
+        5. Applications: performance demonstrated
+        6. Limitations and assessment of hypotheses
+            1. Emergence of PING under training conditions
+    2. _Selective communication, attention and sensory routing_ — [\[2\]](#ref-2); [\[25\]](#ref-25); [\[26\]](#ref-26); [\[27\]](#ref-27); [\[28\]](#ref-28); [\[29\]](#ref-29); [\[30\]](#ref-30); [\[31\]](#ref-31); [\[32\]](#ref-32).
+        1. Selective transmission of competing spatial inputs — [\[25\]](#ref-25); [\[23\]](#ref-23); [\[66\]](#ref-66); [\[67\]](#ref-67); [\[29\]](#ref-29); [\[30\]](#ref-30).
+        2. Mechanism: evidence obtained and unresolved explanations
+        3. Applications: performance demonstrated
+        4. Limitations and assessment of hypotheses
+    3. _Perceptual binding and grouping_ — [\[5\]](#ref-5); [\[33\]](#ref-33); [\[34\]](#ref-34); [\[35\]](#ref-35).
+    4. _Sensory gain, temporal gating and phase coding_ — [\[36\]](#ref-36); [\[37\]](#ref-37); [\[38\]](#ref-38); [\[39\]](#ref-39); [\[3\]](#ref-3).
+    5. _Prediction-error signalling and alternative predictive functions_ — [\[40\]](#ref-40); [\[41\]](#ref-41); [\[42\]](#ref-42); [\[43\]](#ref-43); [\[44\]](#ref-44).
+    6. _Memory organisation, sequencing and routing_ — [\[45\]](#ref-45); [\[46\]](#ref-46); [\[47\]](#ref-47); [\[48\]](#ref-48); [\[49\]](#ref-49); [\[50\]](#ref-50).
+    7. _Synaptic plasticity and spike timing_ — [\[51\]](#ref-51); [\[52\]](#ref-52); [\[53\]](#ref-53).
 5. **Discussion and outlook**
-   1. _What the completed work establishes_
-   2. _Biological implications and limits_
-
-      Return to [\[1\]](#ref-1); [\[3\]](#ref-3); [\[65\]](#ref-65) when separating circuit plausibility, computational benefit and biological cost.
-   3. _Expected contribution of the remaining PhD_
-
+    1. _What the completed work establishes_
+    2. _Biological implications and limits_ — [\[1\]](#ref-1); [\[3\]](#ref-3); [\[65\]](#ref-65).
+    3. _Expected contribution of the remaining PhD_
 6. **Appendices**
-   1. _Model specifications and parameters_
-   2. _Supporting methods and results_
-
+    1. _Model specifications and parameters_
+    2. _Supporting methods and results_
 7. **References**
-
-   References are numbered in order of first citation and drawn from the [papers library](/papers). Version descriptions follow the library metadata.
 
    <span id="ref-1" /> **[1]** György Buzsáki; Xiao-Jing Wang (2012). [Mechanisms of Gamma Oscillations](https://doi.org/10.1146/annurev-neuro-062111-150444). _Annual Review of Neuroscience_. {import.meta.env.DEV && <a href="/papers/buzsaki-wang-2012.pdf">Local PDF</a>}
 

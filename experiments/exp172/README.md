@@ -151,3 +151,19 @@ Run `compute.py --used-window-source PHASE_INHIBITION_COMPUTE_ID`, analyse that 
 Fit spatial templates to integrated C counts over one and two fixed baseline cycles. The persistent effect is the minimum of the sender-amplitude loss and sender-minus-competitor contrast loss at both horizons, with the two-cycle differences normalized per cycle. A positive score therefore requires spatial support at both horizons. Shade 1/16-cycle phase bins with at least three observed packets and median effect at least half the positive supported peak. Retain all signed effects, occupancy, input packet counts and sensitivity checks. Sparse bins are under-sampled, not proven inaccessible; the band denotes strong actually used transmission in this trial, not every possible receptive phase.
 
 The native compute export contains 150 packet deletions from 75 receiver states, 301 simulation calls and approximately 1 GB of evidence; repeated parameter snapshots dominate the size. No synthetic spike injection is used in this measurement. Analysis checks 12/16/24 bins and 0.25/0.5/0.75 peak cutoffs, separates sender and cue conditions, leaves out each receiver state, and normalizes effects by input packet count as sensitivity checks. The appendix retains the compiled replay architecture and method.
+
+
+## Contrast-cue raster beneath Figure 4
+
+Figure 5 reuses Figure 2’s raster layout for the saved contrast trial whose
+two cue-period success scores are closest to 0.8, minimising the larger absolute
+distance. This selects seed 188 at 3× contrast: S_A = 0.816, S_B = 0.737,
+and pooled S = 0.776. The caption discloses this post hoc selection. The contrast sweep and later figures
+are numbered 6–8. To add this raster to a pinned presentation while preserving
+its other figures and evidence, without simulation:
+
+```sh
+uv run python experiments/exp172/present.py --source PRESENT_ID --add-contrast-raster
+```
+
+A full presentation with `--contrast-source` also generates this raster.

@@ -1,6 +1,6 @@
 ---
-interface Props { synapses?: boolean; }
-const { synapses = false } = Astro.props;
+interface Props { synapses?: boolean; caption?: string; }
+const { synapses = false, caption } = Astro.props;
 const weights = [0.8, 3.2, 8];
 ---
 <figure class="l-body" id={synapses ? 'fig-synapses' : 'fig-neuron'}>
@@ -18,8 +18,10 @@ const weights = [0.8, 3.2, 8];
     <noscript>This animation requires JavaScript. Inputs raise voltage, leakage returns it towards rest, and reaching threshold emits a spike and resets the voltage.</noscript>
   </pixi-lif-neuron>
   <figcaption>
+    {caption ? caption : <>
     {synapses ? <>Figure 2: Three random spike streams feed one simulated neuron. Thicker lines mean stronger connections. Blue shows voltage; pink marks spikes and the firing threshold.</> : <>Figure 1: A simulated neuron receives current pulses. Blue shows its voltage; pink marks spikes and the firing threshold.</>}
     {' '}Rest and reset are −65 mV (<i>E</i><sub>L</sub> = <i>V</i><sub>reset</sub>); the threshold is −50 mV. Spike motion is illustrative.
+    </>}
   </figcaption>
 </figure>
 

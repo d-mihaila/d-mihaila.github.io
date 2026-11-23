@@ -1,0 +1,59 @@
+---
+id: exp175
+title: "Reconstructing attended MNIST digits"
+author: "Eoin Murray"
+created_at: "2026-11-18T11:01:49Z"
+updated_at: "2026-11-18T11:10:15Z"
+description: "Report scaffold for cue-dependent image reconstruction through a fixed spiking attention circuit."
+collection: ["experiments"]
+tags: ["draft"]
+inputs: ["exp175"]
+---
+
+import RunFigure from '../../../site/src/components/RunFigure.astro';
+
+## Abstract
+
+We ask whether a fixed contrast cue can select which of two MNIST images is
+reconstructed by a spiking readout. The shared input encoder and pixel readout
+are trainable; the intervening attention connections remain fixed. This report
+is a scaffold: no completed training result for the spiking pixel readout is
+available, and reconstruction performance has not been established.
+
+## Results
+
+### Training curves
+
+<RunFigure report="exp175" experiment="exp175" file="learning-curves.svg" number={1} id="fig-training-curves" alt="Placeholder for training and validation reconstruction-loss curves across epochs." allowUnavailable={true}>
+  Placeholder. Training and validation reconstruction MSE by epoch, with the
+  initial validation loss and selected checkpoint marked. Training loss is online;
+  validation uses fixed weights. Results pending.
+</RunFigure>
+
+### Example reconstruction and spike raster
+
+<RunFigure report="exp175" experiment="exp175" file="successful-raster.svg" number={2} id="fig-successful-raster" alt="Placeholder for a successful reconstruction example showing both input digits, cue timing, population spike rasters and reconstructed output images." allowUnavailable={true}>
+  Placeholder. A: both input digits and their cue-selected reconstructions on a
+  shared grayscale scale. B: A/B/C and readout spikes from the same trial, with
+  cue switch and scoring windows marked; I neurons are red above black E neurons.
+  Successful-example selection and reconstruction errors are pending.
+</RunFigure>
+
+## Methods
+
+1. **Spike-count reconstruction loss.** Count each pixel neuron's spikes within
+   the attended scoring window and minimise pixel mean-squared error:
+
+   $$
+   \mathcal{L} = \frac{1}{784B}
+   \sum_{b=1}^{B}\sum_{p=1}^{784}
+   \left(\frac{n_{bp}}{n_{\mathrm{white}}} - x_{bp}\right)^2.
+   $$
+
+   Here, $\mathcal{L}$ is the loss, $B$ is batch size, $b$ indexes images,
+   $p$ indexes the 784 pixels, $n_{bp}$ is the corresponding output spike count,
+   $n_{\mathrm{white}}$ is the configured count representing white, and $x_{bp}$
+   is the original attended image's pixel value divided by 255. Counts remain
+   unclipped so overshoot is penalised. Surrogate gradients train the shared
+   input encoder and pixel readout; attention weights stay fixed. No
+   classification or firing-rate penalty is added.

@@ -65,7 +65,8 @@ const frontMatter = {
     <p>{data.description}</p>
   </d-title>
   <d-byline>
-    <div class="byline grid" style={`--byline-columns: ${experiment ? 4 : 3}`}>
+    <div class="byline grid" style={`--byline-columns: ${experiment ? 5 : 4}`}>
+      <div><h3>Author</h3><p>{data.author}</p></div>
       {experiment && <div><h3>Experiment</h3><p class="experiment-id">{experiment.data.id}</p></div>}
       <div><h3>Created</h3><p><ArticleDate date={data.created_at} showTime={false} /></p></div>
       <div><h3>Updated</h3><p><ArticleDate date={data.updated_at} /></p></div>

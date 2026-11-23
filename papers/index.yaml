@@ -1959,3 +1959,64 @@ papers:
     - spiking-networks
     venue: IEEE Transactions on Pattern Analysis and Machine Intelligence (accepted manuscript)
     doi: 10.1109/tpami.2024.3511936
+
+  lee-et-al-2009.pdf:
+    id: P128
+    title: Cortical Gamma Rhythms Modulate NMDAR-Mediated Spike Timing Dependent Plasticity in a Biophysical Model
+    authors: [Shane Lee, Kamal Sen, Nancy Kopell]
+    year: 2009
+    collection: proposed-functions
+    tags: [plasticity, stdp, ping, biophysical-model]
+    venue: PLOS Computational Biology
+    doi: 10.1371/journal.pcbi.1000602
+
+  bibbig-et-al-2001.pdf:
+    id: P129
+    title: Self-Organized Synaptic Plasticity Contributes to the Shaping of γ and β Oscillations In Vitro
+    authors: [Andrea Bibbig, Howard J. Faulkner, Miles A. Whittington, Roger D. Traub]
+    year: 2001
+    collection: proposed-functions
+    tags: [plasticity, gamma-beta-transition, calcium-based-learning, network-model]
+    venue: Journal of Neuroscience
+    doi: 10.1523/JNEUROSCI.21-22-09053.2001
+
+  hadler-et-al-2024.pdf:
+    id: "P130"
+    title: "Gamma oscillation plasticity is mediated via parvalbumin interneurons"
+    authors: ["Michael D. Hadler", "Alexandra Tzilivaki", "Dietmar Schmitz", "Henrik Alle", "Jörg R. P. Geiger"]
+    year: 2024
+    collection: "experimental-tests"
+    tags: ["plasticity", "parvalbumin", "ping", "network-model"]
+    venue: "Science Advances"
+    doi: "10.1126/sciadv.adj7427"
+
+  socolovsky-shamir-2021.pdf:
+    id: "P131"
+    title: "Robust Rhythmogenesis via Spike Timing Dependent Plasticity"
+    authors: ["Gabi Socolovsky", "Maoz Shamir"]
+    year: 2021
+    collection: "generation-dynamics"
+    tags: ["plasticity", "stdp", "delayed-rate-model", "rhythmogenesis"]
+    venue: "Physical Review E (preprint: bioRxiv v2, 31 March 2021)"
+    doi: "10.1103/PhysRevE.104.024413"
+    url: "https://www.biorxiv.org/content/10.1101/2020.07.23.217026v2"
+
+  li-et-al-2021.pdf:
+    id: "P132"
+    title: "Gamma Oscillations Facilitate Effective Learning in Excitatory-Inhibitory Balanced Neural Circuits"
+    authors: ["Kwan Tung Li", "Junhao Liang", "Changsong Zhou"]
+    year: 2021
+    collection: "proposed-functions"
+    tags: ["plasticity", "stdp", "cell-assemblies", "network-model"]
+    venue: "Neural Plasticity"
+    doi: "10.1155/2021/6668175"
+
+  vinck-et-al-2023.pdf:
+    id: "P133"
+    title: "Principles of large-scale neural interactions"
+    authors: ["Martin Vinck", "Cem Uran", "Georgios Spyropoulos", "Irene Onorato", "Ana Clara Broggini", "Marius Schneider", "Andres Canales-Johnson"]
+    year: 2023
+    collection: "criticism-competing-explanations"
+    tags: ["review", "communication-through-coherence", "resonance", "nonlinear-integration", "predictive-processing"]
+    venue: "Neuron"
+    doi: "10.1016/j.neuron.2023.03.015"

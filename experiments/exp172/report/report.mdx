@@ -3,7 +3,7 @@ id: exp172
 title: "Spatial Gaussian Selective Relay"
 author: "Eoin Murray"
 created_at: "2026-11-04T17:24:22Z"
-updated_at: "2026-11-16T14:50:18Z"
+updated_at: "2026-11-20T13:13:37Z"
 description: "A rate cue selects between competing spatial Gaussian patterns in an A/B → C spiking circuit."
 collection: ["experiments", "ctc-attention"]
 tags: ["data", "v0.32.1"]
@@ -113,7 +113,7 @@ $$
 
 <p>The mean-matched contrast condition increases A’s Gaussian modulation before the switch and B’s afterwards, lowering the stronger bump’s uniform baseline to keep each input’s spatial mean unchanged. Widths, weights and the unattended profile stay fixed; the separate uniform cue is off. Contrast ratio means Gaussian modulation-amplitude ratio. Matching external mean rates does not guarantee equal realised spike counts or equal sender firing rates.</p>
 
-{!matchedContrast && <p>Figures 4–5 await a completed mean-matched contrast sweep. Earlier unequal-mean results are not shown for this condition.</p>}
+{!matchedContrast && <p>Figures 4–6 await a completed mean-matched contrast sweep. Earlier unequal-mean results are not shown for this condition.</p>}
 
 {matchedContrast && <>
 
@@ -121,14 +121,18 @@ $$
   Saved input-rate profiles before the switch: A attended (red, solid), B unattended (blue, dashed). Left: {data?.contrast_sweep ? data.contrast_sweep.settings.example_ratios[0] : 'unavailable'}× bump contrast; right: {data?.contrast_sweep ? data.contrast_sweep.settings.example_ratios[1] : 'unavailable'}×. Dotted line: shared {data?.contrast_sweep ? n(data.contrast_sweep.configuration.spatial_mean_hz) : 'unavailable'} Hz/channel spatial mean. The attended baseline decreases as modulation increases. At {cfg ? n(cfg.switch_ms) : 'unavailable'} ms, B gains the higher contrast and A returns to the unattended profile.
 </RunFigure>
 
-<RunFigure report="exp172" experiment="exp172" file="contrast-sweep.svg" number={5} id="fig-contrast-sweep" alt="Selection, flicker, latency and C firing rates versus contrast-cue ratio with no uniform cue." allowUnavailable={true}>
-  Same panels and styles as Figures 6–7. C background is {data?.contrast_sweep ? n(data.contrast_sweep.settings.background_hz) : 'unavailable'} Hz/channel; uniform cue is zero. Means and ±1 sample SD across input seeds {data?.contrast_sweep ? data.contrast_sweep.settings.seeds.join(', ') : 'unavailable'}; missing latency is handled as in Figure 6. Ratio 1 gives no contrast cue, so A/B are nominal periods. Both inputs have the same expected spatial mean in each period; contrast changes spatial modulation and its compensating baseline. One fixed circuit and previously used seeds; not held-out validation.
+<RunFigure report="exp172" experiment="exp172" file="contrast-rasters.svg" number={5} id="fig-contrast-rasters" alt="A/B/C excitatory and inhibitory spike rasters for a mean-matched contrast trial selected for success near 0.8." allowUnavailable={true}>
+  (A–C) A/B/C rasters in the same format as Figure 2: E black, I red. Seed {data?.contrast_raster_selection ? data.contrast_raster_selection.seed : 'unavailable'}, with {data?.contrast_raster_selection ? n(data.contrast_raster_selection.contrast_ratio) : 'unavailable'}× attended Gaussian modulation (the contrast ratio shown in Figure 4B) and equal expected sensory means. A has higher contrast before the switch at {cfg ? n(cfg.switch_ms) : 'unavailable'} ms; B afterwards. Uniform cue is zero; C background is {data?.contrast_raster_selection ? n(data.contrast_raster_selection.background_hz) : 'unavailable'} Hz/channel. Dashed lines mark the contrast switch; dotted lines mark measurement windows. Selected post hoc across saved contrast trials to minimise the larger absolute distance of the two cue-period success scores from 0.8: S_A = {data?.contrast_raster_selection ? n(data.contrast_raster_selection.success_by_epoch.A) : 'unavailable'}, S_B = {data?.contrast_raster_selection ? n(data.contrast_raster_selection.success_by_epoch.B) : 'unavailable'}; pooled across retained cycles, S = {data?.contrast_raster_selection ? n(data.contrast_raster_selection.pooled_success) : 'unavailable'}. One illustrative trial, without seed averaging.
+</RunFigure>
+
+<RunFigure report="exp172" experiment="exp172" file="contrast-sweep.svg" number={6} id="fig-contrast-sweep" alt="Selection, flicker, latency and C firing rates versus contrast-cue ratio with no uniform cue." allowUnavailable={true}>
+  Same panels and styles as Figures 7–8. C background is {data?.contrast_sweep ? n(data.contrast_sweep.settings.background_hz) : 'unavailable'} Hz/channel; uniform cue is zero. Means and ±1 sample SD across input seeds {data?.contrast_sweep ? data.contrast_sweep.settings.seeds.join(', ') : 'unavailable'}; missing latency is handled as in Figure 7. Ratio 1 gives no contrast cue, so A/B are nominal periods. Both inputs have the same expected spatial mean in each period; contrast changes spatial modulation and its compensating baseline. One fixed circuit and previously used seeds; not held-out validation.
 </RunFigure>
 </>}
 
 ## Sweep: C Background Drive
 
-<RunFigure report="exp172" experiment="exp172" file="background-sweep.svg" number={6} id="fig-background-sweep" alt="Mean selection, flicker, latency and receiver firing rates across five input seeds as C background drive changes." allowUnavailable={true}>
+<RunFigure report="exp172" experiment="exp172" file="background-sweep.svg" number={7} id="fig-background-sweep" alt="Mean selection, flicker, latency and receiver firing rates across five input seeds as C background drive changes." allowUnavailable={true}>
   Top: S solid/circles, F dashed/triangles (left axis); latency L dotted/squares (green right axis). Attend A is red, B blue. Means across input seeds {data?.background_sweep ? data.background_sweep.settings.seeds.join(', ') : 'unavailable'}; shading/bars show ±1 sample SD. Latency averages observed values only; count labels flag missing observations. Bottom: C E solid, I dashed. Dotted reference: Figure 2 background. The same cycle definitions apply. Rates share sender spikes and fixed weights, cue and contrast. These are input realisations of one circuit, including the tuning seed.
 </RunFigure>
 
@@ -141,6 +145,6 @@ $$
 
 ## Sweep: Uniform Cue Drive
 
-<RunFigure report="exp172" experiment="exp172" file="cue-sweep.svg" number={7} id="fig-cue-sweep" alt="Selection, flicker, latency and C firing rates versus cue drive at the selected background setting." allowUnavailable={true}>
-  Same panels and line styles as Figure 6, now versus cue drive. Means and ±1 sample SD across input seeds {data?.cue_sweep ? data.cue_sweep.settings.seeds.join(', ') : 'unavailable'}; latency averages observed values only, with count labels for missing observations. Dotted reference: {data?.cue_sweep ? n(data.cue_sweep.settings.reference_cue_hz) : 'unavailable'} Hz/channel cue. At zero cue, A/B denote scheduled periods without an attention cue. Background selection and cue assessment use the same five seeds in one fixed circuit; this is not held-out validation.
+<RunFigure report="exp172" experiment="exp172" file="cue-sweep.svg" number={8} id="fig-cue-sweep" alt="Selection, flicker, latency and C firing rates versus cue drive at the selected background setting." allowUnavailable={true}>
+  Same panels and line styles as Figure 7, now versus cue drive. Means and ±1 sample SD across input seeds {data?.cue_sweep ? data.cue_sweep.settings.seeds.join(', ') : 'unavailable'}; latency averages observed values only, with count labels for missing observations. Dotted reference: {data?.cue_sweep ? n(data.cue_sweep.settings.reference_cue_hz) : 'unavailable'} Hz/channel cue. At zero cue, A/B denote scheduled periods without an attention cue. Background selection and cue assessment use the same five seeds in one fixed circuit; this is not held-out validation.
 </RunFigure>

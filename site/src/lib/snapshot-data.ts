@@ -41,6 +41,18 @@ export async function readSnapshotEvidence(presentation: string, options: Snapsh
   try {
     const record = await store.json(presentation);
     if (record.experiment !== options.experiment || record.stage !== 'present') throw new Error('Invalid presentation source');
+    const presentations = new Set<string>();
+    while (true) {
+      if (presentations.has(presentation)) throw new Error('Cyclic snapshot dependency');
+      presentations.add(presentation);
+      const current = await store.json(presentation);
+      const details = await store.json(presentation, 'details.json');
+      // Presentation-only edits inherit the evidence of their recorded source.
+      if (options.analysisInput && details.inputs?.[options.analysisInput]) break;
+      const parents = await Promise.all(current.depends_on.map((id: string) => store.json(id)));
+      if (parents.some(parent => parent.stage === 'analyse' && parent.experiment === options.experiment)) break;
+      presentation = await input(presentation, 'present');
+    }
     let analysis = await input(presentation, 'analyse', options.analysisInput);
     const visited = new Set<string>();
     let compute: string | undefined;

@@ -30,7 +30,10 @@ const { posts, sortable = false, collection } = Astro.props;
           <a class="post-link" href={report.href}>
             <h2 class="title article-list-title">{report.data.title}</h2>
           </a>
-          <div class="publishedDate"><ArticleDate date={report.data.updated_at} compact /></div>
+          <div class="publishedDate">
+            <span>{report.data.author}</span>
+            <span><ArticleDate date={report.data.updated_at} compact /></span>
+          </div>
         </div>
       </li>
     ))}
@@ -80,7 +83,7 @@ const { posts, sortable = false, collection } = Astro.props;
   .post-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }
   .metadata { font-size: calc(12px * var(--listing-scale)); line-height: 1.4; margin-bottom: calc(18px * var(--listing-scale)); }
   .experiment-id { display: inline-block; margin-right: 1em; color: var(--listing-label); font-size: calc(18px * var(--listing-scale)); font-weight: 600; text-decoration: none; }
-  .publishedDate { font-size: calc(15px * var(--listing-scale)); line-height: 1.4; color: var(--listing-muted); }
+  .publishedDate { display: flex; flex-wrap: wrap; gap: .25em 1em; font-size: calc(15px * var(--listing-scale)); line-height: 1.4; color: var(--listing-muted); }
   @media (min-width: 768px) {
     .metadata { margin-top: calc(8px * var(--listing-scale)); margin-bottom: 0; }
     .experiment-id { display: block; margin: 0; }

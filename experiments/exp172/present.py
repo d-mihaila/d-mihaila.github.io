@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import shutil
 import sys
 from dataclasses import replace
 from pathlib import Path
@@ -377,7 +378,9 @@ def raster_panel(raster, spikes, c, cfg):
             rasterized=True,
         )
     raster.axhline(ne + 0.5, color=theme.GREY_LIGHT, lw=0.5)
-    raster.axvline(cfg["switch_ms"], color=theme.MUTED, ls="--", lw=1)
+    raster.axvline(
+        cfg["switch_ms"], color=theme.INK_BLACK, ls=(0, (5, 3)), lw=2.4, zorder=5
+    )
     for start, end in cfg["windows_ms"]:
         raster.axvline(start, color=theme.GREY_MID, ls=":", lw=0.65)
         raster.axvline(end, color=theme.GREY_MID, ls=":", lw=0.65)
@@ -411,19 +414,22 @@ def raster_panel(raster, spikes, c, cfg):
     )
 
 
+def raster_figure(spikes, cfg):
+    """Use the same three-population raster layout for every report trial."""
+    apply_report_style()
+    fig, axes = plt.subplots(1, 3, figsize=(12, 4.2), layout="constrained")
+    for ax, population in zip(axes, "ABC", strict=True):
+        raster_panel(ax, spikes, population, cfg)
+    return fig, list(axes)
+
+
 def attention_figures(
     spikes, cfg, swap=False, phase_inhibition=None, probe_window=None, used_window=None
 ):
     """Separate raster and per-cycle relative-phase figures for one trial."""
     apply_report_style()
     colors = [theme.INK_BLACK, theme.DEEP_RED]
-    attention_fig = plt.figure(figsize=(12, 4.2), layout="constrained")
-    attention_grid = attention_fig.add_gridspec(1, 3)
-    attention_axes = []
-    for col, population in enumerate("ABC"):
-        ax = attention_fig.add_subplot(attention_grid[0, col])
-        raster_panel(ax, spikes, population, cfg)
-        attention_axes.append(ax)
+    attention_fig, attention_axes = raster_figure(spikes, cfg)
     phase_fig = plt.figure(figsize=(12, 9), layout="constrained")
     phase_grid = phase_fig.add_gridspec(3, 1, height_ratios=[1, 1, 0.65])
     phase_axes = []
@@ -868,6 +874,89 @@ def render_background_sweep(
     for suffix in ["png", "svg"]:
         fig.savefig(output / (stem + "." + suffix), dpi=240)
     plt.close(fig)
+
+
+def render_contrast_raster(computed, measured, output):
+    """Choose the saved trial whose two epoch successes are closest to 0.8."""
+    target = 0.8
+    cases = {}
+    for row in measured["seed_rows"]:
+        cases.setdefault(row["trial_id"], {})[row["attended"]] = row
+    trial_id = min(
+        (key for key, epochs in cases.items() if set(epochs) == {"A", "B"}),
+        key=lambda key: (
+            max(abs(row["S"] - target) for row in cases[key].values()),
+            key,
+        ),
+    )
+    epochs = cases[trial_id]
+    example = dict(
+        trial_id=trial_id,
+        seed=epochs["A"]["seed"],
+        contrast_ratio=epochs["A"]["contrast_ratio"],
+    )
+    cfg = measured["configuration"]
+    if measured["settings"]["profile_version"] != "mean-matched/v1":
+        raise ValueError("Contrast raster requires mean-matched evidence")
+    trials = json.loads(computed.file("summary.json").read_text())["trials"]
+    trial = next(row for row in trials if row["id"] == example["trial_id"])
+    for key in ("seed", "contrast_ratio"):
+        if trial[key] != example[key]:
+            raise ValueError(f"Contrast raster trial has mismatched {key}")
+    if trial["cue_hz"] != 0 or trial["background_hz"] != cfg["background_hz"]:
+        raise ValueError("Contrast raster trial has mismatched external drives")
+    with np.load(computed.file(example["trial_id"], "spikes.npz")) as saved:
+        spikes = {key: saved[key] for key in saved.files}
+    fig, axes = raster_figure(spikes, cfg)
+    theme.label_panels(axes)
+    for suffix in ("png", "svg"):
+        fig.savefig(output / f"contrast-rasters.{suffix}", dpi=240)
+    plt.close(fig)
+    return dict(
+        example,
+        background_hz=trial["background_hz"],
+        cue_hz=0.0,
+        source_run=computed.run_id,
+        success_by_epoch={key: row["S"] for key, row in epochs.items()},
+        pooled_success=sum(row["S"] * row["cycles"] for row in epochs.values())
+        / sum(row["cycles"] for row in epochs.values()),
+        target_success=target,
+        selection="Post hoc minimum of the maximum absolute epoch-S distance from 0.8 across saved contrast trials",
+    )
+
+
+def add_contrast_raster(source, run_id=None):
+    """Extend a pinned presentation using its existing contrast evidence."""
+    started = perf_counter()
+    previous = source_run(
+        REPO / ".pingstore", source, experiment="exp172", stage="present"
+    )
+    numbers = json.loads(previous.file("numbers.json").read_text())
+    inputs = {
+        role: source_run(REPO / ".pingstore", ref["run_id"])
+        for role, ref in previous.details["inputs"].items()
+    }
+    inputs["previous_present"] = previous
+    with stage_run(
+        REPO,
+        "exp172",
+        "present",
+        inputs=inputs,
+        run_id=run_id,
+        configuration=dict(
+            method="Contrast raster selected for epoch success near 0.8"
+        ),
+    ) as run:
+        for path in previous.file("numbers.json").parent.iterdir():
+            if path.is_file():
+                shutil.copy2(path, run.export / path.name)
+        numbers["contrast_raster_selection"] = render_contrast_raster(
+            inputs["contrast_compute"], numbers["contrast_sweep"], run.export
+        )
+        (run.export / "numbers.json").write_text(json.dumps(numbers, indent=2) + "\n")
+        run.details["execution"]["elapsed_seconds"] = perf_counter() - started
+    print(f"Presentation {run.run_id}: {perf_counter() - started:.2f} s; no simulation")
+    return run.run_id
 
 
 def render_contrast_examples(computed, measured, output):
@@ -1442,8 +1531,12 @@ def present(
                 stem="cue-sweep",
                 reference_rate=cue_sweep["settings"]["reference_cue_hz"],
             )
+        contrast_raster_selection = None
         if contrast_sweep is not None:
             render_contrast_examples(contrast_compute, contrast_sweep, run.export)
+            contrast_raster_selection = render_contrast_raster(
+                contrast_compute, contrast_sweep, run.export
+            )
             render_background_sweep(
                 contrast_sweep,
                 run.export,
@@ -1493,6 +1586,7 @@ def present(
                     background_sweep=background_sweep,
                     cue_sweep=cue_sweep,
                     contrast_sweep=contrast_sweep,
+                    contrast_raster_selection=contrast_raster_selection,
                     arrival_distribution=arrival_distribution,
                     phase_inhibition=phase_inhibition,
                     probe_window=probe_window,
@@ -1511,6 +1605,11 @@ def present(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", required=True)
+    parser.add_argument(
+        "--add-contrast-raster",
+        action="store_true",
+        help="Extend --source PRESENT_ID with a saved contrast raster near S=0.8",
+    )
     parser.add_argument("--run-id")
     parser.add_argument("--cue", type=float)
     parser.add_argument("--seed", type=int)
@@ -1524,4 +1623,8 @@ if __name__ == "__main__":
     parser.add_argument("--phase-inhibition-source")
     parser.add_argument("--probe-source")
     parser.add_argument("--used-window-source")
-    present(**vars(parser.parse_args()))
+    args = vars(parser.parse_args())
+    if args.pop("add_contrast_raster"):
+        add_contrast_raster(args["source"], args["run_id"])
+    else:
+        present(**args)

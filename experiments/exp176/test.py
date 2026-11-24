@@ -4,7 +4,12 @@ import numpy as np
 import pytest
 import torch
 from experiments.exp176 import recipe
-from experiments.exp176.analyse import block_measures, dense_raster, rhythmicity
+from experiments.exp176.analyse import (
+    block_measures,
+    dense_raster,
+    rhythmicity,
+    side_peak_lag,
+)
 from experiments.exp176.compute import presentation_steps, weight_summary
 from snnlab.plasticity import NonlinearSTDP, SynapticScaling
 
@@ -203,3 +208,18 @@ def test_rhythmicity_contrast_separates_rhythm_from_noise():
     assert sharp["rhythm_frequency_hz"] == pytest.approx(40, abs=3)
     assert noise["rhythm_contrast"] is None or noise["rhythm_contrast"] < 0.1
     assert noise["rhythm_period_ms"] is None
+
+
+def test_side_peak_ignores_rounding_noise_in_a_silent_trough():
+    lags = np.arange(0, 41, 1.0)
+    ac = np.zeros_like(lags)
+    ac[1:4] = [5.0, 2.5, 0.8]
+    ac[22:29] = [0.8, 2.6, 5.4, 6.9, 5.4, 2.6, 0.8]  # side peak at 25 ms
+    rng = np.random.default_rng(0)
+    ac[5:21] = rng.normal(0, 1e-17, 16)  # FFT rounding noise where firing is silent
+    ac[0] = np.nan
+    assert side_peak_lag(lags, ac, 8.0) == pytest.approx(25, abs=0.5)
+    assert (
+        side_peak_lag(lags, np.ones_like(lags) + rng.normal(0, 1e-3, lags.size), 3.0)
+        is None
+    )

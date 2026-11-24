@@ -35,13 +35,14 @@ def side_peak_lag(lags, ac, trough_lag):
     smooth = np.convolve(values, [0.25, 0.5, 0.25], mode="same")
     trough = smooth[int(np.argmin(np.abs(np.asarray(lags) - trough_lag)))]
     for i in np.flatnonzero(np.asarray(lags) > trough_lag):
-        if i + 1 >= len(smooth) or not (smooth[i] >= smooth[i - 1] > 0):
-            continue
-        if smooth[i] > smooth[i + 1]:  # first local maximum after the trough
+        if i + 1 >= len(smooth):
+            break
+        # First local maximum that rises above the independence baseline; tiny
+        # rounding bumps in a silent trough (FFT noise) are skipped.
+        if smooth[i] > 1 and smooth[i] >= smooth[i - 1] and smooth[i] > smooth[i + 1]:
             peak = smooth[i]
-            if not (peak > 1 and (peak - trough) / (peak + trough) >= 0.1):
+            if (peak - trough) / (peak + trough) < 0.1:
                 return None
-            # Parabolic interpolation through the three bins around the maximum.
             left, right = smooth[i - 1], smooth[i + 1]
             curvature = left - 2 * peak + right
             shift = 0.5 * (left - right) / curvature if curvature < 0 else 0.0

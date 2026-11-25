@@ -2,6 +2,9 @@ This repository is Daria Mihaila's fork of [Pinglab](https://github.com/eoinmurr
 published at https://d-mihaila.github.io. `origin` is this fork. `upstream` is Eoin
 Murray's repository: never push to it, publish from it, or use its hosts and storage.
 
+Read [WORKFLOW.md](WORKFLOW.md) first. Daria runs all code herself: write the code
+and give her the commands.
+
 Do only what you are told to do; do nothing extra without asking.
 
 Read only rules relevant to the requested action. Follow reference links only

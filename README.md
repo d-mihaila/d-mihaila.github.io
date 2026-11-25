@@ -8,6 +8,9 @@ experiments.
 Site: [d-mihaila.github.io](https://d-mihaila.github.io).
 Upstream site: [pinglab.eoinmurray.info](https://pinglab.eoinmurray.info).
 
+Day-to-day guide: [WORKFLOW.md](WORKFLOW.md) — building experiments, running them
+and publishing, all from VS Code.
+
 Main documentation lives in [`notes/`](notes/):
 
 1. [Experiment Rules](notes/rules/experiment.md): experiment structure, stages and scientific inputs.

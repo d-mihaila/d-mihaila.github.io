@@ -1,0 +1,1089 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><script>
+  (() => {
+    const key = 'pinglab-theme';
+    const system = window.matchMedia('(prefers-color-scheme: dark)');
+    const readPreference = () => {
+      try {
+        const saved = localStorage.getItem(key);
+        return saved === 'light' || saved === 'dark' ? saved : 'system';
+      } catch { return 'system'; }
+    };
+    let preference = readPreference();
+    const apply = () => {
+      const theme = preference === 'system' ? (system.matches ? 'dark' : 'light') : preference;
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.dataset.themePreference = preference;
+      const button = document.getElementById('theme-toggle');
+      if (button) {
+        const next = preference === 'system' ? 'light' : preference === 'light' ? 'dark' : 'system';
+        const label = `Theme: ${preference === 'system' ? `system (${theme})` : preference}. Switch to ${next} theme`;
+        button.setAttribute('aria-label', label);
+        button.setAttribute('title', label);
+      }
+    };
+    // Apply in the head so a saved or system dark theme is ready before paint.
+    apply();
+    document.addEventListener('DOMContentLoaded', apply);
+    document.addEventListener('astro:page-load', apply);
+    system.addEventListener('change', () => { if (preference === 'system') apply(); });
+    window.addEventListener('storage', (event) => {
+      if (event.key === key || event.key === null) { preference = readPreference(); apply(); }
+    });
+    document.addEventListener('click', (event) => {
+      if (!(event.target instanceof Element) || !event.target.closest('#theme-toggle')) return;
+      preference = preference === 'system' ? 'light' : preference === 'light' ? 'dark' : 'system';
+      try {
+        if (preference === 'system') localStorage.removeItem(key);
+        else localStorage.setItem(key, preference);
+      } catch { /* The toggle still works when storage is unavailable. */ }
+      apply();
+    });
+  })();
+</script><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Run insertion, deletion, backup, restore and migration."><link rel="canonical" href="https://d-mihaila.github.io/notes/rules/pingstore-operations"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><title>Pingstore Operations · Daria Mihaila</title><noscript><style>[data-deferred-media] { display: none !important; }</style></noscript><style id="distill-prerendered-styles">/*
+ * Copyright 2018 The Distill Template Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+html {
+  font-size: 14px;
+	line-height: 1.6em;
+  /* font-family: "Libre Franklin", "Helvetica Neue", sans-serif; */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+  /*, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";*/
+  text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media(min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  color: var(--link);
+}
+
+figure {
+  margin: 0;
+}
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+table th {
+	text-align: left;
+}
+
+table thead {
+  border-bottom: 1px solid rgb(var(--ink) / 0.05);
+}
+
+table thead th {
+  padding-bottom: 0.5em;
+}
+
+table tbody :first-child td {
+  padding-top: 0.5em;
+}
+
+pre {
+  overflow: auto;
+  max-width: 100%;
+}
+
+code:not(pre code) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+  line-height: inherit;
+  padding: .1em .35em;
+  border: 1px solid rgb(var(--ink) / .12);
+  border-radius: .3em;
+  background: var(--code-background);
+  color: var(--code-foreground);
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 1em;
+}
+
+sup, sub {
+  vertical-align: baseline;
+  position: relative;
+  top: -0.4em;
+  line-height: 1em;
+}
+
+sub {
+  top: 0.4em;
+}
+
+.kicker,
+.marker {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgb(var(--ink) / 0.5);
+}
+
+
+/* Headline */
+
+@media(min-width: 1024px) {
+  d-title h1 span {
+    display: block;
+  }
+}
+
+/* Figure */
+
+figure {
+  position: relative;
+  margin-bottom: 2.5em;
+  margin-top: 1.5em;
+}
+
+figcaption+figure {
+
+}
+
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+figure svg text,
+figure svg tspan {
+}
+
+figcaption,
+.figcaption {
+  color: rgb(var(--ink) / 0.6);
+  font-size: 12px;
+  line-height: 1.5em;
+}
+
+@media(min-width: 1024px) {
+figcaption,
+.figcaption {
+    font-size: 13px;
+  }
+}
+
+figure.external img {
+  background: white;
+  border: 1px solid rgb(var(--ink) / 0.1);
+  box-shadow: 0 1px 8px rgb(var(--ink) / 0.1);
+  padding: 18px;
+  box-sizing: border-box;
+}
+
+figcaption a {
+  color: rgb(var(--ink) / 0.6);
+}
+
+figcaption b,
+figcaption strong, {
+  font-weight: 600;
+  color: rgb(var(--ink) / 1.0);
+}
+/*
+ * Copyright 2018 The Distill Template Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@supports not (display: grid) {
+  .base-grid,
+  distill-header,
+  d-title,
+  d-abstract,
+  d-article,
+  d-appendix,
+  distill-appendix,
+  d-byline,
+  d-footnote-list,
+  d-citation-list,
+  distill-footer {
+    display: block;
+    padding: 8px;
+  }
+}
+
+.base-grid,
+distill-header,
+d-title,
+d-abstract,
+d-article,
+d-appendix,
+distill-appendix,
+d-byline,
+d-footnote-list,
+d-citation-list,
+distill-footer {
+  display: grid;
+  justify-items: stretch;
+  grid-template-columns: [screen-start] 8px [page-start kicker-start text-start gutter-start middle-start] 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr [text-end page-end gutter-end kicker-end middle-end] 8px [screen-end];
+  grid-column-gap: 8px;
+}
+
+.grid {
+  display: grid;
+  grid-column-gap: 8px;
+}
+
+@media(min-width: 768px) {
+  .base-grid,
+  distill-header,
+  d-title,
+  d-abstract,
+  d-article,
+  d-appendix,
+  distill-appendix,
+  d-byline,
+  d-footnote-list,
+  d-citation-list,
+  distill-footer {
+    grid-template-columns: [screen-start] 1fr [page-start kicker-start middle-start text-start] 45px 45px 45px 45px 45px 45px 45px 45px [ kicker-end text-end gutter-start] 45px [middle-end] 45px [page-end gutter-end] 1fr [screen-end];
+    grid-column-gap: 16px;
+  }
+
+  .grid {
+    grid-column-gap: 16px;
+  }
+}
+
+@media(min-width: 1000px) {
+  .base-grid,
+  distill-header,
+  d-title,
+  d-abstract,
+  d-article,
+  d-appendix,
+  distill-appendix,
+  d-byline,
+  d-footnote-list,
+  d-citation-list,
+  distill-footer {
+    grid-template-columns: [screen-start] 1fr [page-start kicker-start] 50px [middle-start] 50px [text-start kicker-end] 50px 50px 50px 50px 50px 50px 50px 50px [text-end gutter-start] 50px [middle-end] 50px [page-end gutter-end] 1fr [screen-end];
+    grid-column-gap: 16px;
+  }
+
+  .grid {
+    grid-column-gap: 16px;
+  }
+}
+
+@media(min-width: 1180px) {
+  .base-grid,
+  distill-header,
+  d-title,
+  d-abstract,
+  d-article,
+  d-appendix,
+  distill-appendix,
+  d-byline,
+  d-footnote-list,
+  d-citation-list,
+  distill-footer {
+    grid-template-columns: [screen-start] 1fr [page-start kicker-start] 60px [middle-start] 60px [text-start kicker-end] 60px 60px 60px 60px 60px 60px 60px 60px [text-end gutter-start] 60px [middle-end] 60px [page-end gutter-end] 1fr [screen-end];
+    grid-column-gap: 32px;
+  }
+
+  .grid {
+    grid-column-gap: 32px;
+  }
+}
+
+
+
+
+.base-grid {
+  grid-column: screen;
+}
+
+/* .l-body,
+d-article > *  {
+  grid-column: text;
+}
+
+.l-page,
+d-title > *,
+d-figure {
+  grid-column: page;
+} */
+
+.l-gutter {
+  grid-column: gutter;
+}
+
+.l-text,
+.l-body {
+  grid-column: text;
+}
+
+.l-page {
+  grid-column: page;
+}
+
+.l-body-outset {
+  grid-column: middle;
+}
+
+.l-page-outset {
+  grid-column: page;
+}
+
+.l-screen {
+  grid-column: screen;
+}
+
+.l-screen-inset {
+  grid-column: screen;
+  padding-left: 16px;
+  padding-left: 16px;
+}
+
+
+/* Aside */
+
+d-article aside {
+  grid-column: gutter;
+  font-size: 12px;
+  line-height: 1.6em;
+  color: rgb(var(--ink) / 0.6)
+}
+
+@media(min-width: 768px) {
+  aside {
+    grid-column: gutter;
+  }
+
+  .side {
+    grid-column: gutter;
+  }
+}
+/*
+ * Copyright 2018 The Distill Template Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+d-title {
+  padding: 2rem 0 1.5rem;
+  contain: layout style;
+  overflow-x: hidden;
+}
+
+@media(min-width: 768px) {
+  d-title {
+    padding: 4rem 0 1.5rem;
+  }
+}
+
+d-title h1 {
+  grid-column: text;
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.1em;
+  margin: 0 0 0.5rem;
+}
+
+@media(min-width: 768px) {
+  d-title h1 {
+    font-size: 50px;
+  }
+}
+
+d-title p {
+  font-weight: 300;
+  font-size: 1.2rem;
+  line-height: 1.55em;
+  grid-column: text;
+}
+
+d-title .status {
+  margin-top: 0px;
+  font-size: 12px;
+  color: #009688;
+  opacity: 0.8;
+  grid-column: kicker;
+}
+
+d-title .status span {
+  line-height: 1;
+  display: inline-block;
+  padding: 6px 0;
+  border-bottom: 1px solid #80cbc4;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+/*
+ * Copyright 2018 The Distill Template Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+d-byline {
+  contain: style;
+  overflow: hidden;
+  border-top: 1px solid rgb(var(--ink) / 0.1);
+  font-size: 0.8rem;
+  line-height: 1.8em;
+  padding: 1.5rem 0;
+  min-height: 1.8em;
+}
+
+
+d-byline .byline {
+  grid-template-columns: 1fr 1fr;
+  grid-column: text;
+}
+
+@media(min-width: 768px) {
+  d-byline .byline {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
+}
+
+d-byline .authors-affiliations {
+  grid-column-end: span 2;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 1em;
+}
+
+@media(min-width: 768px) {
+  d-byline .authors-affiliations {
+    margin-bottom: 0;
+  }
+}
+
+d-byline h3 {
+  font-size: 0.6rem;
+  font-weight: 400;
+  color: rgb(var(--ink) / 0.5);
+  margin: 0;
+  text-transform: uppercase;
+}
+
+d-byline p {
+  margin: 0;
+}
+
+d-byline a,
+d-article d-byline a {
+  color: rgb(var(--ink) / 0.8);
+  text-decoration: none;
+  border-bottom: none;
+}
+
+d-article d-byline a:hover {
+  text-decoration: underline;
+  border-bottom: none;
+}
+
+d-byline p.author {
+  font-weight: 500;
+}
+
+d-byline .affiliations {
+
+}
+/*
+ * Copyright 2018 The Distill Template Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+d-article {
+  contain: layout style;
+  overflow-x: hidden;
+  border-top: 1px solid rgb(var(--ink) / 0.1);
+  padding-top: 2rem;
+  color: rgb(var(--ink) / 0.8);
+}
+
+d-article > * {
+  grid-column: text;
+}
+
+@media(min-width: 768px) {
+  d-article {
+    font-size: 16px;
+  }
+}
+
+@media(min-width: 1024px) {
+  d-article {
+    font-size: 1.06rem;
+    line-height: 1.7em;
+  }
+}
+
+
+/* H2 */
+
+
+d-article .marker {
+  text-decoration: none;
+  border: none;
+  counter-reset: section;
+  grid-column: kicker;
+  line-height: 1.7em;
+}
+
+d-article .marker:hover {
+  border: none;
+}
+
+d-article .marker span {
+  padding: 0 3px 4px;
+  border-bottom: 1px solid rgb(var(--ink) / 0.2);
+  position: relative;
+  top: 4px;
+}
+
+d-article .marker:hover span {
+  color: rgb(var(--ink) / 0.7);
+  border-bottom: 1px solid rgb(var(--ink) / 0.7);
+}
+
+d-article h2 {
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 1.25em;
+  margin: 2rem 0 1.5rem 0;
+  border-bottom: 1px solid rgb(var(--ink) / 0.1);
+  padding-bottom: 1rem;
+}
+
+@media(min-width: 1024px) {
+  d-article h2 {
+    font-size: 36px;
+  }
+}
+
+/* H3 */
+
+d-article h3 {
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.4em;
+  margin-bottom: 0.5em;
+  margin-top: 1.25em;
+}
+
+@media(min-width: 1024px) {
+  d-article h3 {
+    font-size: 20px;
+  }
+}
+
+/* H4 */
+
+d-article h4 {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 14px;
+  line-height: 1.4em;
+  margin-top: 1.25em;
+  margin-bottom: 0.5em;
+}
+
+/* Grid-item margins add together instead of collapsing between blocks. */
+d-article > figure:has(+ :is(h3, h4)) {
+  margin-bottom: 0;
+}
+
+d-article > figure:has(+ :is(ul, ol)) {
+  margin-bottom: 1em;
+}
+
+d-article a {
+  color: inherit;
+}
+
+d-article p,
+d-article ul,
+d-article ol,
+d-article blockquote {
+  margin-top: 0;
+  margin-bottom: 1em;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+d-article blockquote {
+  border-left: 2px solid rgb(var(--ink) / 0.2);
+  padding-left: 2em;
+  font-style: italic;
+  color: rgb(var(--ink) / 0.6);
+}
+
+d-article a {
+  border-bottom: 1px solid rgb(var(--ink) / 0.4);
+  text-decoration: none;
+}
+
+d-article a:hover {
+  border-bottom: 1px solid rgb(var(--ink) / 0.8);
+}
+
+d-article .link {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+d-article ul,
+d-article ol {
+  padding-left: 24px;
+}
+
+d-article li {
+  margin-bottom: 1em;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+d-article li:last-child {
+  margin-bottom: 0;
+}
+
+:is(d-article, d-appendix) pre {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 20px 24px;
+  border: 1px solid rgb(var(--ink) / .15);
+  border-radius: 8px;
+  background: var(--code-background);
+  color: var(--code-foreground);
+  /* Match the apparent size of monospace glyphs to the surrounding prose. */
+  font-size: 0.9em;
+  line-height: 1.65;
+  tab-size: 4;
+  margin-bottom: 20px;
+}
+
+:is(d-article, d-appendix) pre.astro-code {
+  background-color: var(--code-background) !important;
+}
+
+:is(d-article, d-appendix) pre code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+@media (max-width: 767px) {
+  :is(d-article, d-appendix) pre {
+    padding: 16px;
+  }
+}
+
+d-article hr {
+  grid-column: screen;
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid rgb(var(--ink) / 0.1);
+  margin-top: 60px;
+  margin-bottom: 60px;
+}
+
+d-article section {
+  margin-top: 60px;
+  margin-bottom: 60px;
+}
+
+d-article span.equation-mimic {
+  font-family: georgia;
+  font-size: 115%;
+  font-style: italic;
+}
+
+d-article > d-code,
+d-article section > d-code  {
+  display: block;
+}
+
+d-article > d-math[block],
+d-article section > d-math[block]  {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  d-article > d-code,
+  d-article section > d-code,
+  d-article > d-math[block],
+  d-article section > d-math[block] {
+      overflow-x: scroll;
+      -ms-overflow-style: none;  // IE 10+
+      overflow: -moz-scrollbars-none;  // Firefox
+  }
+
+  d-article > d-code::-webkit-scrollbar,
+  d-article section > d-code::-webkit-scrollbar,
+  d-article > d-math[block]::-webkit-scrollbar,
+  d-article section > d-math[block]::-webkit-scrollbar {
+    display: none;  // Safari and Chrome
+  }
+}
+
+d-article .citation {
+  color: var(--link);
+  cursor: pointer;
+}
+
+d-include {
+  width: auto;
+  display: block;
+}
+
+d-figure {
+  contain: layout style;
+}
+
+/* KaTeX */
+
+.katex, .katex-prerendered {
+  contain: style;
+  display: inline-block;
+}
+
+/* Tables */
+
+d-article table {
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid rgb(var(--ink) / 0.2);
+}
+
+d-article table th {
+  border-bottom: 1px solid rgb(var(--ink) / 0.2);
+}
+
+d-article table td {
+  border-bottom: 1px solid rgb(var(--ink) / 0.05);
+}
+
+d-article table tr:last-of-type td {
+  border-bottom: none;
+}
+
+d-article table th,
+d-article table td {
+  font-size: 15px;
+  padding: 2px 8px;
+}
+
+d-article table tbody :first-child td {
+  padding-top: 2px;
+}
+/*
+ * Copyright 2018 The Distill Template Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+span.katex-display {
+  text-align: left;
+  padding: 8px 0 8px 0;
+  margin: 0.5em 0 0.5em 1em;
+}
+
+span.katex {
+  -webkit-font-smoothing: antialiased;
+  color: rgb(var(--ink) / 0.8);
+  font-size: 1.18em;
+}
+/*
+ * Copyright 2018 The Distill Template Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+d-appendix {
+  --appendix-section-gap: 3rem;
+  contain: layout style;
+  font-size: 0.8em;
+  line-height: 1.7em;
+  margin-top: 60px;
+  margin-bottom: 0;
+  border-top: 1px solid rgb(var(--ink) / 0.1);
+  color: rgb(var(--ink) / 0.5);
+  padding-top: 60px;
+  padding-bottom: 48px;
+}
+
+d-appendix h3 {
+  grid-column: page-start / text-start;
+  font-size: 15px;
+  font-weight: 500;
+  margin-top: 1em;
+  margin-bottom: 0;
+  color: rgb(var(--ink) / 0.65);
+}
+
+d-appendix h3 + * {
+  margin-top: 1em;
+}
+
+d-appendix > h3:not(:first-child) {
+  margin-top: var(--appendix-section-gap);
+}
+
+@media (min-width: 1000px) {
+  d-appendix > h3,
+  d-appendix > h3 + * {
+    margin-top: 0;
+  }
+
+  d-appendix > h3:not(:first-child) + * {
+    margin-top: var(--appendix-section-gap);
+  }
+}
+
+d-appendix ol {
+  padding: 0 0 0 15px;
+}
+
+@media (min-width: 768px) {
+  d-appendix ol {
+    padding: 0 0 0 30px;
+    margin-left: -30px;
+  }
+}
+
+d-appendix li {
+  margin-bottom: 1em;
+}
+
+d-appendix a {
+  color: rgb(var(--ink) / 0.6);
+}
+
+d-appendix > * {
+  grid-column: text;
+}
+
+d-appendix > d-footnote-list,
+d-appendix > d-citation-list,
+d-appendix > distill-appendix {
+  grid-column: screen;
+}
+
+/*
+ * Copyright 2018 The Distill Template Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@media print {
+
+  @page {
+    size: 8in 11in;
+    @bottom-right {
+      content: counter(page) " of " counter(pages);
+    }
+  }
+
+  html {
+    /* no general margins -- CSS Grid takes care of those */
+  }
+
+  p, code {
+    page-break-inside: avoid;
+  }
+
+  h2, h3 {
+    page-break-after: avoid;
+  }
+
+  d-header {
+    visibility: hidden;
+  }
+
+  d-footer {
+    display: none!important;
+  }
+
+}
+</style><script defer src="/vendor/distill/template.v2.js"></script><link rel="stylesheet" href="/_astro/Page.DEPtSKUH.css"><link rel="stylesheet" href="/_astro/_..B5jHL_0e.css"><style>time[data-astro-cid-uzttz4n5]{flex-wrap:wrap;column-gap:.35em;display:inline-flex}span[data-astro-cid-uzttz4n5]{white-space:nowrap;display:block}.compact[data-astro-cid-uzttz4n5]{white-space:nowrap;flex-wrap:nowrap}
+</style><link rel="stylesheet" href="/_astro/Report.DHHqCC_Z.css"><style>.figure-image[data-astro-cid-3j4ahvms]{border-bottom:none;display:block}img[data-astro-cid-3j4ahvms]{width:100%;height:auto;display:block}.figure-panels[data-astro-cid-3j4ahvms]{grid-template-columns:repeat(var(--panel-columns), minmax(0, 1fr));gap:12px;display:grid}.figure-panel[data-astro-cid-3j4ahvms]{min-width:0}.panel-label[data-astro-cid-3j4ahvms]{color:rgb(var(--ink));margin-bottom:4px;font-size:14px;font-weight:700;line-height:1.2;display:block}.figure-unavailable[data-astro-cid-3j4ahvms]{box-sizing:border-box;aspect-ratio:16/9;border:1px dashed rgb(var(--ink) / .2);background:rgb(var(--ink) / .035);width:100%;min-height:160px;color:rgb(var(--ink) / .6);text-align:center;border-radius:4px;flex-direction:column;justify-content:center;align-items:center;gap:.5rem;padding:1.5rem;font-size:.8rem;line-height:1.5;display:flex}.figure-unavailable[data-astro-cid-3j4ahvms] svg[data-astro-cid-3j4ahvms]{opacity:.7;flex-shrink:0}.figure-unavailable[data-astro-cid-3j4ahvms] strong[data-astro-cid-3j4ahvms]{color:rgb(var(--ink) / .75);font-size:.9rem;font-weight:600}@media (width<=600px){.figure-panels[data-astro-cid-3j4ahvms]{grid-template-columns:1fr}}
+.report-table[data-astro-cid-t6mhkqx2]{min-width:0}.report-table[data-astro-cid-t6mhkqx2]>figcaption[data-astro-cid-t6mhkqx2]>:first-child{margin-top:0}.report-table[data-astro-cid-t6mhkqx2]>figcaption[data-astro-cid-t6mhkqx2]>:last-child{margin-bottom:0}.source-table[data-astro-cid-t6mhkqx2]{min-width:0;overflow-x:auto}.source-table[data-astro-cid-t6mhkqx2]:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.source-table[data-astro-cid-t6mhkqx2] table{border-collapse:collapse;border:1px solid rgb(var(--ink) / .22);font-variant-numeric:tabular-nums;width:100%;margin:0;font-size:.875em;line-height:1.5}.source-table[data-astro-cid-t6mhkqx2] th,.source-table[data-astro-cid-t6mhkqx2] td{border:1px solid rgb(var(--ink) / .22);font-size:inherit;text-align:left;vertical-align:top;overflow-wrap:anywhere;padding:.65em .85em}.source-table[data-astro-cid-t6mhkqx2] thead th,.source-table[data-astro-cid-t6mhkqx2] th[scope=row],.group-heading[data-astro-cid-t6mhkqx2]>th[data-astro-cid-t6mhkqx2]{background:rgb(var(--ink) / .045);font-weight:600}.source-table[data-astro-cid-t6mhkqx2] tr>th:not(:first-child),.source-table[data-astro-cid-t6mhkqx2] tr>td:not(:first-child){text-align:right}.group-heading[data-astro-cid-t6mhkqx2]{break-after:avoid}
+</style></head><body distill-prerendered><d-front-matter><script type="application/json">{"title":"Pingstore Operations","description":"Run insertion, deletion, backup, restore and migration.","authors":[{"author":"Eoin Murray","affiliations":[]}]}</script></d-front-matter><header class="site-header base-grid"><nav class="l-page" aria-label="Site"><a href="/">Daria Mihaila</a><div class="nav-links"><style>astro-island,astro-slot,astro-static-slot{display:contents}</style><script>(function(){let e=(e,t,n)=>{let r=!1,i=()=>n.querySelector(`.command-trigger`);async function a(){if(!r){r=!0,n.setAttribute(`aria-busy`,`true`);try{await(await e())(),n.removeEventListener(`click`,o,!0),document.removeEventListener(`keydown`,s),i()?.click()}catch(e){r=!1,console.error(`Search could not load. Activate Search to retry.`,e)}finally{n.removeAttribute(`aria-busy`)}}}function o(e){e.target instanceof Element&&e.target.closest(`.command-trigger`)&&(e.preventDefault(),e.stopImmediatePropagation(),a())}function s(e){e.key.toLowerCase()!==`k`||!(e.metaKey||e.ctrlKey)||e.altKey||e.shiftKey||e.isComposing||(e.preventDefault(),e.repeat||a())}n.addEventListener(`click`,o,!0),document.addEventListener(`keydown`,s)};(self.Astro||(self.Astro={})).search=e,window.dispatchEvent(new Event(`astro:search`))})();</script><script>(function(){function e(t){"@babel/helpers - typeof";return e=typeof Symbol==`function`&&typeof Symbol.iterator==`symbol`?function(e){return typeof e}:function(e){return e&&typeof Symbol==`function`&&e.constructor===Symbol&&e!==Symbol.prototype?`symbol`:typeof e},e(t)}function t(t,n){if(e(t)!=`object`||!t)return t;var r=t[Symbol.toPrimitive];if(r!==void 0){var i=r.call(t,n||`default`);if(e(i)!=`object`)return i;throw TypeError(`@@toPrimitive must return a primitive value.`)}return(n===`string`?String:Number)(t)}function n(n){var r=t(n,`string`);return e(r)==`symbol`?r:r+``}function r(e,t,r){return(t=n(t))in e?Object.defineProperty(e,t,{value:r,enumerable:!0,configurable:!0,writable:!0}):e[t]=r,e}let i=/* @__PURE__ */ new Set([`__proto__`,`constructor`,`prototype`]);{let e={0:e=>a(e),1:e=>n(e),2:e=>new RegExp(e),3:e=>new Date(e),4:e=>new Map(n(e)),5:e=>new Set(n(e)),6:e=>BigInt(e),7:e=>new URL(e),8:e=>new Uint8Array(e),9:e=>new Uint16Array(e),10:e=>new Uint32Array(e),11:e=>1/0*e},t=t=>{let[n,r]=t;return n in e?e[n](r):void 0},n=e=>e.map(t),a=e=>typeof e!=`object`||!e?e:Object.fromEntries(Object.entries(e).map(([e,n])=>[e,t(n)]));class o extends HTMLElement{constructor(...e){super(...e),r(this,`Component`,void 0),r(this,`hydrator`,void 0),r(this,`hydrate`,async()=>{var e;if(!this.hydrator||!this.isConnected)return;let t=(e=this.parentElement)==null?void 0:e.closest(`astro-island[ssr]`);if(t){t.addEventListener(`astro:hydrate`,this.hydrate,{once:!0});return}let n=this.querySelectorAll(`astro-slot`),r={},i=this.querySelectorAll(`template[data-astro-template]`);for(let e of i){let t=e.closest(this.tagName);t!=null&&t.isSameNode(this)&&(r[e.getAttribute(`data-astro-template`)||`default`]=e.innerHTML,e.remove())}for(let e of n){let t=e.closest(this.tagName);t!=null&&t.isSameNode(this)&&(r[e.getAttribute(`name`)||`default`]=e.innerHTML)}let o;try{o=this.hasAttribute(`props`)?a(JSON.parse(this.getAttribute(`props`))):{}}catch(e){let t=this.getAttribute(`component-url`)||`<unknown>`,n=this.getAttribute(`component-export`);throw n&&(t+=` (export ${n})`),console.error(`[hydrate] Error parsing props for component ${t}`,this.getAttribute(`props`),e),e}await this.hydrator(this)(this.Component,o,r,{client:this.getAttribute(`client`)}),this.removeAttribute(`ssr`),this.dispatchEvent(new CustomEvent(`astro:hydrate`))}),r(this,`unmount`,()=>{this.isConnected||this.dispatchEvent(new CustomEvent(`astro:unmount`))})}disconnectedCallback(){document.removeEventListener(`astro:after-swap`,this.unmount),document.addEventListener(`astro:after-swap`,this.unmount,{once:!0})}connectedCallback(){if(!this.hasAttribute(`await-children`)||document.readyState===`interactive`||document.readyState===`complete`)this.childrenConnectedCallback();else{let e=()=>{document.removeEventListener(`DOMContentLoaded`,e),t.disconnect(),this.childrenConnectedCallback()},t=new MutationObserver(()=>{var t;((t=this.lastChild)==null?void 0:t.nodeType)===Node.COMMENT_NODE&&this.lastChild.nodeValue===`astro:end`&&(this.lastChild.remove(),e())});t.observe(this,{childList:!0}),document.addEventListener(`DOMContentLoaded`,e)}}async childrenConnectedCallback(){let e=this.getAttribute(`before-hydration-url`);e&&await import(e),this.start()}getRetryImportUrl(e){let t=new URL(e,document.baseURI);return t.searchParams.set(`astro-retry`,Date.now().toString()),t.toString()}async importWithRetry(e){try{return await import(e)}catch(t){return await new Promise(e=>setTimeout(e,1e3)),import(this.getRetryImportUrl(e))}}handleHydrationError(e){let t=this.getAttribute(`component-url`),n=new CustomEvent(`astro:hydration-error`,{cancelable:!0,bubbles:!0,composed:!0,detail:{error:e,componentUrl:t}});this.dispatchEvent(n)&&console.error(`[astro-island] Error hydrating ${t}`,e)}async start(){let e=JSON.parse(this.getAttribute(`opts`)),t=this.getAttribute(`client`);if(Astro[t]===void 0){window.addEventListener(`astro:${t}`,()=>this.start(),{once:!0});return}try{await Astro[t](async()=>{let e=this.getAttribute(`renderer-url`);try{let[t,{default:n}]=await Promise.all([this.importWithRetry(this.getAttribute(`component-url`)),e?this.importWithRetry(e):Promise.resolve({default:()=>()=>{}})]),r=this.getAttribute(`component-export`)||`default`;if(r.includes(`.`)){this.Component=t;for(let e of r.split(`.`)){if(i.has(e)||!this.Component||typeof this.Component!=`object`&&typeof this.Component!=`function`||!Object.hasOwn(this.Component,e))throw Error(`Invalid component export path: ${r}`);this.Component=this.Component[e]}}else{if(i.has(r))throw Error(`Invalid component export path: ${r}`);this.Component=t[r]}return this.hydrator=n,this.hydrate}catch(e){return this.handleHydrationError(e),()=>{}}},e,this)}catch(e){this.handleHydrationError(e)}}attributeChangedCallback(){this.hydrate()}}r(o,`observedAttributes`,[`props`]),customElements.get(`astro-island`)||customElements.define(`astro-island`,o)}})();</script><astro-island uid="1IPKhl" prefix="r1" component-url="/_astro/CommandPalette.coZsJ3lb.js" component-export="default" renderer-url="/_astro/client.DYdPL2z4.js" props="{&quot;collections&quot;:[1,[[0,{&quot;href&quot;:[0,&quot;/collections/experiments&quot;],&quot;title&quot;:[0,&quot;Experiments&quot;],&quot;detail&quot;:[0,&quot;Collection&quot;],&quot;keywords&quot;:[1,[[0,&quot;experiments&quot;],[0,&quot;All experiment reports on this site.&quot;]]]}],[0,{&quot;href&quot;:[0,&quot;/collections/notes&quot;],&quot;title&quot;:[0,&quot;Notes&quot;],&quot;detail&quot;:[0,&quot;Collection&quot;],&quot;keywords&quot;:[1,[[0,&quot;notes&quot;],[0,&quot;Practical project notes, infrastructure guidance, and operational workflows.&quot;]]]}]]],&quot;articles&quot;:[1,[[0,{&quot;href&quot;:[0,&quot;/notes/rules/compute&quot;],&quot;title&quot;:[0,&quot;Compute Rules&quot;],&quot;detail&quot;:[0,&quot;Note&quot;],&quot;keywords&quot;:[1,[[0,&quot;rules/compute&quot;],[0,&quot;Execution authorization, host roles and resource safeguards for this fork.&quot;],[0,&quot;notes&quot;],[0,&quot;Notes&quot;]]]}],[0,{&quot;href&quot;:[0,&quot;/notes/rules/compute-access&quot;],&quot;title&quot;:[0,&quot;Compute Access&quot;],&quot;detail&quot;:[0,&quot;Note&quot;],&quot;keywords&quot;:[1,[[0,&quot;rules/compute-access&quot;],[0,&quot;Host access and command examples, read only when needed.&quot;],[0,&quot;notes&quot;],[0,&quot;Notes&quot;]]]}],[0,{&quot;href&quot;:[0,&quot;/notes/rules/experiment&quot;],&quot;title&quot;:[0,&quot;Experiment Rules&quot;],&quot;detail&quot;:[0,&quot;Note&quot;],&quot;keywords&quot;:[1,[[0,&quot;rules/experiment&quot;],[0,&quot;Experiment scope, layout, configuration and native evidence.&quot;],[0,&quot;notes&quot;],[0,&quot;Notes&quot;]]]}],[0,{&quot;href&quot;:[0,&quot;/notes/rules/experiment-procedures&quot;],&quot;title&quot;:[0,&quot;Experiment Procedures&quot;],&quot;detail&quot;:[0,&quot;Note&quot;],&quot;keywords&quot;:[1,[[0,&quot;rules/experiment-procedures&quot;],[0,&quot;Task-specific scratch migration, native SNNLab calls and parallel execution.&quot;],[0,&quot;notes&quot;],[0,&quot;Notes&quot;]]]}],[0,{&quot;href&quot;:[0,&quot;/notes/rules/parameter-tables&quot;],&quot;title&quot;:[0,&quot;Parameter Tables&quot;],&quot;detail&quot;:[0,&quot;Note&quot;],&quot;keywords&quot;:[1,[[0,&quot;rules/parameter-tables&quot;],[0,&quot;The required compact summary, connectivity matrix and numeric conventions.&quot;],[0,&quot;notes&quot;],[0,&quot;Notes&quot;]]]}],[0,{&quot;href&quot;:[0,&quot;/notes/rules/pingstore-operations&quot;],&quot;title&quot;:[0,&quot;Pingstore Operations&quot;],&quot;detail&quot;:[0,&quot;Note&quot;],&quot;keywords&quot;:[1,[[0,&quot;rules/pingstore-operations&quot;],[0,&quot;Run insertion, deletion, backup, restore and migration.&quot;],[0,&quot;notes&quot;],[0,&quot;Notes&quot;]]]}],[0,{&quot;href&quot;:[0,&quot;/notes/rules/publishing&quot;],&quot;title&quot;:[0,&quot;Publishing Rules&quot;],&quot;detail&quot;:[0,&quot;Note&quot;],&quot;keywords&quot;:[1,[[0,&quot;rules/publishing&quot;],[0,&quot;Local static builds and independent GitHub Pages deployment.&quot;],[0,&quot;notes&quot;],[0,&quot;Notes&quot;]]]}],[0,{&quot;href&quot;:[0,&quot;/notes/rules/writing&quot;],&quot;title&quot;:[0,&quot;Writing Rules&quot;],&quot;detail&quot;:[0,&quot;Note&quot;],&quot;keywords&quot;:[1,[[0,&quot;rules/writing&quot;],[0,&quot;Brief, plain-English writing grounded in code and data.&quot;],[0,&quot;notes&quot;],[0,&quot;Notes&quot;]]]}],[0,{&quot;href&quot;:[0,&quot;/exp177&quot;],&quot;title&quot;:[0,&quot;Rhythm Versus Rate: Van Rossum Plasticity With and Without Homeostasis&quot;],&quot;detail&quot;:[0,&quot;exp177&quot;],&quot;keywords&quot;:[1,[[0,&quot;exp177&quot;],[0,&quot;Rate-matched trained PING and COBA networks (exp022 TR02, 25 Hz ceiling) under one MNIST stream with frozen weights, STDP only, synaptic scaling only, or both.&quot;],[0,&quot;experiments&quot;],[0,&quot;Experiments&quot;]]]}],[0,{&quot;href&quot;:[0,&quot;/exp178&quot;],&quot;title&quot;:[0,&quot;Plasticity Parameters That Steer the PING Rhythm&quot;],&quot;detail&quot;:[0,&quot;exp178&quot;],&quot;keywords&quot;:[1,[[0,&quot;exp178&quot;],[0,&quot;The trained exp022 TR01 PING network under van Rossum plasticity with the STDP window swept from 2.5 to 40 ms and the scaling setpoint at 0.5× and 2× the frozen rate.&quot;],[0,&quot;experiments&quot;],[0,&quot;Experiments&quot;]]]}],[0,{&quot;href&quot;:[0,&quot;/exp179&quot;],&quot;title&quot;:[0,&quot;Does the Kind of PING Rhythm Change Van Rossum Plasticity?&quot;],&quot;detail&quot;:[0,&quot;exp179&quot;],&quot;keywords&quot;:[1,[[0,&quot;exp179&quot;],[0,&quot;Six trained exp022 TR03 PING networks with GABA decay times from 4.5 to 27 ms, frozen and with van Rossum plasticity on their sensory weights.&quot;],[0,&quot;experiments&quot;],[0,&quot;Experiments&quot;]]]}],[0,{&quot;href&quot;:[0,&quot;/exp180&quot;],&quot;title&quot;:[0,&quot;Van Rossum&#39;s Own Tests Inside a PING Network&quot;],&quot;detail&quot;:[0,&quot;exp180&quot;],&quot;keywords&quot;:[1,[[0,&quot;exp180&quot;],[0,&quot;The rate-matched exp022 TR02 PING and COBA networks under van Rossum plasticity on their sensory weights: a biased digit stream, an input-rate step and a 60-s relaxation.&quot;],[0,&quot;experiments&quot;],[0,&quot;Experiments&quot;]]]}],[0,{&quot;href&quot;:[0,&quot;/exp176&quot;],&quot;title&quot;:[0,&quot;Van Rossum Plasticity in Trained PING and COBA Networks&quot;],&quot;detail&quot;:[0,&quot;exp176&quot;],&quot;keywords&quot;:[1,[[0,&quot;exp176&quot;],[0,&quot;Trained exp022 TR01 (no rate penalty) PING and COBA networks under one continuous MNIST stream, frozen versus van Rossum STDP with synaptic scaling on the sensory weights.&quot;],[0,&quot;experiments&quot;],[0,&quot;Experiments&quot;]]]}],[0,{&quot;href&quot;:[0,&quot;/notes/rules/pingstore&quot;],&quot;title&quot;:[0,&quot;Pingstore Rules&quot;],&quot;detail&quot;:[0,&quot;Note&quot;],&quot;keywords&quot;:[1,[[0,&quot;rules/pingstore&quot;],[0,&quot;Simple run folders, explicit dependencies and incremental backups.&quot;],[0,&quot;notes&quot;],[0,&quot;Notes&quot;]]]}]]],&quot;papers&quot;:[1,[]]}" ssr client="search" opts="{&quot;name&quot;:&quot;CommandPalette&quot;,&quot;value&quot;:true}" await-children><button type="button" class="command-trigger" aria-label="Search articles, papers and collections (Ctrl K)" aria-haspopup="dialog" aria-expanded="false" data-state="closed"><span class="command-shortcut-icon" aria-hidden="true">⌘K</span><span>Search</span></button><!--astro:end--></astro-island><a class="github-link" href="https://github.com/d-mihaila/d-mihaila.github.io" aria-label="Daria Mihaila on GitHub"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 .297C5.37.297 0 5.67 0 12.297c0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.043-1.61-4.043-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.729.083-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.419-1.305.762-1.605-2.665-.3-5.467-1.334-5.467-5.931 0-1.31.469-2.381 1.236-3.221-.124-.303-.536-1.524.117-3.176 0 0 1.008-.322 3.301 1.23a11.52 11.52 0 0 1 3.003-.404c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.655 1.652.243 2.873.119 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.628-5.479 5.921.43.372.823 1.102.823 2.222 0 1.606-.015 2.898-.015 3.293 0 .322.216.694.825.576C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg><span>GitHub</span></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Change colour theme" title="Change colour theme"><svg class="theme-system" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg><svg class="theme-light" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6 19 19M5 19l1.4-1.4M17.6 6.4 19 5"></path></svg><svg class="theme-dark" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 13.2A9 9 0 0 1 10.8 3.2a9 9 0 1 0 10 10Z"></path></svg></button></div></nav></header><main><d-title><h1>Pingstore Operations</h1><p>Run insertion, deletion, backup, restore and migration.</p></d-title><script type="module">function e(){let e=new Intl.DateTimeFormat(`en-GB`,{month:`short`});document.querySelectorAll(`time[data-local-date]`).forEach(t=>{let n=new Date(t.dateTime);if(Number.isNaN(n.getTime()))return;let r=n.getDate(),i=r%100>=11&&r%100<=13?`th`:[`th`,`st`,`nd`,`rd`][r%10]??`th`,a=n.getHours(),o=String(n.getMinutes()).padStart(2,`0`),s=t.querySelector(`[data-date-time]`);s&&(s.textContent=`${a%12||12}:${o}${a<12?`am`:`pm`}`);let c=String(n.getFullYear()).slice(-2);t.querySelector(`[data-date-label]`).textContent=`${r}${i} ${e.format(n)} ${c}`})}e(),document.addEventListener(`astro:page-load`,e);</script><d-byline><div class="byline grid" style="--byline-columns: 4"><div><h3>Author</h3><p>Eoin Murray</p></div><div><h3>Created</h3><p><time data-local-date datetime="2026-10-29T17:42:34Z" data-astro-cid-uzttz4n5><span data-date-label data-astro-cid-uzttz4n5>29 Oct 26</span></time></p></div><div><h3>Updated</h3><p><time data-local-date datetime="2026-11-25T13:40:20Z" data-astro-cid-uzttz4n5><span data-date-time data-astro-cid-uzttz4n5></span><span data-date-label data-astro-cid-uzttz4n5>25 Nov 26</span></time></p></div><div><h3>Collection</h3><p><a class="collection-link" href="/collections/notes">Notes</a></p></div></div></d-byline><div class="report-body base-grid"><aside class="report-toc"><d-toc prerendered="true"><nav aria-label="Table of contents"><h2>Contents</h2><ol class="toc-sections"><li><a class="toc-section" href="#local-runs">Local runs</a></li><li><a class="toc-section" href="#local-size-index">Local size index</a></li><li><a class="toc-section" href="#r2">R2</a></li><li><a class="toc-section" href="#migration">Migration</a></li></ol></nav></d-toc></aside><d-article role="article" aria-label="Pingstore Operations"><h1 id="pingstore-operations">Pingstore operations</h1>
+<h2 id="local-runs">Local runs</h2>
+<p>Pingstore itself uses only the Python standard library. To install it without the
+scientific environment, run <code>pip install ./libraries/pingstore</code>; backup and restore
+additionally require the rclone executable. The repository environment also exposes
+the same <code>pingstore</code> command.</p>
+<pre class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">uv</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> run</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> pingstore</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> list</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --experiment</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> exp174</span></span>
+<span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">uv</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> run</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> pingstore</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> get</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> exp174-r013-present</span></span>
+<span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">uv</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> run</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> pingstore</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> insert</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> /path/to/completed-run</span></span>
+<span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">uv</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> run</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> pingstore</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> delete</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> exp174-r013-present</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --dry-run</span></span>
+<span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">uv</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> run</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> pingstore</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> delete</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> exp174-r013-present</span></span></code></pre>
+<p>Use <code>--root /path/to/.pingstore</code> before the command to select another store.
+Insertion requires a simple <code>run.json</code> in the source, or <code>--record /path/to/run.json</code>.
+It copies into a temporary directory and completes atomically. Existing IDs cannot
+be overwritten. Python can write directly without a final payload copy:</p>
+<pre class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">from</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> pathlib </span><span style="color:#D73A49;--shiki-dark:#F97583">import</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> Path</span></span>
+<span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">from</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> pingstore.library </span><span style="color:#D73A49;--shiki-dark:#F97583">import</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> Store</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">store </span><span style="color:#D73A49;--shiki-dark:#F97583">=</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> Store(Path(</span><span style="color:#032F62;--shiki-dark:#9ECBFF">'.pingstore'</span><span style="color:#24292E;--shiki-dark:#E1E4E8">))</span></span>
+<span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">with</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> store.create(</span><span style="color:#032F62;--shiki-dark:#9ECBFF">'exp174'</span><span style="color:#24292E;--shiki-dark:#E1E4E8">, </span><span style="color:#E36209;--shiki-dark:#FFAB70">stage</span><span style="color:#D73A49;--shiki-dark:#F97583">=</span><span style="color:#032F62;--shiki-dark:#9ECBFF">'present'</span><span style="color:#24292E;--shiki-dark:#E1E4E8">, </span><span style="color:#E36209;--shiki-dark:#FFAB70">depends_on</span><span style="color:#D73A49;--shiki-dark:#F97583">=</span><span style="color:#24292E;--shiki-dark:#E1E4E8">[</span><span style="color:#032F62;--shiki-dark:#9ECBFF">'exp174-r012-analyse'</span><span style="color:#24292E;--shiki-dark:#E1E4E8">]) </span><span style="color:#D73A49;--shiki-dark:#F97583">as</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> run:</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    (run.directory </span><span style="color:#D73A49;--shiki-dark:#F97583">/</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> 'result.json'</span><span style="color:#24292E;--shiki-dark:#E1E4E8">).write_text(</span><span style="color:#032F62;--shiki-dark:#9ECBFF">'{"score": 0.9}'</span><span style="color:#24292E;--shiki-dark:#E1E4E8">)</span></span></code></pre>
+<p>Experiment scripts may keep using <code>stage_run(repo, experiment, stage, inputs=...)</code>.
+Use <code>run.details</code> for scientific execution/configuration/provenance. After completion,
+<code>source_run(...).record</code> is the small run metadata, and <code>.details</code> reads <code>details.json</code>.
+No automatic export flattening or scientific payload hashing occurs.</p>
+<h2 id="local-size-index">Local size index</h2>
+<p><code>.pingstore/index.json</code> maps run IDs to <code>bytes</code> and <code>file_count</code>. Insertion and
+deletion update it atomically under the local writer lock. Runs remain authoritative;
+removing this disposable index does not remove runs. Astro reads it once per request
+or build and displays unknown sizes when it is missing. Rebuild explicitly with
+<code>uv run pingstore reindex</code> or <code>Store(...).reindex()</code>. Rebuilding scans file names and
+sizes without hashing or reading payload contents. There is no per-run cache directory.</p>
+<h2 id="r2">R2</h2>
+<pre class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">uv</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> run</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> pingstore</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> backup</span></span>
+<span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">uv</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> run</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> pingstore</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> backup</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> exp174-r013-present</span></span>
+<span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">uv</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> run</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> pingstore</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> restore</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> exp174-r013-present</span></span>
+<span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">uv</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> run</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> pingstore</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> delete</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> exp174-r013-present</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --storage</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> r2</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --dry-run</span></span>
+<span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">uv</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> run</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> pingstore</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> delete</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> exp174-r013-present</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --storage</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> r2</span></span></code></pre>
+<p>In this fork the default destination is <code>backup:pingstore-v2</code>: an rclone remote
+named <code>backup</code> that you configure yourself, on any backend. Upstream’s
+<code>r2:pinglab/pingstore-v2</code> belongs to Eoin Murray; never write to it from this fork.
+The destination holds <code>runs/</code>, <code>receipts/</code>
+and a rebuildable <code>index.json</code>. The old R2 archive is untouched. Select another
+prefix with <code>--destination REMOTE:BUCKET/PREFIX</code>. Credentials stay in private
+rclone configuration. Only one machine may write a destination at a time; a
+local writer lock serializes commands on that machine.</p>
+<p>Backup uses concurrent rclone transfers and supported backend integrity checks,
+then writes a completion receipt. It does not use <code>rclone check --download</code>.
+Existing completed IDs must have identical run metadata and are skipped without
+reading payloads. Completed payloads must not be edited behind Pingstore’s back.
+Interrupted uploads can be retried; the small index is rebuildable from receipts.
+Restore downloads named runs only and checks completion metadata and file sizes;
+it does not claim an independent content audit. Dependency restoration is explicit.</p>
+<p>Deletion shows direct dependants and permits confirmed breakage. <code>--yes</code> confirms
+the displayed scope for scripts. Local deletion never deletes R2 and remote deletion
+never deletes local copies. No recursive delete or automatic unused-run pruning exists.</p>
+<h2 id="migration">Migration</h2>
+<p>First inspect conversion into a separate store:</p>
+<pre class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">uv</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> run</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> pingstore</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --root</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> /path/to/new/.pingstore</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> migrate</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> /path/to/old/.pingstore</span></span>
+<span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">uv</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> run</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> pingstore</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --root</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> /path/to/new/.pingstore</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> migrate</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> /path/to/old/.pingstore</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --apply</span></span></code></pre>
+<p>Migration preserves original metadata under <code>migration/originals/</code>, copies retained
+files without rewriting them, and reports unresolved dependencies. It preserves
+completion order and materialises consolidated logical sources as ordinary runs.
+It never overwrites the original store. Validate selected reports and payloads before
+switching stores. Re-running accepts already converted matching records; an incomplete
+individual conversion needs inspection before retrying. Use the new backup prefix
+for the converted store; retiring the old local/R2 archive is a separate action.</p>
+<p>For this repository, a concrete cutover is:</p>
+<pre class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">uv</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> run</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> pingstore</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --root</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> ../pinglab-runs-simple</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> migrate</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> .pingstore</span></span>
+<span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">uv</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> run</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> pingstore</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --root</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> ../pinglab-runs-simple</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> migrate</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> .pingstore</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --apply</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">cd</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> site</span></span>
+<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">PINGLAB_RUNS_ROOT</span><span style="color:#D73A49;--shiki-dark:#F97583">=</span><span style="color:#032F62;--shiki-dark:#9ECBFF">../../pinglab-runs-simple/runs</span><span style="color:#6F42C1;--shiki-dark:#B392F0"> bun</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> run</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> build</span></span>
+<span class="line"><span style="color:#005CC5;--shiki-dark:#79B8FF">cd</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> ..</span></span></code></pre>
+<p>Inspect the migration report, unresolved dependencies, unfinished runs, selections
+and rendered reports. Finish or collect pending jobs before switching the default
+store. Keep the old directory as an archive; rename it out of <code>.pingstore</code> and move
+the validated replacement into <code>.pingstore</code> only when ready. Those directory changes
+are explicit user operations, not effects of <code>migrate</code>. The existing R2 archive stays
+at its old prefix until separately retired. Remote-only old runs must first be
+restored into an old-format staging store with their exact original metadata, then
+converted and backed up to the new prefix; no legacy reader runs during rendering.</p></d-article></div></main><dialog class="figure-lightbox" aria-label="Enlarged figure"><button type="button" class="figure-lightbox-close" autofocus aria-label="Close enlarged figure">×</button><img class="figure-lightbox-image" alt=""></dialog><script type="module">var e=document.querySelector(`.figure-lightbox`),t=e.querySelector(`img`),n=null;document.addEventListener(`click`,r=>{if(r.defaultPrevented||r.button!==0||r.metaKey||r.ctrlKey||r.shiftKey||r.altKey||!(r.target instanceof Element))return;let i=r.target.closest(`figure a.figure-image`),a=i?.querySelector(`img`);i&&a&&(r.preventDefault(),n=i,t.src=i.href,t.alt=a.alt,e.showModal(),document.documentElement.classList.add(`figure-lightbox-open`))}),e.addEventListener(`click`,()=>e.close()),e.addEventListener(`close`,()=>{document.documentElement.classList.remove(`figure-lightbox-open`),t.removeAttribute(`src`),t.alt=``,n?.focus({preventScroll:!0}),n=null});</script><script type="module">var e,t,n=document.createElement(`aside`);n.className=`citation-preview`,n.id=`citation-preview`,n.setAttribute(`role`,`tooltip`),n.hidden=!0,document.body.append(n);function r(){clearTimeout(t),n.hidden=!0,e?.removeAttribute(`aria-describedby`),e=void 0}function i(){t=setTimeout(r,180)}function a(r){clearTimeout(t),e?.removeAttribute(`aria-describedby`);let i=document.getElementById(decodeURIComponent(r.hash.slice(1))),a=i?.closest(`p, li`)??i?.parentElement;if(!a)return;e=r,n.replaceChildren(...Array.from(a.childNodes).map(e=>e.cloneNode(!0))),n.querySelectorAll(`[id]`).forEach(e=>e.removeAttribute(`id`)),n.hidden=!1,r.setAttribute(`aria-describedby`,n.id);let o=r.getBoundingClientRect(),s=n.getBoundingClientRect().width;n.style.left=`${Math.max(12,Math.min(o.left,innerWidth-s-12))}px`,n.style.top=`${Math.min(o.bottom+8,Math.max(12,innerHeight-n.offsetHeight-12))}px`}for(let e of document.querySelectorAll(`d-article a[href^="#ref-"]`))e.addEventListener(`mouseenter`,()=>a(e)),e.addEventListener(`focus`,()=>a(e)),e.addEventListener(`mouseleave`,i),e.addEventListener(`blur`,i);n.addEventListener(`mouseenter`,()=>clearTimeout(t)),n.addEventListener(`mouseleave`,i),n.addEventListener(`focusin`,()=>clearTimeout(t)),n.addEventListener(`focusout`,i),document.addEventListener(`keydown`,e=>{e.key===`Escape`&&r()}),window.addEventListener(`scroll`,r,{passive:!0});</script><script type="module" src="/_astro/Page.astro_astro_type_script_index_1_lang.rZMaH_CU.js"></script></body></html>

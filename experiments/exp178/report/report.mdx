@@ -1,0 +1,200 @@
+---
+id: exp178
+title: "Plasticity Parameters That Steer the PING Rhythm"
+author: "Daria Mihaila"
+created_at: "2026-11-24T18:00:00Z"
+updated_at: "2026-11-24T18:00:00Z"
+description: "The trained exp022 TR01 PING network under van Rossum plasticity with the STDP window swept from 2.5 to 40 ms and the scaling setpoint at 0.5× and 2× the frozen rate."
+collection: ["experiments"]
+tags: ["data"]
+inputs: ["exp178"]
+thumbnail: summary.png
+---
+
+import RunFigure from '../../../site/src/components/RunFigure.astro';
+import { reportData, round } from '../../../site/src/lib/report-data';
+export const data = await reportData('exp178', { allowUnavailable: true });
+export const cfg = data?.configuration;
+export const s = data?.summary;
+export const seconds = cfg ? round(cfg.presentations * cfg.presentation_ms / 1000, 1) : 'unavailable';
+export const f = (value, digits = 2) => value == null ? 'unavailable' : round(value, digits);
+export const pct = value => value == null ? 'unavailable' : round(100 * value, 0);
+export const d = (id, key, digits = 2) => s && s[id] && s[id][`${key}_first`] != null && s[id][`${key}_last`] != null ? f(s[id][`${key}_last`] - s[id][`${key}_first`], digits) : 'unavailable';
+
+## Abstract
+
+{data ? <p>Can a plasticity parameter make the PING rhythm sharper, sparser, faster or slower? We took the trained exp022 TR01 PING network (seed {String(cfg.seed)}, no rate penalty; frozen rhythmicity contrast {f(s['frozen'].rhythm_contrast_first)}, rhythm frequency {f(s['frozen'].rhythm_frequency_hz_first, 0)} Hz) and ran the full van Rossum rule on its sensory weights for {cfg.presentations} MNIST test digits ({seconds} s), changing one parameter at a time. With the STDP window at {cfg.tau_sweep_ms[0]} ms the contrast changed by {d('tau2p5', 'rhythm_contrast')} over the stream, at 20 ms by {d('tau20', 'rhythm_contrast')} and at {cfg.tau_sweep_ms.at(-1)} ms by {d('tau40', 'rhythm_contrast')}; with frozen weights it drifted by {d('frozen', 'rhythm_contrast')}. Halving the scaling setpoint changed the rhythm frequency by {d('setpoint0p5', 'rhythm_frequency_hz', 0)} Hz and the E rate by {d('setpoint0p5', 'rate_hz', 1)} Hz; doubling it changed them by {d('setpoint2', 'rhythm_frequency_hz', 0)} Hz and {d('setpoint2', 'rate_hz', 1)} Hz. Window amplitudes were scaled so every window has the same area. One seed and one stream: a first sweep, without uncertainty estimates.</p> : <p>No completed evidence is selected.</p>}
+
+## Results
+
+{/*
+HOW TO USE THESE TEMPLATES. Everything inside a comment block is hidden: the page
+looks exactly as before until you open a block.
+1. Each WRITE-UP block sits where its text belongs, just before its figure (Eoin's
+   rule: explain each result before its figure). To use one, delete its first and
+   last lines, then replace the questions with 2-4 short sentences.
+2. Bind numbers to the run instead of typing them: put an expression such as
+   d('tau2p5', 'rhythm_contrast')  or  f(s['tau20'].rate_hz_last, 1)
+   inside curly braces, as the Abstract does. Each block lists its summary keys.
+3. The Discussion template is at the end. Eoin's rule: first drafts omit the
+   Discussion; add it once the results are final.
+4. Style: claim first, then the number, then what it means. Short sentences.
+5. After substantive edits, set updated_at in the front matter (quoted UTC time).
+*/}
+
+### Spiking at the start and end
+
+{/*
+WRITE-UP · Figure 1 (rasters). 2-4 sentences: what changed, by how much, and why it matters.
+- Which settings visibly change the volleys by the end: width, spacing, how many E cells join?
+*/}
+
+<RunFigure report="exp178" experiment="exp178" file="rasters.svg" number={1} id="fig-rasters" alt="Rasters at the start of the stream and at the last presentation of every condition." allowUnavailable={true}>
+  The first panel shows the first presentation (fresh state, trained weights).
+  The others show the last presentation of each condition, after {seconds} s of
+  continuous activity. Every spike is a dot: black E below red I. All conditions
+  receive identical, hash-checked input.
+</RunFigure>
+
+### Rhythm
+
+{/*
+WRITE-UP · Figure 2 (rhythm). 2-4 sentences: what changed, by how much, and why it matters.
+- STDP window: do contrast and frequency change steadily with the window? Is there a break near the rhythm period (about 10 ms)?
+- Setpoint: does a lower or higher target rate shift the rhythm frequency? Could the setpoint be a frequency dial?
+- Is each change larger than the frozen drift?
+Numbers: d(id, 'rhythm_contrast'), d(id, 'rhythm_frequency_hz', 0), d(id, 'participation') for frozen, tau2p5 ... tau40, setpoint0p5, setpoint2 (x1 = tau20).
+*/}
+
+<RunFigure report="exp178" experiment="exp178" file="rhythm.svg" number={2} id="fig-rhythm" alt="Rhythmicity contrast, rhythm frequency, I volley rate and E participation per block for each rule." allowUnavailable={true}>
+  Per block of {cfg ? cfg.block_presentations : 'unavailable'} presentations. Left: the STDP-window
+  sweep (light to dark blue for 2.5 to 40 ms). Right: the setpoint sweep (amber
+  ×0.5, blue ×1 at τ = 20 ms, red ×2). Black is frozen. Rows: E rhythmicity
+  contrast (exp054 metric, Appendix A3); rhythm frequency from the
+  autocorrelogram side peak; I volleys per second; fraction of E cells firing per
+  cycle (lower is sparser).
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 3 (autocorrelograms). 2-4 sentences: what changed, by how much, and why it matters.
+- Do side peaks move to shorter lags (faster) or longer lags (slower)?
+*/}
+
+<RunFigure report="exp178" experiment="exp178" file="autocorrelograms.svg" number={3} id="fig-autocorrelograms" alt="E spike autocorrelograms in the first and last block of every condition." allowUnavailable={true}>
+  E population spike autocorrelograms (1-ms bins; 1 = independent firing) in the
+  first block (faint) and the last block (strong) of each condition. A deeper
+  trough and a taller side peak mean a sharper rhythm.
+</RunFigure>
+
+### Firing
+
+{/*
+WRITE-UP · Figure 4 (activity). 2-4 sentences: what changed, by how much, and why it matters.
+- Did the setpoint move the E rate towards its target?
+- Does the rate move together with the rhythm frequency, as in exp022?
+Numbers: d('setpoint0p5', 'rate_hz', 1), d('setpoint2', 'rate_hz', 1); targets in data.scaling_targets_hz.
+*/}
+
+<RunFigure report="exp178" experiment="exp178" file="activity.svg" number={4} id="fig-activity" alt="E rate, ISI irregularity, median ISI and spectral peak per block for each rule." allowUnavailable={true}>
+  Per block; left the τ sweep, right the setpoint sweep. Rows: E rate; mean per-cell ISI coefficient of
+  variation (cells with at least three spikes); median E ISI; spectral peak of the
+  E population rate in {cfg ? `${cfg.rhythm_band_hz[0]}–${cfg.rhythm_band_hz[1]}` : 'unavailable'} Hz.
+  Colours as in Figure 2.
+</RunFigure>
+
+### Sensory weights
+
+{/*
+WRITE-UP · Figure 5 (weights). 2-4 sentences: what changed, by how much, and why it matters.
+- Every window has the same area. Do short and long windows still move the weights by different amounts? Why?
+Numbers: s[id].weight_change_last, weight_correlation_last, weight_skew_first/_last.
+*/}
+
+<RunFigure report="exp178" experiment="exp178" file="weights.svg" number={5} id="fig-weights" alt="Mean weight, accumulated change, correlation with trained weights, skewness and scaling sensor over time." allowUnavailable={true}>
+  The plastic X→E matrix (784 × 1,024, µS) after every presentation; top the τ
+  sweep, bottom the setpoint sweep. Columns: mean weight and mean absolute change, both relative to
+  the trained mean; Pearson correlation with the trained matrix (1 = intact);
+  skewness of the weight distribution; mean scaling-sensor rate against its
+  setpoint. Colours as in Figure 2.
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 6 (synapses). 2-4 sentences: what changed, by how much, and why it matters.
+- Do short windows give different single-synapse paths (more spread, faster drift) than long ones?
+*/}
+
+<RunFigure report="exp178" experiment="exp178" file="synapses.svg" number={6} id="fig-synapses" alt="Trajectories of randomly sampled sensory synapses under each plastic rule." allowUnavailable={true}>
+  {cfg ? cfg.tracked_synapses.toLocaleString('en-GB') : 'unavailable'} X→E synapses,
+  sampled uniformly (seed {cfg ? String(cfg.tracked_synapse_seed) : 'unavailable'}), recorded
+  after every presentation. Darker lines start with larger weights. The dotted
+  line is the trained mean, the STDP fixed point. Short windows only pair spikes
+  within one rhythm cycle; long ones also pair spikes across cycles.
+</RunFigure>
+
+### Decoding
+
+{/*
+WRITE-UP · Figure 7 (decoding). 2-4 sentences: what changed, by how much, and why it matters.
+- Is there a setting that changes the rhythm but keeps accuracy? That would separate rhythm control from coding damage.
+Numbers: accuracy_first/_last.
+*/}
+
+<RunFigure report="exp178" experiment="exp178" file="decoding.svg" number={7} id="fig-decoding" alt="Held-out test accuracy and online decoding of the stream digits for each rule." allowUnavailable={true}>
+  Left: accuracy on {cfg ? cfg.accuracy_images.toLocaleString('en-GB') : 'unavailable'} official MNIST test
+  images (the first half of the exp173 subset) every {cfg ? cfg.accuracy_every : 'unavailable'} presentations,
+  with the weights reached at that moment, frozen, fresh state per image; dashed
+  lines are the frozen networks. Right: share of stream digits classified
+  correctly as they play, per block, with state carried over. Readout weights
+  never change.
+</RunFigure>
+
+### Summary
+
+{/*
+WRITE-UP · Figure 8 (summary). 2-4 sentences: what changed, by how much, and why it matters.
+- Name the best dial for each property: sharper (contrast), sparser (participation), faster or slower (frequency).
+- Which effects stay within the frozen drift (dashed line)?
+*/}
+
+<RunFigure report="exp178" experiment="exp178" file="summary.svg" number={8} id="fig-summary" alt="Change over the stream against the STDP window and against the scaling setpoint." allowUnavailable={true}>
+  Last block minus first block against the STDP window (top, log₂ axis) and the
+  scaling setpoint (bottom, log₂ axis; the ×1 point is τ = 20 ms): rhythmicity
+  contrast, rhythm frequency, E participation per cycle, E rate; test accuracy at
+  the end minus the start; and the final mean absolute weight change relative to
+  the trained mean. Dashed black lines are the frozen drift. One seed; no
+  uncertainty is estimated.
+</RunFigure>
+
+{/*
+DISCUSSION TEMPLATE. To use: delete this block's first and last lines and replace
+each prompt with short paragraphs. Keep it argumentative: claim, evidence, then
+the strongest objection and how the data answer it.
+
+## Discussion
+
+### Main claim
+
+- Which plasticity parameter, if any, steers the PING rhythm, and in which direction?
+
+### Mechanism
+
+- Window against period: short windows pair spikes within one cycle; long windows also pair across cycles.
+- Setpoint: scaling sets the E rate, and in PING the rate sets the frequency.
+
+### Objections
+
+- Equal-area scaling: a short window also has larger amplitudes. Is the effect timing or amplitude?
+- tau20 is exp176's rule on a different stream. Do the two agree?
+
+### Limitations
+
+- One seed (42) and one stream order: no uncertainty estimates.
+- Synaptic scaling is compressed in time 100x (tau 1 s, not 100 s); STDP is not.
+- Only the sensory weights X->E are plastic; E->I, I->E and the readout are fixed.
+- One parameter at a time: no interactions. Only two setpoints.
+
+### Next steps
+
+- A finer sweep where effects appear; more seeds; combine the best dial with exp179's networks.
+
+*/}

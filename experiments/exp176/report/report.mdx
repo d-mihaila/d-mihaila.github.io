@@ -26,7 +26,29 @@ export const change = network => data ? pct(100 * data.results[network].van_ross
 
 ## Results
 
+{/*
+HOW TO USE THESE TEMPLATES. Everything inside a comment block is hidden: the page
+looks exactly as before until you open a block.
+1. Each WRITE-UP block sits where its text belongs, just before its figure (Eoin's
+   rule: explain each result before its figure). To use one, delete its first and
+   last lines, then replace the questions with 2-4 short sentences.
+2. Bind numbers to the run instead of typing them: put an expression such as
+   pct(s['ping/van_rossum'].e_rate_last_hz)
+   inside curly braces, as the Abstract does. Each block lists its summary keys.
+3. The Discussion template is at the end. Eoin's rule: first drafts omit the
+   Discussion; add it once the results are final.
+4. Style: claim first, then the number, then what it means. Short sentences.
+5. After substantive edits, set updated_at in the front matter (quoted UTC time).
+*/}
+
 ### Trained networks before plasticity
+
+{/*
+WRITE-UP · Figure 1 (rasters). 2-4 sentences: what changed, by how much, and why it matters.
+- What does each trained network look like before plasticity: PING volleys against COBA's asynchronous firing?
+- COBA fires about ten times faster than PING. Say so here: it frames every comparison below.
+Numbers: s['ping/frozen'].e_rate_first_hz, s['coba/frozen'].e_rate_first_hz, i_rate_first_hz.
+*/}
 
 <RunFigure report="exp176" experiment="exp176" file="rasters.svg" number={1} id="fig-rasters" alt="Spike rasters of the trained PING and COBA networks on the same first stream image." allowUnavailable={true}>
   (A) PING and (B) COBA from exp022 TR01 (canonical cells, no rate penalty,
@@ -38,6 +60,12 @@ export const change = network => data ? pct(100 * data.results[network].van_ross
 
 ### Activity at the start and end of the stream
 
+{/*
+WRITE-UP · Figure 2 (rasters-evolution). 2-4 sentences: what changed, by how much, and why it matters.
+- How did firing change from the first to the last presentation, frozen against van Rossum?
+- Did PING keep its volleys? Did COBA change its pattern or only its rate?
+*/}
+
 <RunFigure report="exp176" experiment="exp176" file="rasters-evolution.svg" number={2} id="fig-rasters-evolution" alt="Rasters at the first and last presentation, frozen and with van Rossum plasticity, for PING and COBA." allowUnavailable={true}>
   Rows: PING (A–C) and COBA (D–F). Columns: the first presentation; the last
   presentation with frozen weights; the last presentation after van Rossum
@@ -47,6 +75,13 @@ export const change = network => data ? pct(100 * data.results[network].van_ross
 </RunFigure>
 
 ### Sensory weights
+
+{/*
+WRITE-UP · Figure 3 (weights). 2-4 sentences: what changed, by how much, and why it matters.
+- How far did the sensory weights move: mean, mean |dW|, correlation with the trained matrix?
+- Which network's weights moved more, and does its higher rate explain the difference?
+Numbers: change('ping'), change('coba'), s['ping/van_rossum'].weight_correlation_last.
+*/}
 
 <RunFigure report="exp176" experiment="exp176" file="weights.svg" number={3} id="fig-weights" alt="Evolution of the plastic input-to-E weight matrix in PING and COBA." allowUnavailable={true}>
   The plastic matrix is X→E (784 inputs × 1,024 E cells, µS). (A) Mean weight
@@ -62,6 +97,12 @@ export const change = network => data ? pct(100 * data.results[network].van_ross
 
 ### Individual synapses
 
+{/*
+WRITE-UP · Figure 4 (synapses). 2-4 sentences: what changed, by how much, and why it matters.
+- Did single synapses converge on the trained mean (the STDP fixed point) or spread out?
+- Did strong and weak synapses behave differently?
+*/}
+
 <RunFigure report="exp176" experiment="exp176" file="synapses.svg" number={4} id="fig-synapses" alt="Weight trajectories of randomly chosen input-to-E synapses and their final change versus initial weight." allowUnavailable={true}>
   {cfg ? cfg.tracked_synapses.toLocaleString('en-GB') : 'unavailable'} X→E synapses per network,
   sampled uniformly without replacement (seed {cfg ? String(cfg.tracked_synapse_seed) : 'unavailable'})
@@ -76,6 +117,13 @@ export const change = network => data ? pct(100 * data.results[network].van_ross
 
 ### Firing rates and homeostasis
 
+{/*
+WRITE-UP · Figure 5 (activity). 2-4 sentences: what changed, by how much, and why it matters.
+- Did E and I rates drift under plasticity?
+- Did synaptic scaling hold the E rate near its setpoint?
+Numbers: e_rate_first_hz, e_rate_last_hz, i_rate_first_hz, i_rate_last_hz.
+*/}
+
 <RunFigure report="exp176" experiment="exp176" file="activity.svg" number={5} id="fig-activity" alt="E and I firing rates per presentation and the synaptic-scaling rate sensor." allowUnavailable={true}>
   (A) E and (B) I population rates in each {cfg ? cfg.presentation_ms : 'unavailable'}-ms
   presentation. Black is frozen; blue is van Rossum. Solid lines are PING;
@@ -86,6 +134,13 @@ export const change = network => data ? pct(100 * data.results[network].van_ross
 </RunFigure>
 
 ### Excitatory inter-spike intervals
+
+{/*
+WRITE-UP · Figure 6 (isi). 2-4 sentences: what changed, by how much, and why it matters.
+- Did E inter-spike intervals get shorter or longer, more or less regular (CV)?
+- In PING, do intervals still cluster at multiples of the cycle period?
+Numbers: isi_cv_first, isi_cv_last, isi_median_first_ms, isi_median_last_ms.
+*/}
 
 <RunFigure report="exp176" experiment="exp176" file="isi.svg" number={6} id="fig-isi" alt="E inter-spike-interval densities block by block, first versus last block, ISI CV and median ISI over the stream." allowUnavailable={true}>
   ISIs are measured within consecutive blocks of {cfg ? cfg.isi_block_presentations : 'unavailable'} presentations
@@ -100,6 +155,13 @@ export const change = network => data ? pct(100 * data.results[network].van_ross
 </RunFigure>
 
 ### Population rhythm
+
+{/*
+WRITE-UP · Figure 7 (spectra). 2-4 sentences: what changed, by how much, and why it matters.
+- Did the PING rhythm become sharper (contrast), faster or slower (frequency)?
+- Is the change larger than the frozen drift? COBA is the no-rhythm reference.
+Numbers: rhythm_contrast_first/_last, rhythm_frequency_first_hz/_last_hz, rhythm_peak_first_hz/_last_hz.
+*/}
 
 <RunFigure report="exp176" experiment="exp176" file="spectra.svg" number={7} id="fig-spectra" alt="E spike autocorrelograms, rhythmicity contrast, rhythm frequency and population spectra over the stream." allowUnavailable={true}>
   Measured per block of {cfg ? cfg.isi_block_presentations : 'unavailable'} presentations; the
@@ -120,6 +182,12 @@ export const change = network => data ? pct(100 * data.results[network].van_ross
 
 ### Receptive fields
 
+{/*
+WRITE-UP · Figure 8 (receptive-fields). 2-4 sentences: what changed, by how much, and why it matters.
+- Do receptive fields keep their digit structure?
+- Where did weights grow and where did they shrink?
+*/}
+
 <RunFigure report="exp176" experiment="exp176" file="receptive-fields.svg" number={8} id="fig-receptive-fields" alt="Initial, final and changed input weights of four E cells per network, shown as 28 by 28 images." allowUnavailable={true}>
   For the {cfg ? cfg.receptive_fields : 'unavailable'} E cells with the largest trained
   input-weight norm in each network: the 784 X→E weights as 28 × 28 images at
@@ -128,6 +196,13 @@ export const change = network => data ? pct(100 * data.results[network].van_ross
 </RunFigure>
 
 ### Classification after plasticity
+
+{/*
+WRITE-UP · Figure 9 (accuracy). 2-4 sentences: what changed, by how much, and why it matters.
+- Describe the shape of each accuracy curve: steady decline, or dip and recovery?
+- Could the COBA loss come from its higher rate (more spike pairings per second) rather than its missing rhythm? exp177 tests this.
+Numbers: accuracy numbers as in the Abstract.
+*/}
 
 <RunFigure report="exp176" experiment="exp176" file="accuracy.svg" number={9} id="fig-accuracy" alt="Test accuracy every few presentations during the van Rossum stream, and at its start and end." allowUnavailable={true}>
   (A) Accuracy on {cfg ? cfg.accuracy_images.toLocaleString('en-GB') : 'unavailable'} official MNIST
@@ -144,3 +219,36 @@ export const change = network => data ? pct(100 * data.results[network].van_ross
   largest trial-mean pre-reset readout voltage. One checkpoint per network; no
   across-seed uncertainty is estimated.
 </RunFigure>
+
+{/*
+DISCUSSION TEMPLATE. To use: delete this block's first and last lines and replace
+each prompt with short paragraphs. Keep it argumentative: claim, evidence, then
+the strongest objection and how the data answer it.
+
+## Discussion
+
+### Main claim
+
+- Does van Rossum plasticity act differently in a trained PING network than in COBA? One paragraph, strongest numbers first.
+
+### Mechanism
+
+- Why could the PING rhythm sharpen? For example: does STDP strengthen inputs that make E cells fire early in each cycle?
+- Why would accuracy fall and then partly recover?
+
+### Objections
+
+- Rate confound: COBA fires about ten times faster, so it gets about ten times more spike pairings. What can this experiment not separate?
+
+### Limitations
+
+- One seed (42) and one stream order: no uncertainty estimates.
+- Synaptic scaling is compressed in time 100x (tau 1 s, not 100 s); STDP is not.
+- Only the sensory weights X->E are plastic; E->I, I->E and the readout are fixed.
+- TR01 networks; MNIST validation digits as the stream.
+
+### Next steps
+
+- exp177: rate-matched PING and COBA. exp178: plasticity parameters as rhythm dials. exp179: the inhibitory time constant. exp180: van Rossum's own tests.
+
+*/}

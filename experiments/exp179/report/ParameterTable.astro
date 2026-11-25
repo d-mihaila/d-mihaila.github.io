@@ -1,0 +1,96 @@
+---
+import Table from '../../../site/src/components/Table.astro';
+import { reportData, reportSnapshots } from '../../../site/src/lib/report-data';
+import { formatTableNumber as n } from '../../../site/src/lib/table-number';
+const SLUG = 'exp179';
+const data = await reportData(SLUG, { allowUnavailable: true });
+const cfg = data?.configuration;
+const conditions = cfg?.conditions ?? [];
+const networks = Object.keys(cfg?.source_cells ?? {});
+const first = network => conditions.find(c => c.network === network);
+const plastic = network => conditions.find(c => c.network === network && c.rule !== 'frozen');
+const evidence = await reportSnapshots(SLUG, { snapshots: Object.fromEntries(
+  networks.map(network => [network, `${first(network).id}/start/snapshot.json`])
+), allowUnavailable: true });
+const snaps = evidence?.snapshots ?? {};
+const available = data && cfg && networks.length && networks.every(network => snaps[network]);
+const graph = network => snaps[network].network;
+const pop = (network, id) => graph(network).populations.find(p => p.id === id);
+const math = id => ({ math: { E: 'E', I: 'I', readout: 'R', drive: 'X' }[id] });
+const row = (label, read) => [label, ...networks.map(read)];
+const spec = network => cfg.networks[network];
+const rule = network => data.rules[plastic(network).id];
+const unique = values => [...new Set(values)];
+const rules = network => unique(conditions.filter(c => c.network === network).map(c => c.rule)).join(', ');
+const taus = network => unique(conditions.filter(c => c.network === network && c.rule !== 'frozen').map(c => n(c.tau_stdp_ms))).join(', ');
+const targets = network => Object.entries(data.scaling_targets_hz[network] ?? {}).map(([stream, value]) => `${n(value)} Hz (${stream})`).join('; ');
+const groups = available ? [
+  { label: 'Simulation', rows: [
+    row('Integration timestep', network => `${n(graph(network).timebase.dt.value)} ms`),
+    row('Stream', () => `${String(cfg.presentations)} × ${n(cfg.presentation_ms)} ms presentations; continuous state`),
+    row('Stream / encoder seeds', () => `${String(cfg.stream_seed)} / ${String(cfg.stream_encoder_seed)}`),
+    row('Source cell', network => `${spec(network).cell}; ${spec(network).training_run_id}; ${cfg.checkpoint_role}`),
+    row('Training images', network => n(spec(network).training_images)),
+  ] },
+  { label: 'Populations', rows: [
+    row(math('drive'), network => `${n(graph(network).inputs.find(p => p.id === 'drive').shape.at(-1))} sensory channels`),
+    ...['E', 'I', 'readout'].map(id => row(math(id), network => pop(network, id) ? `${n(pop(network, id).size)} ${pop(network, id).neuron.kind}` : 'Absent')),
+  ] },
+  { label: 'Neuron dynamics', rows: [
+    row('E / I membrane time constant', network => `${n(pop(network, 'E').neuron.tau_mem.value)} / ${pop(network, 'I') ? n(pop(network, 'I').neuron.tau_mem.value) : '–'} ms`),
+    row('E / I refractory period', network => `${n(pop(network, 'E').neuron.refractory.value)} / ${pop(network, 'I') ? n(pop(network, 'I').neuron.refractory.value) : '–'} ms`),
+    row('Readout time constant', network => `${n(pop(network, 'readout').neuron.tau.value)} ms`),
+  ] },
+  { label: 'Input and plasticity', rows: [
+    row('Peak sensory rate', () => `${n(cfg.input_rate_hz)} Hz/channel`),
+    row('AMPA / GABA decay', network => `${n(cfg.tau_ampa_ms)} / ${spec(network).architecture === 'ping' ? n(spec(network).tau_gaba_ms) : '–'} ms`),
+    row('Plastic projection / rules', network => `X→E only / ${rules(network)}`),
+    row('STDP window τ / depression c_d', network => `${taus(network)} ms / ${n(cfg.stdp_depression_fraction)}`),
+    row('STDP a₊ / a₋ at τ = 20 ms', network => `${n(rule(network).a_plus_us / rule(network).area_factor)} / ${n(rule(network).a_minus_us / rule(network).area_factor)} µS`),
+    row('Weight bounds / fixed point', network => `[0, ${n(rule(network).w_max_us)}] / ${n(rule(network).equilibrium_us)} µS`),
+    row('Scaling target ν*', network => targets(network)),
+    row('Scaling τ_ν / β / γ', () => `${n(cfg.scaling_tau_rate_ms / 1000)} s / ${n(cfg.scaling_beta)} / ${n(cfg.scaling_gamma)}`),
+  ] },
+  { label: 'Measurement', rows: [
+    row('Blocks', () => `${String(cfg.block_presentations)} presentations (${n(cfg.block_presentations * cfg.presentation_ms / 1000)} s)`),
+    row('Rhythmicity (exp054)', () => `autocorrelogram to ${n(cfg.rhythm_lag_ms)} ms, ${n(cfg.rhythm_bin_ms)}-ms bins, first ${n(cfg.rhythm_burn_ms)} ms skipped`),
+    row('Cycles', () => `I-volley peaks at least ${n(cfg.cycle_min_separation_ms)} ms apart`),
+    row('Test accuracy', () => `${n(cfg.accuracy_images)} official test images every ${String(cfg.accuracy_every)} presentations; seeds ${String(cfg.accuracy_sample_seed)}, ${String(cfg.accuracy_encoder_seed)}`),
+    row('Tracked synapses / seed', () => `${n(cfg.tracked_synapses)} X→E / ${String(cfg.tracked_synapse_seed)}`),
+  ] },
+] : [];
+const symbols = { input_to_E: 'EX', E_to_I: 'IE', I_to_E: 'EI', readout_projection: 'RE' };
+const matrices = available ? networks.map(network => {
+  const net = graph(network);
+  const sources = [...net.inputs, ...net.populations.filter(p => p.id !== 'readout')];
+  const endpoint = value => value.split('.')[0];
+  return { network, headers: ['Source ↓ / target →', ...net.populations.map(p => math(p.id))],
+    rows: sources.map(source => [math(source.id), ...net.populations.map(target => {
+      const projection = net.projections.find(p => endpoint(p.source) === source.id && endpoint(p.target) === target.id);
+      if (!projection) return 'Absent';
+      if (!snaps[network].parameters[projection.parameters[0]]) throw new Error('Missing executed weight array');
+      const symbol = `W_{${symbols[projection.id]},ji}`;
+      if (projection.id === 'input_to_E') {
+        return { math: `${n(100)}\\%;\\quad ${symbol}(t),\\ \\bar{w}_0 = ${n(rule(network).initial_mean_us)}\\,\\mathrm{\\mu S}` };
+      }
+      return { math: `${n(100)}\\%;\\quad ${symbol}\\,\\mathrm{\\mu S}` };
+    })]),
+  };
+}) : [];
+---
+{available ? <>
+<Table headers={['Parameter', ...networks.map(network => spec(network).cell)]} groups={groups} number="C1" id="parameters" label="Recorded native dynamics, rules and protocol">
+  X is sensory input, E excitatory, I inhibitory, R readout. Quantities use two
+  significant figures; seeds and cell names are exact. Conditions of one network
+  share every setting except the plastic rule applied to X→E. Settings come from
+  the selected compute configuration and its native start snapshots. STDP
+  amplitudes scale with 20 ms / τ, so every window has the same area.
+</Table>
+{matrices.map((matrix, i) => <Table headers={matrix.headers} rows={matrix.rows} rowHeaders number={`C${i + 2}`} label={`${spec(matrix.network).cell} connectivity at simulation start`}>
+  Rows are sources; columns are targets. Cells give eligible-pair density and the
+  executed per-connection weight, kept in the native start snapshot. W subscripts
+  name target then source. X→E shows the trained mean weight; it changes over
+  time only under plasticity. Zeros in learned arrays remain eligible
+  connections. Absent means no projection.
+</Table>)}
+</> : <p>Native parameter evidence is unavailable.</p>}

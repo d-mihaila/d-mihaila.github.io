@@ -1,0 +1,203 @@
+---
+id: exp177
+title: "Rhythm Versus Rate: Van Rossum Plasticity With and Without Homeostasis"
+author: "Daria Mihaila"
+created_at: "2026-11-24T18:00:00Z"
+updated_at: "2026-11-24T18:00:00Z"
+description: "Rate-matched trained PING and COBA networks (exp022 TR02, 25 Hz ceiling) under one MNIST stream with frozen weights, STDP only, synaptic scaling only, or both."
+collection: ["experiments"]
+tags: ["data"]
+inputs: ["exp177"]
+thumbnail: rhythm.png
+---
+
+import RunFigure from '../../../site/src/components/RunFigure.astro';
+import { reportData, round } from '../../../site/src/lib/report-data';
+export const data = await reportData('exp177', { allowUnavailable: true });
+export const cfg = data?.configuration;
+export const s = data?.summary;
+export const seconds = cfg ? round(cfg.presentations * cfg.presentation_ms / 1000, 1) : 'unavailable';
+export const f = (value, digits = 2) => value == null ? 'unavailable' : round(value, digits);
+export const pct = value => value == null ? 'unavailable' : round(100 * value, 0);
+
+## Abstract
+
+{data ? <p>Does the PING rhythm itself change what van Rossum plasticity does, or only the firing rate? exp176 could not tell, because COBA fired ten times faster than PING. Here both networks were trained with the same 25 Hz activity ceiling (exp022 TR02, seed {String(cfg.seed)}): PING started at {f(s['ping__frozen'].rate_hz_first, 1)} Hz and COBA at {f(s['coba__frozen'].rate_hz_first, 1)} Hz. Each received the same {cfg.presentations} MNIST test digits ({seconds} s, no state reset) under four rules on its sensory weights: frozen, STDP only, synaptic scaling only, and both (the full van Rossum model). With both, PING's rhythmicity contrast went from {f(s['ping__both'].rhythm_contrast_first)} to {f(s['ping__both'].rhythm_contrast_last)} (frozen: {f(s['ping__frozen'].rhythm_contrast_first)} to {f(s['ping__frozen'].rhythm_contrast_last)}), its rhythm frequency from {f(s['ping__both'].rhythm_frequency_hz_first, 0)} to {f(s['ping__both'].rhythm_frequency_hz_last, 0)} Hz, and the share of E cells firing per cycle from {pct(s['ping__both'].participation_first)}% to {pct(s['ping__both'].participation_last)}%. Test accuracy went from {f(s['ping__both'].accuracy_first, 1)}% to {f(s['ping__both'].accuracy_last, 1)}% in PING and from {f(s['coba__both'].accuracy_first, 1)}% to {f(s['coba__both'].accuracy_last, 1)}% in COBA; the mean absolute weight change reached {pct(s['ping__both'].weight_change_last)}% and {pct(s['coba__both'].weight_change_last)}% of the trained mean. One seed and one stream: a first comparison, not a sweep.</p> : <p>No completed evidence is selected.</p>}
+
+## Results
+
+{/*
+HOW TO USE THESE TEMPLATES. Everything inside a comment block is hidden: the page
+looks exactly as before until you open a block.
+1. Each WRITE-UP block sits where its text belongs, just before its figure (Eoin's
+   rule: explain each result before its figure). To use one, delete its first and
+   last lines, then replace the questions with 2-4 short sentences.
+2. Bind numbers to the run instead of typing them: put an expression such as
+   f(s['ping__both'].rate_hz_last, 1)
+   inside curly braces, as the Abstract does. Each block lists its summary keys.
+3. The Discussion template is at the end. Eoin's rule: first drafts omit the
+   Discussion; add it once the results are final.
+4. Style: claim first, then the number, then what it means. Short sentences.
+5. After substantive edits, set updated_at in the front matter (quoted UTC time).
+*/}
+
+### Spiking at the start and end
+
+{/*
+WRITE-UP · Figure 1 (rasters). 2-4 sentences: what changed, by how much, and why it matters.
+- Are the two networks rate-matched at the start? How different is their spiking?
+- By the end, which rules visibly changed the firing pattern?
+Numbers: s['ping__frozen'].rate_hz_first, s['coba__frozen'].rate_hz_first.
+*/}
+
+<RunFigure report="exp177" experiment="exp177" file="rasters.svg" number={1} id="fig-rasters" alt="Rasters at the start of the stream and at the last presentation of every condition." allowUnavailable={true}>
+  The first two panels show the first presentation of PING and COBA (fresh
+  state, trained weights). The others show the last presentation of each
+  condition, after {seconds} s of continuous activity. Every spike is a dot: black
+  E below red I. COBA has no I population. All conditions of a network receive
+  identical, hash-checked input.
+</RunFigure>
+
+### Rhythm
+
+{/*
+WRITE-UP · Figure 2 (rhythm). 2-4 sentences: what changed, by how much, and why it matters.
+- In PING, did any rule make the rhythm sharper (contrast), faster or slower (frequency), or sparser (fewer E cells per cycle) beyond the frozen drift?
+- Which half of the rule did it? Compare STDP only, scaling only and both.
+- Does COBA stay arrhythmic under every rule?
+Numbers: rhythm_contrast_first/_last, rhythm_frequency_hz_first/_last, participation_first/_last, cycle_rate_hz_first/_last for ping__frozen, ping__stdp, ping__scaling, ping__both.
+*/}
+
+<RunFigure report="exp177" experiment="exp177" file="rhythm.svg" number={2} id="fig-rhythm" alt="Rhythmicity contrast, rhythm frequency, I volley rate and E participation per block for each rule." allowUnavailable={true}>
+  Per block of {cfg ? cfg.block_presentations : 'unavailable'} presentations; left PING,
+  right COBA. Rows: E rhythmicity contrast (exp054 metric, Appendix A3); rhythm
+  frequency from the autocorrelogram side peak; I volleys per second; fraction of
+  E cells firing per cycle (lower is sparser). Colours: frozen black, STDP only
+  red, scaling only amber, STDP + scaling blue. COBA has no clear side peak and
+  no I volleys, so those rows stay empty.
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 3 (autocorrelograms). 2-4 sentences: what changed, by how much, and why it matters.
+- Do the autocorrelograms confirm Figure 2: deeper trough, taller or shifted side peak?
+*/}
+
+<RunFigure report="exp177" experiment="exp177" file="autocorrelograms.svg" number={3} id="fig-autocorrelograms" alt="E spike autocorrelograms in the first and last block of every condition." allowUnavailable={true}>
+  E population spike autocorrelograms (1-ms bins; 1 = independent firing) in the
+  first block (faint) and the last block (strong) of each condition. A deeper
+  trough and a taller side peak mean a sharper rhythm.
+</RunFigure>
+
+### Firing
+
+{/*
+WRITE-UP · Figure 4 (activity). 2-4 sentences: what changed, by how much, and why it matters.
+- Did the E rate drift? Did scaling hold it near the setpoint while STDP alone let it run?
+- Did ISI regularity (CV) change with the rhythm?
+Numbers: rate_hz_first/_last, isi_cv_mean_first/_last, spectral_peak_hz_first/_last; setpoints in data.scaling_targets_hz.
+*/}
+
+<RunFigure report="exp177" experiment="exp177" file="activity.svg" number={4} id="fig-activity" alt="E rate, ISI irregularity, median ISI and spectral peak per block for each rule." allowUnavailable={true}>
+  Per block; left PING, right COBA. Rows: E rate; mean per-cell ISI coefficient of
+  variation (cells with at least three spikes); median E ISI; spectral peak of the
+  E population rate in {cfg ? `${cfg.rhythm_band_hz[0]}–${cfg.rhythm_band_hz[1]}` : 'unavailable'} Hz.
+  Colours as in Figure 2.
+</RunFigure>
+
+### Sensory weights
+
+{/*
+WRITE-UP · Figure 5 (weights). 2-4 sentences: what changed, by how much, and why it matters.
+- The central comparison: at matched rate, did PING's weights move less than, more than or as much as COBA's?
+- Did scaling change the mean while STDP changed the shape (skew)?
+Numbers: weight_change_last, weight_correlation_last, weight_mean_ratio_last, weight_skew_first/_last.
+*/}
+
+<RunFigure report="exp177" experiment="exp177" file="weights.svg" number={5} id="fig-weights" alt="Mean weight, accumulated change, correlation with trained weights, skewness and scaling sensor over time." allowUnavailable={true}>
+  The plastic X→E matrix (784 × 1,024, µS) after every presentation; top PING,
+  bottom COBA. Columns: mean weight and mean absolute change, both relative to
+  the trained mean; Pearson correlation with the trained matrix (1 = intact);
+  skewness of the weight distribution; mean scaling-sensor rate (scaling rules
+  only). Colours as in Figure 2.
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 6 (synapses). 2-4 sentences: what changed, by how much, and why it matters.
+- Do single synapses approach the fixed point at the same speed in PING and COBA?
+*/}
+
+<RunFigure report="exp177" experiment="exp177" file="synapses.svg" number={6} id="fig-synapses" alt="Trajectories of randomly sampled sensory synapses under each plastic rule." allowUnavailable={true}>
+  {cfg ? cfg.tracked_synapses.toLocaleString('en-GB') : 'unavailable'} X→E synapses per network,
+  sampled uniformly (seed {cfg ? String(cfg.tracked_synapse_seed) : 'unavailable'}), recorded
+  after every presentation. Darker lines start with larger weights. The dotted
+  line is the trained mean, the STDP fixed point. STDP pulls large weights down
+  and small active ones up; scaling multiplies all inputs of a cell together.
+</RunFigure>
+
+### Decoding
+
+{/*
+WRITE-UP · Figure 7 (decoding). 2-4 sentences: what changed, by how much, and why it matters.
+- At the same rate, did accuracy fall less in PING than in COBA? Which rule hurt most?
+- Does online decoding of the stream follow the held-out accuracy?
+Numbers: accuracy_first/_last, online_first/_last.
+*/}
+
+<RunFigure report="exp177" experiment="exp177" file="decoding.svg" number={7} id="fig-decoding" alt="Held-out test accuracy and online decoding of the stream digits for each rule." allowUnavailable={true}>
+  Left: accuracy on {cfg ? cfg.accuracy_images.toLocaleString('en-GB') : 'unavailable'} official MNIST test
+  images (the first half of the exp173 subset) every {cfg ? cfg.accuracy_every : 'unavailable'} presentations,
+  with the weights reached at that moment, frozen, fresh state per image; dashed
+  lines are the frozen networks. Right: share of stream digits classified
+  correctly as they play, per block, with state carried over. Readout weights
+  never change.
+</RunFigure>
+
+### Summary
+
+{/*
+WRITE-UP · Figure 8 (summary). 2-4 sentences: what changed, by how much, and why it matters.
+- Which changes are larger than the frozen drift? One verdict per measure.
+- Is PING more robust than COBA once rate is matched?
+*/}
+
+<RunFigure report="exp177" experiment="exp177" file="summary.svg" number={8} id="fig-summary" alt="Change from the first to the last block for each rule and network." allowUnavailable={true}>
+  Last block minus first block for each condition: rhythmicity contrast, rhythm
+  frequency, E participation per cycle, E rate; test accuracy at the end minus
+  the start; and the final mean absolute weight change relative to the trained
+  mean. Frozen bars show drift without plasticity. One seed; no uncertainty is
+  estimated.
+</RunFigure>
+
+{/*
+DISCUSSION TEMPLATE. To use: delete this block's first and last lines and replace
+each prompt with short paragraphs. Keep it argumentative: claim, evidence, then
+the strongest objection and how the data answer it.
+
+## Discussion
+
+### Main claim
+
+- At the same E rate, is PING more or less robust to van Rossum plasticity than COBA? Does the rhythm itself matter, or was exp176's difference only rate?
+
+### Mechanism
+
+- What does each half of the rule do? Van Rossum: STDP alone has no competition and the rate follows the input; scaling adds homeostasis and competition.
+- How could cycle-locked spike timing limit or focus spike pairing in PING?
+
+### Objections
+
+- PING rt25hz already has contrast near 1, so sharpening cannot show here. Is that a ceiling?
+- The two networks also differ in trained weights, not only in the E-I loop.
+
+### Limitations
+
+- One seed (42) and one stream order: no uncertainty estimates.
+- Synaptic scaling is compressed in time 100x (tau 1 s, not 100 s); STDP is not.
+- Only the sensory weights X->E are plastic; E->I, I->E and the readout are fixed.
+- TR02 networks trained on 7,000 images; a 10-s stream.
+
+### Next steps
+
+- More seeds; the rt10hz pair; plastic E->I and I->E.
+
+*/}

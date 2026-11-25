@@ -11,11 +11,11 @@ concurrency:
   group: pages
   cancel-in-progress: false
 jobs:
-  deploy:
+  # Upload in its own job, as actions/deploy-pages recommends, so the artifact is
+  # complete before the deploy job looks it up. One job did both and often failed
+  # with "No artifacts named github-pages were found".
+  upload:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -24,6 +24,13 @@ jobs:
       - uses: actions/upload-pages-artifact@v4
         with:
           path: .
+  deploy:
+    needs: upload
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4

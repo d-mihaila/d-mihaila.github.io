@@ -1,0 +1,259 @@
+---
+id: exp006
+title: "One Digit for Ten Seconds: Van Rossum Plasticity in PING and COBA"
+author: "Daria Mihaila"
+created_at: "2026-11-25T14:00:00Z"
+updated_at: "2026-11-25T14:00:00Z"
+description: "The rate-matched exp022 TR02 PING and COBA networks see one MNIST digit for 10 s, frozen and with van Rossum STDP plus synaptic scaling, for three random digits: rhythm, ISIs, spectra and the direction of weight change."
+collection: ["experiments"]
+tags: ["data"]
+inputs: ["exp006"]
+thumbnail: tendency.png
+---
+
+import RunFigure from '../../../site/src/components/RunFigure.astro';
+import { reportData, round } from '../../../site/src/lib/report-data';
+export const data = await reportData('exp006', { allowUnavailable: true });
+export const cfg = data?.configuration;
+export const s = data?.summary;
+export const seconds = cfg ? round(cfg.presentations * cfg.presentation_ms / 1000, 1) : 'unavailable';
+export const ids = (network, rule) => cfg ? cfg.digits.map(d => `${network}__digit${d}__${rule}`) : [];
+export const span = (network, rule, key, scale = 1, digits = 2) => {
+  const v = ids(network, rule).map(id => s?.[id]?.[key]).filter(x => x != null).map(x => x * scale);
+  if (!v.length) return 'unavailable';
+  const lo = round(Math.min(...v), digits);
+  const hi = round(Math.max(...v), digits);
+  return lo === hi ? `${lo}` : `${lo} to ${hi}`;
+};
+
+## Abstract
+
+{data ? <p>exp001 to exp005 changed the digit every 200 ms, so the input to each synapse kept switching. Here each network saw a single digit for {seconds} s, without a reset. We used the rate-matched exp022 TR02 pair (PING and COBA with a 25 Hz activity ceiling, seed {String(cfg.seed)}) and {cfg.digits.length} random digits ({cfg.digits.join(', ')}), each started from the trained weights. Every digit ran twice: with frozen weights, and with van Rossum STDP plus synaptic scaling on the sensory weights X→E. Across digits, PING's rhythmicity contrast went from {span('ping', 'both', 'rhythm_contrast_first')} in the first second to {span('ping', 'both', 'rhythm_contrast_last')} in the last with plasticity, against {span('ping', 'frozen', 'rhythm_contrast_last')} with frozen weights. Its rhythm frequency ended at {span('ping', 'both', 'rhythm_frequency_hz_last', 1, 0)} Hz with plasticity and {span('ping', 'frozen', 'rhythm_frequency_hz_last', 1, 0)} Hz frozen. Synapses from the digit's own pixels changed on average by {span('ping', 'both', 'digit_net_change_last', 100, 0)}% of the trained mean weight in PING and {span('coba', 'both', 'digit_net_change_last', 100, 0)}% in COBA. In PING, {span('ping', 'both', 'digit_potentiated_last', 100, 0)}% of them were potentiated and {span('ping', 'both', 'digit_depressed_last', 100, 0)}% depressed. Synapses from the other pixels changed by {span('ping', 'both', 'other_net_change_last', 100, 0)}% in PING and {span('coba', 'both', 'other_net_change_last', 100, 0)}% in COBA. One seed and one image per digit; ranges span the digits, without uncertainty estimates.</p> : <p>No completed evidence is selected.</p>}
+
+## Results
+
+{/*
+HOW TO USE THESE TEMPLATES. Everything inside a comment block is hidden: the page
+looks exactly as before until you open a block.
+1. Each WRITE-UP block sits where its text belongs, just before its figure (Eoin's
+   rule: explain each result before its figure). To use one, delete its first and
+   last lines, then replace the questions with 2-4 short sentences.
+2. Bind numbers to the run instead of typing them: put an expression such as
+   span('ping', 'both', 'digit_net_change_last', 100, 0)
+   inside curly braces, as the Abstract does. Each block lists its summary keys.
+3. The Discussion template is at the end. Eoin's rule: first drafts omit the
+   Discussion; add it once the results are final.
+4. Style: claim first, then the number, then what it means. Short sentences.
+5. After substantive edits, set updated_at in the front matter (quoted UTC time).
+*/}
+
+### Stimuli
+
+{/*
+WRITE-UP · Figure 1 (stimulus). 2-4 sentences: what changed, by how much, and why it matters.
+- Which digits and images were drawn? How many digit pixels does each have? Larger digits drive more synapses.
+*/}
+
+<RunFigure report="exp006" experiment="exp006" file="stimulus.svg" number={1} id="fig-stimulus" alt="The MNIST test images shown, with their digit pixels outlined." allowUnavailable={true}>
+  One official MNIST test image per digit, outside the 1,000-image accuracy
+  subset, shown for the whole stream. The blue outline marks the digit pixels
+  (intensity above {cfg ? cfg.digit_pixel_threshold : 'unavailable'}); synapses from them form the
+  digit-pixel group in Figures 9 to 12.
+</RunFigure>
+
+### Spiking at the start and end
+
+{/*
+WRITE-UP · Figure 2 (rasters). 2-4 sentences: what changed, by how much, and why it matters.
+- After 10 s of one digit, does PING still fire in volleys? Did plasticity change the volleys (width, spacing, how many E cells join)?
+- Does COBA's firing pattern change, or only its rate?
+*/}
+
+<RunFigure report="exp006" experiment="exp006" file="rasters.svg" number={2} id="fig-rasters" alt="Rasters of the first and last 200-ms window for every network and digit, frozen and plastic." allowUnavailable={true}>
+  One row per network and digit. Left: the first 200-ms window (trained
+  weights). Middle: the last window with frozen weights. Right: the last window
+  with STDP + scaling, after {seconds} s of the same digit. Every spike is a
+  dot: black E below red I. COBA has no I population.
+</RunFigure>
+
+### Rhythm
+
+{/*
+WRITE-UP · Figure 3 (rhythm). 2-4 sentences: what changed, by how much, and why it matters.
+- Did plasticity make the PING rhythm sharper (contrast), faster or slower (frequency), or sparser (participation) beyond the frozen drift?
+- Is the effect the same for all three digits?
+Numbers: span('ping', 'both', 'rhythm_contrast_first'), span('ping', 'both', 'rhythm_contrast_last'), rhythm_frequency_hz_first/_last, participation_first/_last; compare 'frozen'.
+*/}
+
+<RunFigure report="exp006" experiment="exp006" file="rhythm.svg" number={3} id="fig-rhythm" alt="Rhythmicity contrast, rhythm frequency, I volley rate and E participation per block." allowUnavailable={true}>
+  Per block of {cfg ? cfg.block_presentations : 'unavailable'} windows (1 s); left PING, right COBA.
+  Rows: E rhythmicity contrast (exp054 metric, Appendix A3); rhythm frequency
+  from the autocorrelogram side peak; I volleys per second; fraction of E cells
+  firing per cycle (lower is sparser). Greys, dashed: frozen; blues, solid: STDP
+  + scaling; the shade marks the digit. COBA has no clear side peak and no I
+  volleys, so those rows stay empty.
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 4 (autocorrelograms). 2-4 sentences: what changed, by how much, and why it matters.
+- Do the side peaks move (faster or slower rhythm) or grow (sharper)?
+*/}
+
+<RunFigure report="exp006" experiment="exp006" file="autocorrelograms.svg" number={4} id="fig-autocorrelograms" alt="E spike autocorrelograms in the first and last block of every condition." allowUnavailable={true}>
+  E population spike autocorrelograms (1-ms bins; 1 = independent firing) in the
+  first second (faint) and the last second (strong) of each condition. A deeper
+  trough and a taller side peak mean a sharper rhythm; a side peak at a shorter
+  lag means a faster rhythm.
+</RunFigure>
+
+### Spectra
+
+{/*
+WRITE-UP · Figure 5 (spectra). 2-4 sentences: what changed, by how much, and why it matters.
+- Does the spectral peak shift or grow under plasticity? Does COBA gain any peak?
+Numbers: spectral_peak_hz_first/_last.
+*/}
+
+<RunFigure report="exp006" experiment="exp006" file="spectra.svg" number={5} id="fig-spectra" alt="Power spectra of the E population rate in the first and last second." allowUnavailable={true}>
+  Welch spectra of the 1-ms E population rate in the first second (faint) and the
+  last second (strong); one panel per network and digit. The shaded band is
+  {cfg ? `${cfg.rhythm_band_hz[0]}–${cfg.rhythm_band_hz[1]}` : 'unavailable'} Hz. Colours as in Figure 3.
+</RunFigure>
+
+### Inter-spike intervals
+
+{/*
+WRITE-UP · Figure 6 (isi). 2-4 sentences: what changed, by how much, and why it matters.
+- Do E intervals get shorter or longer? In PING, do the peaks at multiples of the cycle period change (cells skipping more or fewer cycles)?
+Numbers: isi_cv_mean_first/_last; median ISI in Figure 7.
+*/}
+
+<RunFigure report="exp006" experiment="exp006" file="isi.svg" number={6} id="fig-isi" alt="E inter-spike interval distributions in the first and last second." allowUnavailable={true}>
+  Distributions of all E inter-spike intervals (pooled over cells, 40
+  logarithmic bins) in the first second (faint) and the last second (strong);
+  one panel per network and digit. In PING, peaks at multiples of the cycle
+  period mean that cells skip cycles. Colours as in Figure 3.
+</RunFigure>
+
+### Firing
+
+{/*
+WRITE-UP · Figure 7 (activity). 2-4 sentences: what changed, by how much, and why it matters.
+- Did the E rate drift, and did scaling hold it near the frozen setpoint?
+Numbers: rate_hz_first/_last.
+*/}
+
+<RunFigure report="exp006" experiment="exp006" file="activity.svg" number={7} id="fig-activity" alt="E rate, ISI irregularity, median ISI and spectral peak per block." allowUnavailable={true}>
+  Per block; left PING, right COBA. Rows: E rate; mean per-cell ISI coefficient
+  of variation (cells with at least three spikes); median E ISI; spectral peak of
+  the E population rate in the band of Figure 5. Colours as in Figure 3.
+</RunFigure>
+
+### Sensory weights
+
+{/*
+WRITE-UP · Figure 8 (weights). 2-4 sentences: what changed, by how much, and why it matters.
+- How large is the accumulated change after 10 s of one digit? Compare with exp002's 10 s of changing digits.
+Numbers: weight_change_last, weight_mean_ratio_last, weight_correlation_last, weight_skew_first/_last.
+*/}
+
+<RunFigure report="exp006" experiment="exp006" file="weights.svg" number={8} id="fig-weights" alt="Mean weight, accumulated change, correlation with trained weights, skewness and scaling sensor over time." allowUnavailable={true}>
+  The plastic X→E matrix (784 × 1,024, µS) after every 200-ms window; top PING,
+  bottom COBA; one line per digit. Columns: mean weight and mean absolute change
+  (accumulated), both relative to the trained mean; Pearson correlation with the
+  trained matrix (1 = intact); skewness of the weight distribution; mean
+  scaling-sensor rate.
+</RunFigure>
+
+### Potentiation or depression
+
+{/*
+WRITE-UP · Figure 9 (tendency). 2-4 sentences: what changed, by how much, and why it matters.
+- The key result: do digit-pixel synapses potentiate or depress on average? What share does each?
+- Do synapses from the other pixels move at all? If they do, that is scaling, since STDP needs presynaptic spikes.
+- Is the pattern the same in PING and COBA, and for all three digits?
+Numbers: digit_net_change_last, digit_potentiated_last, digit_depressed_last, other_net_change_last, other_potentiated_last, other_depressed_last (x100 for %).
+*/}
+
+<RunFigure report="exp006" experiment="exp006" file="tendency.svg" number={9} id="fig-tendency" alt="Signed weight change, shares of potentiated and depressed synapses, and change against initial weight." allowUnavailable={true}>
+  Top PING, bottom COBA; one colour per digit. A: signed mean change relative to
+  the trained mean, for synapses from the digit pixels (solid) and from the other
+  pixels (dashed). B, C: shares of synapses potentiated (solid) or depressed
+  (dashed) by more than {cfg ? 100 * cfg.change_tolerance_fraction : 'unavailable'}% of the trained mean, for
+  digit-pixel and other synapses. D: mean final change against the initial
+  weight, both as fractions of w_max (the largest trained weight). The dotted
+  vertical line is the STDP fixed point, the trained mean (Appendix A6, eq. 4).
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 10 (drift). 2-4 sentences: what changed, by how much, and why it matters.
+- Do weak digit-pixel synapses grow and strong ones shrink, crossing zero near the fixed point as equation 4 predicts?
+- Does the crossing point move over time, or does the curve only scale?
+*/}
+
+<RunFigure report="exp006" experiment="exp006" file="drift.svg" number={10} id="fig-drift" alt="Mean weight change against initial weight at successive times, digit-pixel synapses." allowUnavailable={true}>
+  Digit-pixel synapses: mean ΔW / w_max against W0 / w_max from the full matrices
+  at 2, 4, 6, 8 and 10 s (light to dark blue). Dashed grey: the other synapses at
+  the end. The dotted line is the STDP fixed point. Bins with fewer than 20
+  synapses are omitted.
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 11 (maps). 2-4 sentences: what changed, by how much, and why it matters.
+- Where do points leave the diagonal? Is the final W / w_max distribution narrower, wider, or shifted?
+*/}
+
+<RunFigure report="exp006" experiment="exp006" file="maps.svg" number={11} id="fig-maps" alt="Final against initial weight histograms and weight distributions, by pixel group." allowUnavailable={true}>
+  STDP + scaling. Rows: PING digit pixels, PING other pixels, COBA digit pixels,
+  COBA other pixels. First columns: final against initial weight (W / w_max) for
+  each digit, as a log-density histogram; points above the dotted diagonal were
+  potentiated, points below it depressed; dashed lines mark the fixed point. Last
+  column: the distribution of W / w_max, trained (grey) and at the end, log
+  scale. Axes run to just above the 99.9th percentile of each group.
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 12 (synapses). 2-4 sentences: what changed, by how much, and why it matters.
+- Do single digit-pixel synapses move steadily or jump? Do the grey ones stay flat?
+*/}
+
+<RunFigure report="exp006" experiment="exp006" file="synapses.svg" number={12} id="fig-synapses" alt="Trajectories of randomly sampled sensory synapses, digit-pixel synapses highlighted." allowUnavailable={true}>
+  {cfg ? cfg.tracked_synapses.toLocaleString('en-GB') : 'unavailable'} X→E synapses, sampled uniformly (seed
+  {cfg ? String(cfg.tracked_synapse_seed) : 'unavailable'}) and recorded after every window. Synapses
+  from the digit pixels are coloured; the others are grey. The dotted line is
+  the trained mean, the STDP fixed point.
+</RunFigure>
+
+{/*
+DISCUSSION TEMPLATE. To use: delete this block's first and last lines and replace
+each prompt with short paragraphs. Keep it argumentative: claim, evidence, then
+the strongest objection and how the data answer it.
+
+## Discussion
+
+### Main claim
+
+- With one steady digit, does van Rossum plasticity potentiate or depress the active synapses, and how does that change the PING rhythm?
+
+### Mechanism
+
+- Equation 4: independent firing drives weights towards the trained mean. Does PING's cycle locking add net potentiation (inputs fire before E spikes in each cycle) or depression?
+- What does scaling add when STDP changes the rate?
+
+### Objections
+
+- Rate: do PING and COBA fire at the same E rate on these digits? If not, pairing rates differ.
+- Three digits, one image each: is the effect the same across digits?
+
+### Limitations
+
+- One seed (42) and one stream order: no uncertainty estimates.
+- Synaptic scaling is compressed in time 100x (tau 1 s, not 100 s); STDP is not.
+- Only the sensory weights X->E are plastic; E->I, I->E and the readout are fixed.
+- One image per digit; 10 s; no accuracy measured.
+
+### Next steps
+
+- More digits or images; longer exposure; STDP only (no scaling); compare with exp002's changing stream.
+
+*/}

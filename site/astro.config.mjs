@@ -7,7 +7,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { coalesceFullReloads, refreshServerMdx } from './src/lib/dev-refresh.ts';
 import { installRefreshDiagnostics } from './src/lib/dev-refresh-diagnostics.ts';
-import { siteUrl } from './src/lib/site.ts';
+import { siteUrl, renamedExperiments } from './src/lib/site.ts';
 
 // Keep the resolver and manifest independent of Vite's bundled module location.
 process.env.PINGLAB_REPOSITORY_ROOT = new URL('../', import.meta.url).pathname;
@@ -16,6 +16,7 @@ process.env.PINGLAB_REPOSITORY_ROOT = new URL('../', import.meta.url).pathname;
 export default defineConfig({
   logger: { entrypoint: './src/logger.mjs' },
   site: siteUrl,
+  redirects: Object.fromEntries(Object.entries(renamedExperiments).map(([from, to]) => [`/${from}`, `/${to}`])),
   trailingSlash: 'never',
   build: { format: 'file' },
   server: { port: 3000 },

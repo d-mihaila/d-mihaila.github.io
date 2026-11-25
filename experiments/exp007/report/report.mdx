@@ -1,0 +1,364 @@
+---
+id: exp007
+title: "One Digit for Ten Seconds: STDP Alone Against STDP With Synaptic Scaling"
+author: "Daria Mihaila"
+created_at: "2026-11-25T15:00:00Z"
+updated_at: "2026-11-25T15:00:00Z"
+description: "The rate-matched exp022 TR02 PING and COBA networks see one MNIST digit for 10 s, frozen, with van Rossum STDP only, and with STDP plus synaptic scaling, for three digits: rhythm, ISIs, spectra, rates and the direction of weight change."
+collection: ["experiments"]
+tags: ["data"]
+inputs: ["exp007"]
+thumbnail: summary.png
+---
+
+import RunFigure from '../../../site/src/components/RunFigure.astro';
+import { reportData, round } from '../../../site/src/lib/report-data';
+export const data = await reportData('exp007', { allowUnavailable: true });
+export const cfg = data?.configuration;
+export const s = data?.summary;
+export const seconds = cfg ? round(cfg.presentations * cfg.presentation_ms / 1000, 1) : 'unavailable';
+export const ids = (network, rule) => cfg ? cfg.digits.map(d => `${network}__digit${d}__${rule}`) : [];
+export const range = values => {
+  const v = values.filter(x => x != null && Number.isFinite(x));
+  if (!v.length) return 'unavailable';
+  const lo = Math.min(...v);
+  const hi = Math.max(...v);
+  return [lo, hi];
+};
+export const show = (values, scale = 1, digits = 2) => {
+  const r = range(values.map(x => x == null ? null : x * scale));
+  if (r === 'unavailable') return r;
+  const lo = round(r[0], digits);
+  const hi = round(r[1], digits);
+  return lo === hi ? `${lo}` : `${lo} to ${hi}`;
+};
+export const span = (network, rule, key, scale = 1, digits = 2) => show(ids(network, rule).map(id => s?.[id]?.[key]), scale, digits);
+export const effect = (network, key, scale = 1, digits = 2) => cfg ? show(cfg.digits.map(d => data?.scaling_effect?.[`${network}__digit${d}`]?.[key]), scale, digits) : 'unavailable';
+
+## Abstract
+
+{data ? <p>exp006 applied STDP and synaptic scaling together. Here we separate them. The rate-matched exp022 TR02 pair (PING and COBA with a 25 Hz activity ceiling, seed {String(cfg.seed)}) saw one digit for {seconds} s, for digits {cfg.digits.join(', ')}, with exp006's images and spike trains. Each digit ran three times from the trained weights: frozen, with van Rossum STDP only, and with STDP plus scaling on the sensory weights X→E. In PING, the E rate in the last second was {span('ping', 'frozen', 'rate_hz_last', 1, 1)} Hz frozen, {span('ping', 'stdp', 'rate_hz_last', 1, 1)} Hz with STDP only and {span('ping', 'both', 'rate_hz_last', 1, 1)} Hz with scaling added; the scaling setpoint was the frozen rate. Its rhythmicity contrast ended at {span('ping', 'frozen', 'rhythm_contrast_last')}, {span('ping', 'stdp', 'rhythm_contrast_last')} and {span('ping', 'both', 'rhythm_contrast_last')}. Synapses from the digit's own pixels changed by {span('ping', 'stdp', 'digit_net_change_last', 100, 0)}% of the trained mean weight with STDP only and {span('ping', 'both', 'digit_net_change_last', 100, 0)}% with scaling. Synapses from the other pixels, whose inputs hardly fire, changed by {span('ping', 'stdp', 'other_net_change_last', 100, 0)}% and {span('ping', 'both', 'other_net_change_last', 100, 0)}%. Adding scaling changed each E cell's total input by a median factor of {effect('ping', 'afferent_ratio_median')} in PING and {effect('coba', 'afferent_ratio_median')} in COBA. One seed and one image per digit; ranges span the digits, without uncertainty estimates.</p> : <p>No completed evidence is selected.</p>}
+
+## Results
+
+{/*
+HOW TO USE THESE TEMPLATES. Everything inside a comment block is hidden: the page
+looks exactly as before until you open a block.
+1. Each WRITE-UP block sits where its text belongs, just before its figure (Eoin's
+   rule: explain each result before its figure). To use one, delete its first and
+   last lines, then replace the questions with 2-4 short sentences.
+2. Bind numbers to the run instead of typing them: put an expression such as
+   span('ping', 'stdp', 'digit_net_change_last', 100, 0)
+   inside curly braces, as the Abstract does. Each block lists its summary keys.
+3. The Discussion template is at the end. Eoin's rule: first drafts omit the
+   Discussion; add it once the results are final.
+4. Style: claim first, then the number, then what it means. Short sentences.
+5. After substantive edits, set updated_at in the front matter (quoted UTC time).
+*/}
+
+### Overview
+
+{/*
+WRITE-UP · Figure 1 (summary). 2-4 sentences: what changed, by how much, and why it matters.
+- Lead with the overview: which measures does STDP alone change, and which change only when scaling is added?
+- Do the three digits agree (dots close together)? If yes, the effect is not digit-specific.
+Numbers: span(network, rule, key, scale, digits) with rule 'frozen', 'stdp' or 'both'.
+*/}
+
+<RunFigure report="exp007" experiment="exp007" file="summary.svg" number={1} id="fig-summary" alt="Change of every measure per rule and network, one dot per digit." allowUnavailable={true}>
+  Every measure for each rule, left PING and right COBA. One dot per digit
+  (light to dark in the order {cfg ? cfg.digits.join(', ') : 'unavailable'}); the bar is the mean of the
+  digits. A–F: last second minus first second of rhythmicity contrast, rhythm
+  frequency, E cells firing per cycle, E rate, mean ISI CV and spectral peak;
+  frozen shows the drift without plasticity. G–J (plastic rules only): mean
+  final change of digit-pixel and other synapses, mean absolute change, all
+  relative to the trained mean weight, and the correlation with the trained
+  matrix. Dots that agree across digits mean the effect is not digit-specific.
+</RunFigure>
+
+### Stimuli and spiking
+
+{/*
+WRITE-UP · Figure 2 (stimulus). 2-4 sentences: what changed, by how much, and why it matters.
+- Which digits and images; how many digit pixels each?
+*/}
+
+<RunFigure report="exp007" experiment="exp007" file="stimulus.svg" number={2} id="fig-stimulus" alt="The MNIST test images shown, with their digit pixels outlined." allowUnavailable={true}>
+  One official MNIST test image per digit (exp006's), outside the 1,000-image
+  accuracy subset, shown for the whole stream. The blue outline marks the digit
+  pixels (intensity above {cfg ? cfg.digit_pixel_threshold : 'unavailable'}); synapses from them form
+  the digit-pixel group.
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 3 (rasters). 2-4 sentences: what changed, by how much, and why it matters.
+- Compare the last windows: does STDP alone change the volleys (width, spacing, participation)? Does adding scaling undo or amplify that?
+*/}
+
+<RunFigure report="exp007" experiment="exp007" file="rasters.svg" number={3} id="fig-rasters" alt="Rasters of the first window and of every rule's last window, per network and digit." allowUnavailable={true}>
+  One row per network and digit. First column: the first 200-ms window (trained
+  weights). Then the last window frozen, with STDP only, and with STDP + scaling.
+  Every spike is a dot: black E below red I. COBA has no I population.
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 4 (rates). 2-4 sentences: what changed, by how much, and why it matters.
+- Does STDP alone push the E rate up or down? By how much after 10 s?
+- Does scaling bring the rate back to the setpoint, and how fast?
+Numbers: span('ping', 'stdp', 'rate_hz_last', 1, 1), span('ping', 'both', 'rate_hz_last', 1, 1), span('ping', 'frozen', 'rate_hz_last', 1, 1).
+*/}
+
+<RunFigure report="exp007" experiment="exp007" file="rates.svg" number={4} id="fig-rates" alt="E rate in every 200-ms window for each rule, with the scaling setpoint." allowUnavailable={true}>
+  E rate in every 200-ms window; one panel per network and digit. Grey, dashed:
+  frozen; red: STDP only; blue: STDP + scaling. The dotted line is the scaling
+  setpoint ν*, the frozen mean rate on that digit. STDP alone has no rate
+  target, so any drift of the red line is uncorrected; scaling should pull the
+  blue line back towards ν* within a few seconds (τ_ν = 1 s).
+</RunFigure>
+
+### Rhythm
+
+{/*
+WRITE-UP · Figure 5 (rhythm). 2-4 sentences: what changed, by how much, and why it matters.
+- Which rule changes sharpness (contrast), speed (frequency) or sparsity (participation)? Is it STDP, or the rate correction by scaling?
+Numbers: rhythm_contrast_first/_last, rhythm_frequency_hz_first/_last, participation_first/_last.
+*/}
+
+<RunFigure report="exp007" experiment="exp007" file="rhythm.svg" number={5} id="fig-rhythm" alt="Rhythmicity contrast, rhythm frequency, I volley rate and E participation per block." allowUnavailable={true}>
+  Per block of {cfg ? cfg.block_presentations : 'unavailable'} windows (1 s); left PING, right COBA.
+  Rows: E rhythmicity contrast (exp054 metric, Appendix A3); rhythm frequency
+  from the autocorrelogram side peak; I volleys per second; fraction of E cells
+  firing per cycle (lower is sparser). Greys dashed: frozen; reds: STDP only;
+  blues: STDP + scaling; the shade marks the digit. COBA has no clear side peak
+  and no I volleys, so those rows stay empty.
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 6 (autocorrelograms). 2-4 sentences: what changed, by how much, and why it matters.
+- Do the side peaks move or grow differently with and without scaling?
+*/}
+
+<RunFigure report="exp007" experiment="exp007" file="autocorrelograms.svg" number={6} id="fig-autocorrelograms" alt="E spike autocorrelograms: frozen first second against every rule's last second." allowUnavailable={true}>
+  E population spike autocorrelograms (1-ms bins; 1 = independent firing). The
+  dotted grey curve is the first second of the frozen run, the common starting
+  point; the others are each rule's last second. A deeper trough and a taller
+  side peak mean a sharper rhythm; a side peak at a shorter lag, a faster one.
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 7 (spectra). 2-4 sentences: what changed, by how much, and why it matters.
+- Does the spectral peak follow the rate change in Figure 4?
+Numbers: spectral_peak_hz_first/_last.
+*/}
+
+<RunFigure report="exp007" experiment="exp007" file="spectra.svg" number={7} id="fig-spectra" alt="Power spectra of the E population rate: frozen first second against every rule's last second." allowUnavailable={true}>
+  Welch spectra of the 1-ms E population rate: the frozen first second (dotted
+  grey) and each rule's last second. The shaded band is
+  {cfg ? `${cfg.rhythm_band_hz[0]}–${cfg.rhythm_band_hz[1]}` : 'unavailable'} Hz. A peak that moves shows a faster or slower
+  rhythm; a peak that grows, a stronger one.
+</RunFigure>
+
+### Inter-spike intervals
+
+{/*
+WRITE-UP · Figure 8 (isi). 2-4 sentences: what changed, by how much, and why it matters.
+- How do the ISI distributions differ between the three rules in the last second?
+*/}
+
+<RunFigure report="exp007" experiment="exp007" file="isi.svg" number={8} id="fig-isi" alt="E inter-spike interval distributions: frozen first second against every rule's last second." allowUnavailable={true}>
+  Distributions of all E inter-spike intervals (pooled over cells, 40
+  logarithmic bins): the frozen first second (dotted grey) and each rule's last
+  second. In PING, peaks at multiples of the cycle period mean that cells skip
+  cycles.
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 9 (isi_relative). 2-4 sentences: what changed, by how much, and why it matters.
+- Relative to frozen: does STDP alone shift intervals shorter (faster firing) or longer? Does scaling remove that shift?
+Numbers: isi_cv_mean_first/_last.
+*/}
+
+<RunFigure report="exp007" experiment="exp007" file="isi_relative.svg" number={9} id="fig-isi-relative" alt="Last-second ISI distribution of each plastic rule minus the frozen one." allowUnavailable={true}>
+  Last-second ISI distribution with STDP only (red) and with STDP + scaling
+  (blue), minus the frozen distribution in the same second. Above zero: those
+  intervals became more common than without plasticity; below zero: rarer. A
+  shift of mass to the left means faster firing.
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 10 (activity). 2-4 sentences: what changed, by how much, and why it matters.
+- Summarise rate, ISI CV, median ISI and spectral peak per rule.
+*/}
+
+<RunFigure report="exp007" experiment="exp007" file="activity.svg" number={10} id="fig-activity" alt="E rate, ISI irregularity, median ISI and spectral peak per block." allowUnavailable={true}>
+  Per block; left PING, right COBA. Rows: E rate; mean per-cell ISI coefficient
+  of variation (cells with at least three spikes); median E ISI; spectral peak of
+  the E population rate. Colours as in Figure 5.
+</RunFigure>
+
+### Weights over time
+
+{/*
+WRITE-UP · Figure 11 (weights). 2-4 sentences: what changed, by how much, and why it matters.
+- Does scaling change the mean weight while STDP changes the spread or skew?
+- Which rule keeps the matrix closest to the trained one (r)?
+Numbers: weight_change_last, weight_mean_ratio_last, weight_correlation_last, weight_skew_first/_last.
+*/}
+
+<RunFigure report="exp007" experiment="exp007" file="weights.svg" number={11} id="fig-weights" alt="Mean weight, accumulated change, correlation with trained weights, skewness and scaling sensor over time." allowUnavailable={true}>
+  The plastic X→E matrix (784 × 1,024, µS) after every 200-ms window; top PING,
+  bottom COBA; reds STDP only, blues STDP + scaling, one shade per digit.
+  Columns: mean weight and mean absolute change (accumulated), both relative to
+  the trained mean; correlation with the trained matrix (1 = intact); skewness
+  of the weight distribution; scaling-sensor rate (STDP + scaling only).
+</RunFigure>
+
+### Potentiation or depression
+
+{/*
+WRITE-UP · Figure 12 (tendency). 2-4 sentences: what changed, by how much, and why it matters.
+- With STDP only: do digit-pixel synapses potentiate or depress on average? Do other synapses stay still, as eq. 4 predicts for silent inputs?
+- With scaling added: what changes for each group?
+Numbers: digit_net_change_last, other_net_change_last, digit_potentiated_last, digit_depressed_last for 'stdp' and 'both'.
+*/}
+
+<RunFigure report="exp007" experiment="exp007" file="tendency.svg" number={12} id="fig-tendency" alt="Signed weight change, shares of potentiated and depressed synapses, and change against initial weight, per rule." allowUnavailable={true}>
+  One row per network and rule; one shade per digit. A: signed mean change
+  relative to the trained mean, digit-pixel synapses (solid) and other synapses
+  (dashed). B, C: shares potentiated (solid) or depressed (dashed) by more than
+  {cfg ? 100 * cfg.change_tolerance_fraction : 'unavailable'}% of the trained mean. D: mean final change
+  against the initial weight, both over w_max; the dotted line is the STDP fixed
+  point, the trained mean (Appendix A6, eq. 4). Comparing a network's two rows
+  shows what scaling adds.
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 13 (drift). 2-4 sentences: what changed, by how much, and why it matters.
+- Does STDP alone give the falling line of eq. 4 that crosses zero at the fixed point? How does scaling bend or shift it?
+*/}
+
+<RunFigure report="exp007" experiment="exp007" file="drift.svg" number={13} id="fig-drift" alt="Mean weight change against initial weight at successive times, digit-pixel synapses, per rule." allowUnavailable={true}>
+  Digit-pixel synapses: mean ΔW / w_max against W0 / w_max at 2, 4, 6, 8 and
+  10 s (light to dark); rows are network and rule, columns are digits. Dashed
+  grey: the other synapses at the end. Eq. 4 predicts a falling line that
+  crosses zero at the fixed point (dotted); scaling adds a change proportional to
+  W0. Bins with fewer than 20 synapses are omitted.
+</RunFigure>
+
+### What scaling adds
+
+{/*
+WRITE-UP · Figure 14 (pairs). 2-4 sentences: what changed, by how much, and why it matters.
+- Do points sit on the diagonal (scaling adds little) or off it? Is the other-pixel spread vertical, as pure scaling predicts?
+Numbers: effect('ping', 'digit_extra_change', 100, 1), effect('ping', 'other_extra_change', 100, 1).
+*/}
+
+<RunFigure report="exp007" experiment="exp007" file="pairs.svg" number={14} id="fig-pairs" alt="Per synapse, weight change with STDP plus scaling against weight change with STDP only." allowUnavailable={true}>
+  Each synapse's final ΔW / w_max with STDP + scaling against the same
+  synapse's ΔW / w_max with STDP only (log-density histogram; identical input in
+  both runs). Rows: PING digit pixels, PING other pixels, COBA digit pixels, COBA
+  other pixels. On the dotted diagonal, adding scaling changed nothing; above
+  it, scaling raised the weight. The other synapses barely move under STDP, so
+  their vertical spread is mostly scaling. Titles give the mean difference
+  (Appendix A7).
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 15 (cells). 2-4 sentences: what changed, by how much, and why it matters.
+- Is there a falling cloud: cells firing above the setpoint scaled down, cells below scaled up?
+- Does scaling narrow the per-cell rate distribution around the setpoint?
+Numbers: effect(network, 'afferent_ratio_median'), effect(network, 'ratio_rate_spearman'), effect(network, 'cells_above_setpoint', 100, 0).
+*/}
+
+<RunFigure report="exp007" experiment="exp007" file="cells.svg" number={15} id="fig-cells" alt="Per E cell: input-weight ratio against own rate, per-cell rate distributions and input change." allowUnavailable={true}>
+  Per E cell; top PING, bottom COBA. A: each cell's total input weight with
+  STDP + scaling divided by that with STDP only, against the cell's own rate in
+  the last second of the STDP-only run over the setpoint ν* (one dot per cell;
+  shade = digit). Homeostasis predicts a falling cloud: cells above ν* scaled
+  down, cells below scaled up. B: per-cell rates in the last second over ν*,
+  frozen (dashed), STDP only (red) and STDP + scaling (blue); scaling should
+  pull the distribution towards 1. C: each cell's total input at the end over
+  its trained total.
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 16 (maps_digit). 2-4 sentences: what changed, by how much, and why it matters.
+- Where do digit-pixel synapses leave the diagonal under each rule?
+*/}
+
+<RunFigure report="exp007" experiment="exp007" file="maps_digit.svg" number={16} id="fig-maps-digit" alt="Final against initial weight for digit-pixel synapses, per rule and digit." allowUnavailable={true}>
+  Digit-pixel synapses: final against initial weight (W / w_max), log-density
+  histogram; rows are network and rule (red STDP only, blue STDP + scaling),
+  columns are digits. Above the dotted diagonal: potentiated; below:
+  depressed. Dashed lines mark the fixed point. Axes run to just above the
+  99.9th percentile.
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 17 (maps_other). 2-4 sentences: what changed, by how much, and why it matters.
+- Do other-pixel synapses stay on the diagonal with STDP only and tilt with scaling?
+*/}
+
+<RunFigure report="exp007" experiment="exp007" file="maps_other.svg" number={17} id="fig-maps-other" alt="Final against initial weight for other synapses, per rule and digit." allowUnavailable={true}>
+  As Figure 16 for the synapses from the other pixels. Under STDP only they
+  should stay on the diagonal; scaling tilts them, since it multiplies every
+  input of a cell by the same factor.
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 18 (distributions). 2-4 sentences: what changed, by how much, and why it matters.
+- Does either rule widen, narrow or shift the W / w_max distribution?
+*/}
+
+<RunFigure report="exp007" experiment="exp007" file="distributions.svg" number={18} id="fig-distributions" alt="Weight distributions, trained and at the end, per network, pixel group and rule." allowUnavailable={true}>
+  Distributions of W / w_max, trained (grey) and at the end (one shade per
+  digit), log scale. Columns: digit pixels with STDP only, digit pixels with
+  STDP + scaling, other pixels with STDP only, other pixels with STDP + scaling;
+  rows are networks.
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 19 (synapses). 2-4 sentences: what changed, by how much, and why it matters.
+- Do single synapses move steadily or jump? Do grey (other-pixel) synapses move only with scaling?
+*/}
+
+<RunFigure report="exp007" experiment="exp007" file="synapses.svg" number={19} id="fig-synapses" alt="Trajectories of randomly sampled sensory synapses per rule, digit-pixel synapses highlighted." allowUnavailable={true}>
+  {cfg ? cfg.tracked_synapses.toLocaleString('en-GB') : 'unavailable'} X→E synapses, sampled uniformly (seed
+  {cfg ? String(cfg.tracked_synapse_seed) : 'unavailable'}, as in exp006) and recorded after every window;
+  rows are network and rule, columns are digits. Synapses from the digit pixels
+  are coloured; the others are grey. The dotted line is the STDP fixed point.
+</RunFigure>
+
+{/*
+DISCUSSION TEMPLATE. To use: delete this block's first and last lines and replace
+each prompt with short paragraphs. Keep it argumentative: claim, evidence, then
+the strongest objection and how the data answer it.
+
+## Discussion
+
+### Main claim
+
+- What does STDP alone do to a trained PING network shown one digit, and what does scaling add or undo?
+
+### Mechanism
+
+- STDP: eq. 4 drift towards the trained mean on active inputs, plus PING's cycle-locked timing.
+- Scaling: one factor per E cell that pulls each cell's rate to the setpoint; it moves silent inputs too.
+
+### Objections
+
+- Adding scaling also changes spike times, so the paired difference is not scaling in isolation.
+- Does the STDP + scaling run reproduce exp006? Check before comparing.
+
+### Limitations
+
+- One seed (42) and one stream order: no uncertainty estimates.
+- Synaptic scaling is compressed in time 100x (tau 1 s, not 100 s); STDP is not.
+- Only the sensory weights X->E are plastic; E->I, I->E and the readout are fixed.
+- One image per digit; 10 s; no test accuracy.
+
+### Next steps
+
+- Scaling only; longer exposure; more digits or images; plastic E->I and I->E.
+
+*/}

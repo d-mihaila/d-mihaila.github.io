@@ -1,6 +1,6 @@
 ---
 import { getReports } from '../lib/reports';
-import { upstreamSiteUrl } from '../lib/site';
+import { renamedExperiments, upstreamSiteUrl } from '../lib/site';
 import { getCollection } from 'astro:content';
 import { dependencies, downstream } from '../lib/dependencies';
 import { dataset } from '../lib/pingstore';
@@ -18,7 +18,8 @@ for (const run of datasets.flatMap(data => data.runs)) {
   runMap.set(run.id, { ...run, selected: run.selected || !!previous?.selected, used: run.used || !!previous?.used });
 }
 const runs = [...runMap.values()].sort((a, b) => Date.parse(b.record.created_at) - Date.parse(a.record.created_at) || b.id.localeCompare(a.id));
-const upstream = [...new Set([...(dependencies[experiment] ?? []), ...datasets.flatMap(data => data.upstream), ...sourceExperiments.filter(id => id !== experiment)])].sort();
+const upstream = [...new Set([...(dependencies[experiment] ?? []), ...datasets.flatMap(data => data.upstream), ...sourceExperiments.filter(id => id !== experiment)])]
+  .filter(id => renamedExperiments[id] !== experiment).sort();
 
 const currentRuns = runs.filter(run => run.used);
 const otherRuns = runs.filter(run => !run.used);
@@ -30,7 +31,7 @@ const dependents = [...new Set([
 const reports = new Set(entries.map(report => report.id));
 const titles = new Map(entries.map(report => [report.id, report.data.title]));
 for (const note of notes) titles.set(`notes/${note.id}`, note.data.title);
-const experimentUrl = (id: string) => reports.has(id) || titles.has(id) ? `/${id}` : `${upstreamSiteUrl}/${id}`;
+const experimentUrl = (id: string) => renamedExperiments[id] ? `/${renamedExperiments[id]}` : reports.has(id) || titles.has(id) ? `/${id}` : `${upstreamSiteUrl}/${id}`;
 ---
 
   <h3 id={headingId}>Dataset</h3>

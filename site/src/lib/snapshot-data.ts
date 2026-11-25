@@ -61,7 +61,8 @@ export async function readSnapshotEvidence(presentation: string, options: Snapsh
       visited.add(analysis);
       const current = await store.json(analysis);
       const parents = await Promise.all(current.depends_on.map(async (id: string) => ({ id, record: await store.json(id) })));
-      if (parents.some(({ record }) => record.stage === 'compute' && record.experiment === options.experiment)) compute = await input(analysis, 'compute', options.computeInput);
+      // A compute input named explicitly may carry another experiment ID, such as a former number.
+      if (parents.some(({ record }) => record.stage === 'compute' && (record.experiment === options.experiment || options.computeInput !== undefined))) compute = await input(analysis, 'compute', options.computeInput);
       else analysis = await input(analysis, 'analyse');
     }
     const details = await store.json(compute, 'details.json');

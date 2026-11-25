@@ -8,3 +8,9 @@ export const upstreamSiteUrl = 'https://pinglab.eoinmurray.info';
 export const customDomain = '';
 // Public URL of your own Pingstore backup, used only for optional remote reads.
 export const backupAssetUrl = '';
+// Former numbers of experiments renumbered on 2026-11-25. Old URLs redirect to the new ones,
+// and runs recorded under a former number count as the renamed experiment's own.
+export const renamedExperiments: Record<string, string> = {
+  exp176: 'exp001', exp177: 'exp002', exp178: 'exp003', exp179: 'exp004',
+  exp180: 'exp005', exp181: 'exp006', exp182: 'exp007',
+};

@@ -1,0 +1,42 @@
+{
+  // Open with File > Open Workspace from File... Your repo comes first; Eoin's pinglab
+  // sits beside it as a read-only reference.
+  "folders": [
+    { "name": "pinglab_plasticity", "path": "." },
+    { "name": "pinglab (Eoin, read-only)", "path": "../pinglab" }
+  ],
+  "settings": {
+    // Blocks accidental edits to Eoin's repo. Open pinglab on its own to contribute to his blog.
+    "files.readonlyInclude": { "/Users/daria/Desktop/code/oscil-work/pinglab/**": true },
+    "search.exclude": { "**/.pingstore": true, "**/node_modules": true, "**/.venv": true, "**/site/dist": true },
+    "files.watcherExclude": { "**/.pingstore/**": true, "**/node_modules/**": true, "**/.venv/**": true }
+  },
+  "tasks": {
+    // Run with Terminal > Run Task...
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Blog: preview at localhost:3000",
+        "type": "shell",
+        "command": "bun run dev",
+        "options": { "cwd": "${workspaceFolder:pinglab_plasticity}/site" },
+        "isBackground": true,
+        "problemMatcher": []
+      },
+      {
+        "label": "Blog: publish to d-mihaila.github.io",
+        "type": "shell",
+        "command": "bun run publish",
+        "options": { "cwd": "${workspaceFolder:pinglab_plasticity}/site" },
+        "problemMatcher": []
+      },
+      {
+        "label": "Pull Eoin's tooling updates",
+        "type": "shell",
+        "command": "./sync-upstream.sh",
+        "options": { "cwd": "${workspaceFolder:pinglab_plasticity}" },
+        "problemMatcher": []
+      }
+    ]
+  }
+}

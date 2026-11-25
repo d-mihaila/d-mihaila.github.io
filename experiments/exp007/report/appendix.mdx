@@ -1,0 +1,111 @@
+import RunFigure from '../../../site/src/components/RunFigure.astro';
+import ParameterTable from './ParameterTable.astro';
+import { reportData } from '../../../site/src/lib/report-data';
+export const data = await reportData('exp007', { allowUnavailable: true });
+export const networks = Object.entries(data?.configuration.networks ?? {});
+
+## A. Rules and measures
+
+1. Plasticity acts only on the sensory projection X→E. Van Rossum STDP keeps a
+   presynaptic trace $x_j$ and a postsynaptic trace $y_i$ (time constant $\tau$,
+   +1 per spike). At each E spike and each arriving input spike
+
+   $$
+   \Delta w_{ij} = c_p\,x_j\,S_i(t) \;-\; c_d\,w_{ij}\,y_i\,S_j(t)
+   \tag{1}
+   $$
+
+   with $c_d = 0.003$ and $c_p = c_d\,\bar{w}_0$, so uncorrelated firing leaves the
+   trained mean weight $\bar{w}_0$ fixed. In SNNLab this is `NonlinearSTDP`
+   with $\mu_+ = 0$, $\mu_- = 1$. Weights stay within $[0, w_{\max}]$, the
+   largest trained weight. Amplitudes scale with $20\,\mathrm{ms}/\tau$, so all
+   windows have equal area.
+
+2. Synaptic scaling (`SynapticScaling`) multiplies all inputs of E cell $i$ by a
+   proportional–integral feedback on its rate estimate $\nu_i$:
+
+   $$
+   \frac{dw_{ij}}{dt} = w_{ij}\left[\beta\,(\nu^* - \nu_i) + \gamma \int_0^t (\nu^* - \nu_i)\,dt'\right],
+   \qquad \tau_\nu \frac{d\nu_i}{dt} = -\nu_i + \sum_f \delta(t - t_i^f)
+   \tag{2}
+   $$
+
+   $\nu^*$ is the network's mean E rate in its frozen run of the same digit.
+   Van Rossum's $\tau_\nu = 100$ s, $\beta = 4 \times 10^{-5}$ and
+   $\gamma = 10^{-7}$ are compressed in time by 100. "STDP only" uses (1);
+   "STDP + scaling" uses (1) and (2).
+
+3. Rhythmicity is Eoin's exp054 contrast: the population spike autocorrelogram
+   $A(\ell)$ (1-ms bins, 1 = independent firing) is lightly smoothed, and
+
+   $$
+   C = \frac{A_{\text{lobe}} - A_{\text{trough}}}{A_{\text{lobe}} + A_{\text{trough}}}
+   \tag{3}
+   $$
+
+   uses the central lobe and the first trough: 0 for flat firing, near 1 when the
+   trough falls silent. The rhythm frequency is one over the lag of the first
+   side peak after the trough (parabolic interpolation; reported only when the
+   peak exceeds 1 and stands clearly above the trough).
+
+4. PING cycles are the I population's volleys (peaks of the 1-ms-smoothed I
+   spike count at least 3 ms apart). The cycle rate is volleys per second;
+   participation is the fraction of E cells firing at least once per cycle, a
+   measure of how sparse each volley is. COBA has no I volleys.
+
+5. Stimulus and pixel groups. Each digit is one official MNIST test image
+   outside the 1,000-image accuracy subset. It is shown for the whole stream in
+   consecutive 200-ms windows, with fresh Poisson spikes in every window and no
+   state reset. The digit pixels are those with intensity above 0.25; all other
+   inputs are the other pixels. A synapse belongs to the group of its input
+   pixel.
+
+6. Direction of weight change. For each group, after every window: the signed
+   mean change $\langle \Delta w \rangle$ relative to the trained mean, and the
+   shares of synapses with $\Delta w$ above $+1\%$ (potentiated) or below
+   $-1\%$ (depressed) of the trained mean. From the full matrices at 2, 4, 6, 8
+   and 10 s: the mean $\Delta w / w_{\max}$ in 20 bins of the initial weight
+   $w_0 / w_{\max}$ (bins with fewer than 20 synapses omitted), and the
+   final-against-initial histogram.
+
+   For independent Poisson firing, (1) gives the mean STDP drift
+
+   $$
+   \left\langle \frac{dw_{ij}}{dt} \right\rangle = \tau\,\nu_i\,\nu_j \left(c_p - c_d\,w_{ij}\right)
+   \tag{4}
+   $$
+
+   for pre rate $\nu_j$ and post rate $\nu_i$: potentiation below
+   $w^* = c_p / c_d = \bar{w}_0$ and depression above it. Inputs that never fire
+   ($\nu_j = 0$) are not changed by STDP, only by scaling. Spike timing
+   correlations, such as PING's cycle locking, add to (4); the measured
+   $\Delta w$ against $w_0$ shows their net effect.
+
+7. Separating STDP from scaling. For each network and digit, the STDP-only and
+   STDP + scaling runs start from the same trained weights and receive the same
+   input spikes. Per synapse, $\Delta w^{\text{both}}$ is set against
+   $\Delta w^{\text{STDP}}$; points on the diagonal were not changed by adding
+   scaling. The mean of $\Delta w^{\text{both}} - \Delta w^{\text{STDP}}$,
+   relative to the trained mean, is reported per pixel group. Per E cell, the
+   ratio of total input weight $\sum_j w_{ij}$ with and without scaling is set
+   against the cell's own rate in the last second of the STDP-only run, over
+   $\nu^*$; scaling should lower the inputs of cells above $\nu^*$ and raise
+   those below (Spearman rank correlation reported). This is the effect of
+   adding scaling, not scaling in isolation: once the weights differ, the spike
+   times differ, so STDP also acts differently in the two runs.
+
+8. Inputs shared with exp006. The digits, images, Poisson spike trains and
+   tracked synapses use exp006's seeds, so the STDP + scaling runs repeat
+   exp006's conditions.
+
+## B. Native architectures
+
+{networks.map(([network, spec], index) => <RunFigure report="exp007" experiment="exp007" file={`circuit-${network}.svg`} number={`B${index + 1}`} id={`fig-circuit-${network}`} alt={`Native circuit of ${spec.cell}.`} allowUnavailable={true}>
+  Native compiled circuit of {spec.cell} ({spec.architecture === 'ping' ? 'X, E, I and R; trained E→I→E loop' : 'X, E and R; trained E–I weights are exactly zero, so no I population'}).
+  Only the sensory weights X→E are plastic. Executed start weights are kept in
+  each condition's simulation-start snapshot.
+</RunFigure>)}
+
+## C. Parameters
+
+<ParameterTable />

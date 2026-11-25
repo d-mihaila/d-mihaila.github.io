@@ -1,0 +1,199 @@
+---
+id: exp004
+title: "Does the Kind of PING Rhythm Change Van Rossum Plasticity?"
+author: "Daria Mihaila"
+created_at: "2026-11-24T18:00:00Z"
+updated_at: "2026-11-24T18:00:00Z"
+description: "Six trained exp022 TR03 PING networks with GABA decay times from 4.5 to 27 ms, frozen and with van Rossum plasticity on their sensory weights."
+collection: ["experiments"]
+tags: ["data"]
+inputs: ["exp004"]
+thumbnail: summary.png
+---
+
+import RunFigure from '../../../site/src/components/RunFigure.astro';
+import { reportData, round } from '../../../site/src/lib/report-data';
+export const data = await reportData('exp004', { allowUnavailable: true });
+export const cfg = data?.configuration;
+export const s = data?.summary;
+export const seconds = cfg ? round(cfg.presentations * cfg.presentation_ms / 1000, 1) : 'unavailable';
+export const f = (value, digits = 2) => value == null ? 'unavailable' : round(value, digits);
+export const pct = value => value == null ? 'unavailable' : round(100 * value, 0);
+export const d = (id, key, digits = 2) => s && s[id] && s[id][`${key}_first`] != null && s[id][`${key}_last`] != null ? f(s[id][`${key}_last`] - s[id][`${key}_first`], digits) : 'unavailable';
+
+## Abstract
+
+{data ? <p>Does the kind of PING rhythm change what van Rossum plasticity does? exp022 trained six PING networks that differ only in the decay time of inhibition, τ_GABA = 4.5 to 27 ms (TR03, seed {String(cfg.seed)}). Their trained rhythms differ: E rate {f(s['tg4p5__frozen'].rate_hz_first, 1)} Hz at 4.5 ms against {f(s['tg27__frozen'].rate_hz_first, 1)} Hz at 27 ms, and rhythm frequency {f(s['tg4p5__frozen'].rhythm_frequency_hz_first, 0)} Hz against {f(s['tg27__frozen'].rhythm_frequency_hz_first, 0)} Hz. Each network received the same {cfg.presentations} MNIST test digits ({seconds} s), frozen and with STDP plus synaptic scaling on its sensory weights. Over the stream the rhythmicity contrast changed by {d('tg4p5__both', 'rhythm_contrast')} at 4.5 ms and by {d('tg27__both', 'rhythm_contrast')} at 27 ms (frozen drift {d('tg4p5__frozen', 'rhythm_contrast')} and {d('tg27__frozen', 'rhythm_contrast')}); the mean absolute weight change reached {pct(s['tg4p5__both'].weight_change_last)}% and {pct(s['tg27__both'].weight_change_last)}% of the trained mean. Because E rate falls with τ_GABA, weight change is also shown against a pairing proxy. One seed and one stream.</p> : <p>No completed evidence is selected.</p>}
+
+## Results
+
+{/*
+HOW TO USE THESE TEMPLATES. Everything inside a comment block is hidden: the page
+looks exactly as before until you open a block.
+1. Each WRITE-UP block sits where its text belongs, just before its figure (Eoin's
+   rule: explain each result before its figure). To use one, delete its first and
+   last lines, then replace the questions with 2-4 short sentences.
+2. Bind numbers to the run instead of typing them: put an expression such as
+   f(s['tg4p5__frozen'].rate_hz_first, 1)  or  d('tg27__both', 'rhythm_contrast')
+   inside curly braces, as the Abstract does. Each block lists its summary keys.
+3. The Discussion template is at the end. Eoin's rule: first drafts omit the
+   Discussion; add it once the results are final.
+4. Style: claim first, then the number, then what it means. Short sentences.
+5. After substantive edits, set updated_at in the front matter (quoted UTC time).
+*/}
+
+### Spiking at the start and end
+
+{/*
+WRITE-UP · Figure 1 (rasters). 2-4 sentences: what changed, by how much, and why it matters.
+- How do the trained rhythms differ across tau_GABA: period, volley width, sparsity?
+- Which networks changed visibly by the end of plasticity?
+*/}
+
+<RunFigure report="exp004" experiment="exp004" file="rasters.svg" number={1} id="fig-rasters" alt="Rasters at the start of the stream and at the last presentation of every condition." allowUnavailable={true}>
+  The first six panels show each network's first presentation (fresh state,
+  trained weights), from τ_GABA = 4.5 to 27 ms. The other six show each network's
+  last presentation after {seconds} s of STDP plus scaling. Every spike is a dot:
+  black E below red I. All conditions receive identical, hash-checked input.
+</RunFigure>
+
+### Rhythm
+
+{/*
+WRITE-UP · Figure 2 (rhythm). 2-4 sentences: what changed, by how much, and why it matters.
+- Frozen panel: describe the baseline trend with tau_GABA (frequency, contrast, participation).
+- Plastic panel: which networks change their rhythm, and does the change depend on tau_GABA?
+Numbers: s['tgX__frozen'].rhythm_frequency_hz_first; d('tgX__both', 'rhythm_contrast') for X = 4p5, 6, 9, 12, 18, 27.
+*/}
+
+<RunFigure report="exp004" experiment="exp004" file="rhythm.svg" number={2} id="fig-rhythm" alt="Rhythmicity contrast, rhythm frequency, I volley rate and E participation per block for each rule." allowUnavailable={true}>
+  Per block of {cfg ? cfg.block_presentations : 'unavailable'} presentations; left frozen,
+  right STDP + scaling. Colour shows τ_GABA, light blue (4.5 ms) to dark (27 ms).
+  Rows: E rhythmicity contrast (exp054 metric, Appendix A3); rhythm frequency from
+  the autocorrelogram side peak; I volleys per second; fraction of E cells firing
+  per cycle (lower is sparser).
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 3 (autocorrelograms). 2-4 sentences: what changed, by how much, and why it matters.
+- Do slower-inhibition networks show longer lags? Do plastic networks shift?
+*/}
+
+<RunFigure report="exp004" experiment="exp004" file="autocorrelograms.svg" number={3} id="fig-autocorrelograms" alt="E spike autocorrelograms in the first and last block of every condition." allowUnavailable={true}>
+  E population spike autocorrelograms (1-ms bins; 1 = independent firing) in the
+  first block (faint) and the last block (strong) of each condition. A deeper
+  trough and a taller side peak mean a sharper rhythm.
+</RunFigure>
+
+### Firing
+
+{/*
+WRITE-UP · Figure 4 (activity). 2-4 sentences: what changed, by how much, and why it matters.
+- E rate falls with tau_GABA. Say by how much: it sets the number of spike pairings.
+Numbers: s['tgX__frozen'].rate_hz_first.
+*/}
+
+<RunFigure report="exp004" experiment="exp004" file="activity.svg" number={4} id="fig-activity" alt="E rate, ISI irregularity, median ISI and spectral peak per block for each rule." allowUnavailable={true}>
+  Per block; left frozen, right STDP + scaling. Rows: E rate; mean per-cell ISI coefficient of
+  variation (cells with at least three spikes); median E ISI; spectral peak of the
+  E population rate in {cfg ? `${cfg.rhythm_band_hz[0]}–${cfg.rhythm_band_hz[1]}` : 'unavailable'} Hz.
+  Colours as in Figure 2.
+</RunFigure>
+
+### Sensory weights
+
+{/*
+WRITE-UP · Figure 5 (weights). 2-4 sentences: what changed, by how much, and why it matters.
+- Which networks' weights moved most: the fast-rhythm ones, or simply the high-rate ones?
+Numbers: s['tgX__both'].weight_change_last, weight_correlation_last.
+*/}
+
+<RunFigure report="exp004" experiment="exp004" file="weights.svg" number={5} id="fig-weights" alt="Mean weight, accumulated change, correlation with trained weights, skewness and scaling sensor over time." allowUnavailable={true}>
+  The plastic X→E matrix (784 × 1,024, µS) after every presentation, one line per
+  network. Columns: mean weight and mean absolute change, both relative to
+  the trained mean; Pearson correlation with the trained matrix (1 = intact);
+  skewness of the weight distribution; mean scaling-sensor rate. Colours as in
+  Figure 2.
+</RunFigure>
+
+{/*
+WRITE-UP · Figure 6 (synapses). 2-4 sentences: what changed, by how much, and why it matters.
+- Do single-synapse paths differ across tau_GABA?
+*/}
+
+<RunFigure report="exp004" experiment="exp004" file="synapses.svg" number={6} id="fig-synapses" alt="Trajectories of randomly sampled sensory synapses under each plastic rule." allowUnavailable={true}>
+  {cfg ? cfg.tracked_synapses.toLocaleString('en-GB') : 'unavailable'} X→E synapses per network,
+  sampled uniformly (seed {cfg ? String(cfg.tracked_synapse_seed) : 'unavailable'}), recorded
+  after every presentation. Darker lines start with larger weights. The dotted
+  line is the trained mean, the STDP fixed point. STDP pulls large weights down
+  and small active ones up; scaling multiplies all inputs of a cell together.
+</RunFigure>
+
+### Decoding
+
+{/*
+WRITE-UP · Figure 7 (decoding). 2-4 sentences: what changed, by how much, and why it matters.
+- Does the accuracy loss depend on tau_GABA?
+Numbers: accuracy_first/_last.
+*/}
+
+<RunFigure report="exp004" experiment="exp004" file="decoding.svg" number={7} id="fig-decoding" alt="Held-out test accuracy and online decoding of the stream digits for each rule." allowUnavailable={true}>
+  Left: accuracy on {cfg ? cfg.accuracy_images.toLocaleString('en-GB') : 'unavailable'} official MNIST test
+  images (the first half of the exp173 subset) every {cfg ? cfg.accuracy_every : 'unavailable'} presentations,
+  with the weights reached at that moment, frozen, fresh state per image; dashed
+  lines are the frozen networks. Right: share of stream digits classified
+  correctly as they play, per block, with state carried over. Readout weights
+  never change.
+</RunFigure>
+
+### Summary
+
+{/*
+WRITE-UP · Figure 8 (summary). 2-4 sentences: what changed, by how much, and why it matters.
+- The key test is the bottom-right panel: does weight change follow the pairing proxy (rate explains it) or depart from it (the rhythm matters)?
+- Which baseline property best predicts the plastic change?
+*/}
+
+<RunFigure report="exp004" experiment="exp004" file="summary.svg" number={8} id="fig-summary" alt="Trained rhythm measures and plasticity effects against the GABA decay time, and weight change against the pairing proxy." allowUnavailable={true}>
+  Top: the trained networks' first-block rhythmicity contrast, rhythm frequency,
+  E rate and E participation per cycle against τ_GABA (log axis; frozen weights).
+  Bottom: the change over the stream with plasticity minus the frozen drift, for
+  contrast and frequency; test accuracy at the end minus the start; and the final
+  mean absolute weight change against a pairing proxy, the block-mean input rate
+  × mean pixel intensity × E rate. Networks with slower inhibition fire less, so
+  per-pairing comparisons separate rate from rhythm. One seed; no uncertainty is
+  estimated.
+</RunFigure>
+
+{/*
+DISCUSSION TEMPLATE. To use: delete this block's first and last lines and replace
+each prompt with short paragraphs. Keep it argumentative: claim, evidence, then
+the strongest objection and how the data answer it.
+
+## Discussion
+
+### Main claim
+
+- Does the kind of PING rhythm change what van Rossum plasticity does, beyond the rate it brings?
+
+### Mechanism
+
+- The 20-ms STDP window against the rhythm period: how many pairings fall inside one cycle at each tau_GABA?
+
+### Objections
+
+- E rate co-varies with tau_GABA, and the pairing proxy is only approximate. What would equalise rates (for example the scaling setpoint)?
+- Most networks have contrast near 1: is there room to sharpen?
+
+### Limitations
+
+- One seed (42) and one stream order: no uncertainty estimates.
+- Synaptic scaling is compressed in time 100x (tau 1 s, not 100 s); STDP is not.
+- Only the sensory weights X->E are plastic; E->I, I->E and the readout are fixed.
+- TR03 networks trained on 7,000 images; a 10-s stream.
+
+### Next steps
+
+- Rate-equalised comparison; more seeds; link to exp003's window sweep (window/period ratio from the other side).
+
+*/}

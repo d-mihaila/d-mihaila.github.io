@@ -20,7 +20,7 @@ Use for editing, small tests, plotting and analysis. Not for CUDA training.
 ```sh
 cd /Users/daria/Desktop/code/oscil-work/d-mihaila.github.io
 uv sync --dev
-uv run python experiments/exp176/compute.py --help
+uv run python experiments/exp001/compute.py --help
 ```
 
 ## Adding a host

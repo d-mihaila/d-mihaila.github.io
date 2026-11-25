@@ -60,12 +60,14 @@ uv run pre-commit install
 ## Working with upstream
 
 `origin` is this fork; `upstream` is Eoin Murray's repository, with pushing disabled.
-Experiments here use IDs from `exp500` upward, plus exp176–exp180.
+Experiments here are numbered from `exp001` (exp001–exp007 were exp176–exp182
+before 2026-11-25). This fork owns `experiments/`, `notes/` and `papers/`;
+upstream updates bring only tooling and site changes.
 
 To take upstream's tooling and site improvements:
 
 ```sh
-./sync-upstream.sh   # merge upstream/main, then drop upstream experiments and notes
+./sync-upstream.sh   # merge upstream/main, keeping experiments/, notes/ and papers/ as they are
 git status           # resolve any remaining conflicts in files this fork changed
 git commit
 ```

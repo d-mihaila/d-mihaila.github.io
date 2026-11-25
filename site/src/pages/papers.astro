@@ -1,9 +1,10 @@
 ---
 import Page from '../layouts/Page.astro';
+import { siteName } from '../lib/site';
 import PaperBrowser from '../components/PaperBrowser.astro';
 import { getPapers } from '../lib/papers';
 const papers = await getPapers();
 ---
-<Page title="Papers" description="Research papers in the Pinglab library." compact>
+<Page title="Papers" description={`Research papers in the ${siteName} library.`} compact>
   <PaperBrowser papers={papers} />
 </Page>

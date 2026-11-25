@@ -22,7 +22,9 @@ from .core import (
     write_json_atomic,
 )
 
-DEFAULT_DESTINATION = "r2:pinglab/pingstore-v2"
+# An rclone remote named "backup" that you configure (any backend). Upstream's
+# r2:pinglab/pingstore-v2 belongs to Eoin Murray; this fork never writes to it.
+DEFAULT_DESTINATION = "backup:pingstore-v2"
 
 
 def rclone(*args, capture=False):

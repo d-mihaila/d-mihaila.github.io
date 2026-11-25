@@ -1,4 +1,5 @@
 import type { ComponentProps, ReactNode } from 'react';
+import { siteName } from '../../lib/site';
 import { Command as CommandPrimitive } from 'cmdk';
 import * as Dialog from '@radix-ui/react-dialog';
 
@@ -13,7 +14,7 @@ export function CommandDialog({ children, trigger, filter, ...props }: Component
       <Dialog.Portal>
         <Dialog.Overlay className="command-overlay" />
         <Dialog.Content className="command-dialog">
-          <Dialog.Title className="command-sr-only">Navigate Pinglab</Dialog.Title>
+          <Dialog.Title className="command-sr-only">Navigate {siteName}</Dialog.Title>
           <Dialog.Description className="command-sr-only">
             Search articles, papers and collections. Use the arrow keys to select and Enter to open.
           </Dialog.Description>

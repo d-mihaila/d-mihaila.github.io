@@ -153,7 +153,7 @@ Notes and experiments both use `Report.astro`, including its byline, contents
 sidebar and article spacing. Optional `abstract` frontmatter is
 supported for both; experiment IDs and Dataset footers require experiment metadata.
 The shared page layout declares each page's canonical URL on
-`https://pinglab.eoinmurray.info`, without a trailing slash (except the root),
+`siteUrl` from `src/lib/site.ts`, without a trailing slash (except the root),
 `.html` extension, query, or fragment. Astro uses `trailingSlash: 'never'` and
 `build.format: 'file'`, producing `exp130.html` for the public URL `/exp130`.
 GitHub Pages resolves these extensionless URLs. Use Astro preview for local

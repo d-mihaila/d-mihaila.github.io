@@ -1,4 +1,5 @@
 import { defineMiddleware } from 'astro:middleware';
+import { siteName } from './lib/site';
 import { withRunContext } from './lib/run-context';
 import { deferMedia } from './lib/deferred-media';
 import { validateArticleMarkup } from './lib/article-markup';
@@ -27,7 +28,7 @@ export const onRequest = defineMiddleware((context, next) => withRunContext(asyn
     const message = error instanceof Error ? error.message : String(error);
     return new Response(`<!doctype html><html lang="en"><head><meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
-      <meta name="robots" content="noindex"><title>An error occurred — Pinglab</title>
+      <meta name="robots" content="noindex"><title>An error occurred — ${siteName}</title>
       <style>body{font:18px/1.6 system-ui,sans-serif;max-width:900px;margin:10vh auto;padding:24px;color:#202124;background:#fff}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f4f6;color:#b42318;padding:24px;border-radius:8px}a{color:#315bba}</style>
       </head><body><main><h1>An error occurred.</h1>
       <p>This page could not be rendered.</p><pre>${escapeHtml(message)}</pre>

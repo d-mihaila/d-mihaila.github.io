@@ -1,9 +1,12 @@
-# Pinglab
+# Daria Mihaila — Pinglab fork
 
-Conductance-based spiking neural networks with excitatory/inhibitory populations
-and PING (pyramidal–interneuron gamma) dynamics.
+A personal fork of [Pinglab](https://github.com/eoinmurray/pinglab) by Eoin Murray:
+conductance-based spiking neural networks with excitatory/inhibitory populations
+and PING (pyramidal–interneuron gamma) dynamics. This fork hosts Daria Mihaila's
+experiments.
 
-Site: [pinglab.eoinmurray.info](https://pinglab.eoinmurray.info).
+Site: [d-mihaila.github.io](https://d-mihaila.github.io).
+Upstream site: [pinglab.eoinmurray.info](https://pinglab.eoinmurray.info).
 
 Main documentation lives in [`notes/`](notes/):
 
@@ -12,11 +15,10 @@ Main documentation lives in [`notes/`](notes/):
 3. [Pingstore Rules](notes/rules/pingstore.md): run storage, provenance, explicit dependencies, backups and deletion.
 4. [Writing Rules](notes/rules/writing.md): scientific writing, article metadata and editorial conventions.
 5. [Publishing Rules](notes/rules/publishing.md): local site builds, independent static deployment.
-6. [Canonical Parameters](notes/canonical-parameters.mdx): reference network and training settings for COBA and PING.
-7. [COBA and PING: Dynamics and Learning](notes/coba-ping-dynamics.mdx): model and training derivations (formerly exp113).
-8. [Mean-field E/I dynamics](notes/mean-field-model.mdx): exp117/exp148 closures, four recurrent pathways, shared input and private drive.
-9. [Research workflow](notes/workflow.mdx): repository layout and a blueprint for computational research and publishing.
-10. [Manuscript](notes/manuscript/index.mdx): synthesis of PING experiments, formerly exp110.
+
+Upstream notes (canonical parameters, COBA/PING dynamics, the mean-field model,
+the research workflow and the manuscript) stay on the
+[upstream site](https://pinglab.eoinmurray.info/notes).
 
 See [Astro setup and GitHub Pages deployment](site/README.md)
 for site development and deployment. Coding agents must read
@@ -54,3 +56,19 @@ dependencies:
 uv sync --dev
 uv run pre-commit install
 ```
+
+## Working with upstream
+
+`origin` is this fork; `upstream` is Eoin Murray's repository, with pushing disabled.
+Experiments here use IDs from `exp500` upward, plus exp176–exp180.
+
+To take upstream's tooling and site improvements:
+
+```sh
+./sync-upstream.sh   # merge upstream/main, then drop upstream experiments and notes
+git status           # resolve any remaining conflicts in files this fork changed
+git commit
+```
+
+Site identity (name, URL, repository link, custom domain) lives in
+[`site/src/lib/site.ts`](site/src/lib/site.ts).

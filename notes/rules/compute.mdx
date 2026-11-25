@@ -1,28 +1,29 @@
 ---
 title: Compute Rules
-author: Eoin Murray
+author: Daria Mihaila
 collection: notes
-description: Execution authorization, host roles and resource safeguards.
+description: Execution authorization, host roles and resource safeguards for this fork.
 created_at: '2026-09-11'
-updated_at: "2026-10-29T17:43:19Z"
+updated_at: "2026-11-25T13:40:20Z"
 ---
 
 # Compute Rules
+
+Adapted from Eoin Murray's upstream Compute Rules.
 
 1. Simulations require the authorization described in
    [Experiment Rules](/notes/rules/experiment#execution-permission). Paid work
    requires authorization for its scope and resources; do not ask again within
    existing authorization. Inspect the recipe and resource request before launch.
-2. Use the local Mac for development, small tests, plotting and analysis, not CUDA
-   training. Hetzner (`ssh hetzner`) is the persistent control host: orchestration
-   and monitoring only, not simulations, training or simulation-backed tests.
-3. Olorin is shared: inspect availability, select an idle GPU explicitly and keep
-   heavy files under `/scratch/em586`. On CSD3/Wilkes3 (`ssh csd3`), run substantial
-   work inside Slurm allocations, never on login nodes. Batch scheduler requests;
-   leave at least 120 seconds between recurring checks.
-4. Use the maintained [HPC deployment](../../libraries/hpc/README.md) and
-   [Modal dispatcher](../../libraries/modal_dispatcher/README.md) workflows.
-   Keep run/job/call IDs and logs. Investigate ambiguous submissions before retrying;
-   collect and validate outputs before cleanup. Keep credentials out of Git and chat.
+2. Use the local Mac for development, small tests, plotting and analysis. It has no
+   CUDA; do not run large training jobs on it.
+3. Only hosts listed in [Compute Access](/notes/rules/compute-access) may be used.
+   Upstream's hosts and accounts (Hetzner, Olorin, CSD3/Wilkes3 `OLEARY-*`) belong
+   to Eoin Murray's group; use them only with his explicit agreement.
+4. `libraries/hpc` is configured for Cambridge CSD3 accounts, and
+   `libraries/modal_dispatcher` needs your own Modal account. Configure either before
+   use. Keep run/job/call IDs and logs. Investigate ambiguous submissions before
+   retrying; collect and validate outputs before cleanup. Keep credentials out of Git
+   and chat.
 
 Read [Compute Access](/notes/rules/compute-access) only for the host being operated.

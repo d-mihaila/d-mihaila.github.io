@@ -4,61 +4,12 @@ const collections = [
   {
     id: "experiments",
     label: "Experiments",
-    description: "All experiment reports in Pinglab.",
-  },
-  {
-    id: "gamma-gated-sparsity",
-    label: "Gamma-Gated Sparsity",
-    description:
-      "Experiments on gamma rhythms, sparse neural activity, and learning in spiking networks.",
-  },
-  {
-    id: "ctc-attention",
-    label: "CTC Attention",
-    description:
-      "Communication through coherence, gamma coupling, and selective attention.",
-  },
-  {
-    id: "neuromodulation",
-    label: "Neuromodulation",
-    description:
-      "Experiments on how changes to neural dynamics affect network evidence, accuracy, and activity.",
-  },
-  {
-    id: "datasets",
-    label: "Datasets",
-    description:
-      "Training banks, recordings, and other reusable experimental data, with their provenance and diagnostics.",
-  },
-  {
-    id: "neuromorphic-toolbox",
-    label: "Neuromorphic Toolbox",
-    description: "Tools for building, simulating, and analysing spiking neural networks.",
-  },
-  {
-    id: "guides",
-    label: "Guides",
-    description: "Technical explanations of the models, methods, and tools used in Pinglab.",
-  },
-  {
-    id: "animations",
-    label: "Animations",
-    description: "Experiments and guides with interactive PixiJS animations.",
-  },
-  {
-    id: "paper-inspired",
-    label: "Paper Inspired",
-    description: "Experiments inspired by published research papers.",
+    description: "All experiment reports on this site.",
   },
   {
     id: "literature",
     label: "Literature",
     description: "Research papers, reading notes, and discussions of published findings.",
-  },
-  {
-    id: "weekly-feed",
-    label: "Weekly Feed",
-    description: "Periodic summaries of research progress and recent work.",
   },
   {
     id: "notes",

@@ -1,5 +1,6 @@
 ---
 import PostsList from './PostsList.astro';
+import { siteName } from '../lib/site';
 import CollectionBrowser from './CollectionBrowser.astro';
 import type { Post } from '../lib/posts';
 import { collectionCounts, collectionLabel, collectionDescription, compareCollections } from '../lib/collections';
@@ -18,7 +19,7 @@ visiblePosts.sort((a, b) => {
 });
 ---
 <CollectionBrowser title={collection ? collectionLabel(collection) : 'Articles'}
-  defaultCollection={{ label: 'Articles', description: 'Scientific reports, notes, and slide decks from Pinglab.' }}
+  defaultCollection={{ label: 'Articles', description: `Scientific reports, notes, and slide decks from ${siteName}.` }}
   allCount={posts.length} allPapersCount={papers.length}
   collections={collections.map(name => ({ id: name, label: collectionLabel(name), description: collectionDescription(name), count: articleCounts.get(name) ?? 0, active: name === collection }))}>
   <PostsList posts={visiblePosts} sortable={sortable} collection={collection} />

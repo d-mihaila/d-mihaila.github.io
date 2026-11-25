@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { siteName } from '../lib/site';
 import { defaultFilter } from 'cmdk';
 import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from './ui/command';
 import type { NavigationEntry } from '../lib/navigation';
@@ -67,7 +68,7 @@ export default function CommandPalette({ collections, articles, papers }: Props)
         <CommandEmpty>No articles, papers or collections found.</CommandEmpty>
         <CommandGroup heading="Navigation">
           {items([
-            { href: '/', title: 'Home', detail: 'Homepage', keywords: ['home', 'homepage', 'Pinglab'] },
+            { href: '/', title: 'Home', detail: 'Homepage', keywords: ['home', 'homepage', siteName] },
             { href: '/papers', title: 'Papers', detail: 'PDF library', keywords: ['papers', 'pdf', 'library', 'research'] },
             { href: '/pingstore', title: 'Pingstore', detail: 'Experiment datasets', keywords: ['pingstore', 'datasets', 'runs', 'storage'] },
           ])}

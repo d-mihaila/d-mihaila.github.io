@@ -1,11 +1,12 @@
 /** An optional, rebuildable backup inventory. Contains no retention state. */
 import { runPattern, validateRecord, type RunRecord } from './run-index.ts';
+import { backupAssetUrl } from './site.ts';
 export { runPattern };
 export const safePath = (path: string) => !!path && !path.includes('\\') && !path.includes('\0')
   && path.split('/').every(part => !!part && part !== '.' && part !== '..');
 export interface CatalogEntry { record: RunRecord; bytes: number; files: Record<string, number>; completed_at: string; }
 export interface Catalog { updated_at: string; runs: Record<string, CatalogEntry>; }
-export const assetBase = () => process.env.PINGLAB_ASSET_BASE ?? 'https://assets.eoinmurray.info';
+export const assetBase = () => process.env.PINGLAB_ASSET_BASE ?? backupAssetUrl;
 export function parseCatalog(text: string): Catalog {
   const value = JSON.parse(text);
   if (!value || !value.runs || typeof value.runs !== 'object') throw new Error('Invalid backup inventory');

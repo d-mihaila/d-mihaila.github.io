@@ -7,6 +7,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { coalesceFullReloads, refreshServerMdx } from './src/lib/dev-refresh.ts';
 import { installRefreshDiagnostics } from './src/lib/dev-refresh-diagnostics.ts';
+import { siteUrl } from './src/lib/site.ts';
 
 // Keep the resolver and manifest independent of Vite's bundled module location.
 process.env.PINGLAB_REPOSITORY_ROOT = new URL('../', import.meta.url).pathname;
@@ -14,24 +15,8 @@ process.env.PINGLAB_REPOSITORY_ROOT = new URL('../', import.meta.url).pathname;
 // https://astro.build/config
 export default defineConfig({
   logger: { entrypoint: './src/logger.mjs' },
-  site: 'https://pinglab.eoinmurray.info',
+  site: siteUrl,
   trailingSlash: 'never',
-  redirects: {
-    '/exp110': '/notes/manuscript',
-    '/exp113': '/notes/coba-ping-dynamics',
-    '/notes/pingstore-rules': '/notes/rules/pingstore',
-    '/notes/writing-rules': '/notes/rules/writing',
-    '/notes/experiment-rules': '/notes/rules/experiment',
-    '/notes/compute-rules': '/notes/rules/compute',
-    '/notes/rules/pingstore-rules': '/notes/rules/pingstore',
-    '/notes/rules/writing-rules': '/notes/rules/writing',
-    '/notes/rules/experiment-rules': '/notes/rules/experiment',
-    '/notes/rules/compute-rules': '/notes/rules/compute',
-    '/notes/guides/compute': '/notes/rules/compute-access',
-    '/notes/guides/experiment': '/notes/rules/experiment-procedures',
-    '/notes/guides/pingstore': '/notes/rules/pingstore-operations',
-    '/notes/guides/parameter-tables': '/notes/rules/parameter-tables',
-  },
   build: { format: 'file' },
   server: { port: 3000 },
   devToolbar: { enabled: false },
@@ -39,7 +24,7 @@ export default defineConfig({
   vite: {
     // Background-server logs change on requests; watching them can feed error
     // recovery reloads back into another request and another log write.
-    server: { allowedHosts: ['l.hetzner.eoinmurray.info', 'l0.hetzner.eoinmurray.info'], watch: { ignored: ['**/.astro/dev.log', '**/.astro/dev.json'] } },
+    server: { watch: { ignored: ['**/.astro/dev.log', '**/.astro/dev.json'] } },
     resolve: { dedupe: ['pixi.js'] },
     // Transform the common SSR shell ahead of the first navigation. Warmup does
     // not evaluate article bindings or freeze their scientific run selection.

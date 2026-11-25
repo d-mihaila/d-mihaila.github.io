@@ -4,7 +4,7 @@ author: Eoin Murray
 collection: notes
 description: Local static builds and independent GitHub Pages deployment.
 created_at: "2026-11-12T12:03:36Z"
-updated_at: "2026-11-12T20:22:47Z"
+updated_at: "2026-11-25T13:40:20Z"
 ---
 
 # Publishing
@@ -15,3 +15,7 @@ updated_at: "2026-11-12T20:22:47Z"
 4. GitHub Actions uploads and deploys the prebuilt artifact. It does not install Python/rclone, rebuild Astro, read R2 or register storage retention roots. Retry by dispatching the Pages workflow. Deployment is independent of backup and deletion.
 5. `/pingstore-evidence.json` is a small snapshot of source revision, selected run IDs and dependency IDs. It documents the build; it neither prevents deletion nor proves successful deployment. Bundled pages remain usable after scientific copies are explicitly deleted, but they are not scientific backups.
 6. Use `bun run preview --port 3001` to preview the static build. `bun run build:remote` optionally exercises explicit remote reads; it is not required for local deletion. The PDF library stays local, and production paper links use `papers/index.yaml`.
+7. In this fork, `origin` is `d-mihaila/d-mihaila.github.io` and `bun run publish`
+   deploys to https://d-mihaila.github.io. `upstream` is Eoin Murray's repository;
+   its push URL is disabled. Never publish from a clone whose `origin` is upstream:
+   the build uses only local runs and would replace his site.

@@ -1,5 +1,6 @@
 ---
 import Page from '../layouts/Page.astro';
+import { siteName } from '../lib/site';
 import { getPosts } from '../lib/posts';
 import CollectionMetadata from '../components/CollectionMetadata.astro';
 import { collectionLabel, collectionUrl, compareCollections, collectionDescription, collectionSummary } from '../lib/collections';
@@ -12,7 +13,7 @@ const collections = names.map(name => ({
 }));
 ---
 
-<Page title="Collections" description="Browse Pinglab articles by collection." compact>
+<Page title="Collections" description={`Browse ${siteName} articles by collection.`} compact>
   <div class="base-grid">
     <ol class="collections-list article-list listing-width l-page" aria-label="Collections">
       {collections.map(({ name, count, latestDate }) => <li>

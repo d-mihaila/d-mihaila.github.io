@@ -4,7 +4,7 @@ author: Eoin Murray
 collection: notes
 description: Task-specific scratch migration, native SNNLab calls and parallel execution.
 created_at: "2026-10-29T17:42:34Z"
-updated_at: "2026-10-29T17:42:34Z"
+updated_at: "2026-11-25T13:40:20Z"
 ---
 
 # Experiment procedures
@@ -72,7 +72,7 @@ Read only the section needed for the task. Standing constraints live in
 
 ## Parallel compute
 
-1. Follow `experiments/exp124/compute.py` for independent work on one multi-GPU
+1. Follow upstream [`experiments/exp124/compute.py`](https://github.com/eoinmurray/pinglab/blob/main/experiments/exp124/compute.py) for independent work on one multi-GPU
    host, including Modal.
 2. Define work items with stable IDs and device allocations. Validate resources
    before loading data and divide CPU threads between workers.

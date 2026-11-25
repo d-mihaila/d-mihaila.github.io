@@ -1,3 +1,7 @@
+This repository is Daria Mihaila's fork of [Pinglab](https://github.com/eoinmurray/pinglab),
+published at https://d-mihaila.github.io. `origin` is this fork. `upstream` is Eoin
+Murray's repository: never push to it, publish from it, or use its hosts and storage.
+
 Do only what you are told to do; do nothing extra without asking.
 
 Read only rules relevant to the requested action. Follow reference links only

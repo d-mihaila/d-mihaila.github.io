@@ -1,5 +1,6 @@
 ---
 import 'katex/dist/katex.min.css';
+import { siteName } from '../lib/site';
 import '../styles/slides.css';
 import '../styles/slide-templates.css';
 import '../styles/deferred-media.css';
@@ -15,7 +16,7 @@ const { title, author, description } = Astro.props;
     <meta name="description" content={description} />
     <meta name="author" content={author} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{title} · Pinglab slides</title>
+    <title>{title} · {siteName} slides</title>
     <noscript><style is:inline>[data-deferred-media] { display: none !important; }</style></noscript>
   </head>
   <body class="deck-page">

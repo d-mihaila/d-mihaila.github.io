@@ -67,5 +67,7 @@ evidence.build.source_revision = evidence.build.revision;
 evidence.build.source_dirty = !!run('git', ['status', '--porcelain'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] }).stdout.trim();
 await writeFile(evidencePath, JSON.stringify(evidence, null, 2) + '\n');
 await writeFile(join(dist, '.nojekyll'), '');
-await writeFile(join(dist, 'CNAME'), 'pinglab.eoinmurray.info\n');
+// GitHub Pages reads a custom domain from CNAME; <user>.github.io needs none.
+const { customDomain } = await import('../src/lib/site.ts');
+if (customDomain) await writeFile(join(dist, 'CNAME'), `${customDomain}\n`);
 console.log(`Built locally in ${((performance.now() - started) / 1000).toFixed(1)}s; bundled ${used.size} referenced assets.`);

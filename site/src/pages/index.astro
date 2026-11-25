@@ -1,5 +1,6 @@
 ---
 import Page from '../layouts/Page.astro';
+import { siteName } from '../lib/site';
 import ArticleBrowser from '../components/ArticleBrowser.astro';
 import { getPosts } from '../lib/posts';
 import { getPapers } from '../lib/papers';
@@ -8,6 +9,6 @@ const posts = await getPosts();
 const papers = await getPapers();
 ---
 
-<Page title="Articles" description="Scientific reports, notes, and slide decks from Pinglab." compact>
+<Page title="Articles" description={`Scientific reports, notes, and slide decks from ${siteName}.`} compact>
   <ArticleBrowser posts={posts} papers={papers} sortable />
 </Page>

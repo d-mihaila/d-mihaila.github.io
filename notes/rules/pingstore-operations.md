@@ -4,7 +4,7 @@ author: Eoin Murray
 collection: notes
 description: Run insertion, deletion, backup, restore and migration.
 created_at: "2026-10-29T17:42:34Z"
-updated_at: "2026-11-12T20:51:41Z"
+updated_at: "2026-11-25T13:40:20Z"
 ---
 
 # Pingstore operations
@@ -62,7 +62,10 @@ uv run pingstore delete exp174-r013-present --storage r2 --dry-run
 uv run pingstore delete exp174-r013-present --storage r2
 ```
 
-The new default destination is `r2:pinglab/pingstore-v2`, with `runs/`, `receipts/`
+In this fork the default destination is `backup:pingstore-v2`: an rclone remote
+named `backup` that you configure yourself, on any backend. Upstream's
+`r2:pinglab/pingstore-v2` belongs to Eoin Murray; never write to it from this fork.
+The destination holds `runs/`, `receipts/`
 and a rebuildable `index.json`. The old R2 archive is untouched. Select another
 prefix with `--destination REMOTE:BUCKET/PREFIX`. Credentials stay in private
 rclone configuration. Only one machine may write a destination at a time; a

@@ -4,7 +4,7 @@ author: Eoin Murray
 collection: notes
 description: Experiment scope, layout, configuration and native evidence.
 created_at: "2026-10-14"
-updated_at: "2026-11-12T20:22:47Z"
+updated_at: "2026-11-25T13:40:20Z"
 ---
 
 # Experiment Rules
@@ -35,7 +35,7 @@ updated_at: "2026-11-12T20:22:47Z"
    tests. Limit root Python files to these. Keep imports free of execution effects.
 2. Reserve `custom/` for genuine extensions and execution adapters, not ordinary
    stage code. Keep only work needed for the report and its evidence. README:
-   brief goals, CLI files and arguments. See `experiments/exp141` for structure.
+   brief goals, CLI files and arguments. See `experiments/exp176` for structure.
 3. `configuration(...)` returns a fresh resolved dictionary with defaults together
    in `dict(...)`. Validate explicit overrides before deriving dependent values;
    route CLI settings through it and record what execution actually uses. Explain
@@ -64,7 +64,9 @@ updated_at: "2026-11-12T20:22:47Z"
 ## Identity and dependencies
 
 1. Allocate a never-used, zero-padded `expXXX`, checking directories, Git history
-   and Pingstore allocation records, including deleted experiments.
+   and Pingstore allocation records, including deleted experiments. In this fork,
+   allocate new IDs from `exp500` upward so they stay clear of upstream Pinglab's
+   numbering. IDs must be exactly three digits; the site rejects any other form.
 2. Reuse maintained shared helpers directly in `experiments/`; obtain permission
    before adding one. Never import another experiment's code or scratch code.
    Consume external scientific inputs through explicit validated Pingstore runs.

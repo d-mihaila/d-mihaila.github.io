@@ -4,14 +4,14 @@ author: Eoin Murray
 collection: notes
 description: The required compact summary, connectivity matrix and numeric conventions.
 created_at: "2026-10-29T17:42:34Z"
-updated_at: "2026-10-29T17:55:32Z"
+updated_at: "2026-11-25T13:40:20Z"
 ---
 
 # Parameter tables
 
 Read when creating or changing parameter tables. Evidence binding is defined in
 [Writing Rules](/notes/rules/writing#parameter-table-data-binding).
-Follow [exp133](/exp133#parameters): use the shared `Table` component for a compact
+Follow upstream [exp133](https://pinglab.eoinmurray.info/exp133#parameters): use the shared `Table` component for a compact
 grouped summary immediately followed by a source-to-target connectivity matrix.
 Do not add exhaustive or expandable parameter, pathway or analysis tables.
 

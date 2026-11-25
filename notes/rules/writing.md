@@ -4,7 +4,7 @@ author: Eoin Murray
 collection: notes
 description: Brief, plain-English writing grounded in code and data.
 created_at: "2026-10-14"
-updated_at: "2026-11-12T20:22:47Z"
+updated_at: "2026-11-25T13:40:20Z"
 ---
 
 # Writing Rules
@@ -58,7 +58,7 @@ or scope justify it. Simulation-backed checks require execution authorization.
 
 ## Parameter tables
 
-Use exp133's compact grouped summary followed immediately by a source-to-target
+Use upstream [exp133](https://pinglab.eoinmurray.info/exp133#parameters)'s compact grouped summary followed immediately by a source-to-target
 matrix, through shared `Table`; no exhaustive or expandable extra tables. Preserve
 Simulation-first ordering, every population/input pool, two significant figures,
 exact identifiers, standard headers and uniform body backgrounds. Read

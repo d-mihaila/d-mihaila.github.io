@@ -70,7 +70,7 @@ if modal.is_local():
             "graphviz",
         ).run_commands(
             f"git init {REMOTE}",
-            f"git -C {REMOTE} remote add origin https://github.com/eoinmurray/pinglab",
+            f"git -C {REMOTE} remote add origin https://github.com/d-mihaila/d-mihaila.github.io",
             f"git -C {REMOTE} fetch --depth 1 origin {baseline}",
             f"git -C {REMOTE} reset --hard FETCH_HEAD",
         )

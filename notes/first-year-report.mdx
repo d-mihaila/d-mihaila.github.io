@@ -2,260 +2,128 @@
 title: "First Year Report"
 author: Eoin Murray
 collection: notes
-description: "First year report table of contents on the computational functions, mechanisms and applications of gamma oscillations."
+description: "First year report with a drafted background and literature review on the computational functions and mechanisms of gamma oscillations."
 created_at: "2026-11-09T12:20:04Z"
-updated_at: "2026-11-23T14:54:51Z"
+updated_at: "2026-11-24T13:11:01Z"
 ---
 
-1. **Introduction**
-    1. _Main research question and hypotheses_
-    2. _Research strategy: functions, mechanisms and applications_ — [\[1\]](#ref-1); [\[2\]](#ref-2); [\[3\]](#ref-3).
-2. **Background and literature review**
-    1. _Experimental evidence for oscillations and gamma_
+## 1. Background and literature review
 
-        <p><strong style="color: red;">P01. The computational problem.</strong> Introduce how neural populations select, coordinate and transmit information. Establish why the timing of activity, alongside firing rates, might matter.</p>
+### 1.1 Brief history of Gamma
 
-        <p><strong style="color: red;">P02. What constitutes an oscillation.</strong> Define neural oscillations and gamma, typically around 30–90 Hz, while noting that band boundaries vary. Distinguish rhythmic population activity from individual neurons firing on every cycle.</p>
+<p>The term “gamma waves” dates to 1938, when Jasper and Andrews described occasional 35–45 Hz components in human electroencephalographic (EEG) recordings. They considered the activity insufficiently regular for systematic analysis. Its identification therefore preceded an account of either its circuit mechanism or its function [Ahmed and Cash (2013)](https://doi.org/10.3389/fnint.2013.00058).</p>
 
-        <p><strong style="color: red;">P03. Historical foundations.</strong> Trace the experimental development of gamma research, using Ahmed and Cash [\[4\]](#ref-4) to frame the relationship between apparently desynchronised cortical activity and local synchrony.</p>
+<p>Later experiments examined how gamma activity varied during sensory processing. [Di Prisco and Freeman (1985)](https://doi.org/10.1037/0735-7044.99.5.964) trained rabbits to discriminate an odour associated with water reward and recorded 40–80 Hz bursts through a 64-electrode array over the olfactory bulb. Differences between pre-odour and odour-period bursts were particularly evident during discrimination, associating gamma activity with learned sensory processing. In visual cortex, recordings from separated sites allowed researchers to examine coordination between populations. [Gray and colleagues (1989)](https://doi.org/10.1038/338334a0) presented moving bars to cats and compared simultaneously recorded spike trains. Synchronisation depended on stimulus configuration, with strong coordination when a continuous bar spanned separated receptive fields. [Figure 1](#gamma-synchrony) shows the near-zero-lag peak and oscillatory side peaks in the cross-correlation. These findings contributed to the temporal binding hypothesis: shared timing might group distributed responses into a common representation. Establishing such a role would require showing that perception depended on the coordination.</p>
 
-        <p><strong style="color: red;">P04. Stimulus-related synchronisation.</strong> Present Gray et al. [\[5\]](#ref-5): synchronisation between visual cortical populations associated with global stimulus properties. Separate the observation from its proposed binding interpretation.</p>
+<figure id="gamma-synchrony">
 
-        <p><strong style="color: red;">P05. Attention-related synchronisation.</strong> Introduce Fries et al. [\[6\]](#ref-6) as evidence that gamma synchronisation changes with selective attention. Reserve the detailed functional interpretation for section 2.3.</p>
+![Cross-correlogram from separated visual cortical sites during presentation of one continuous bar.](./first-year-report/figures/gray-fig3-d-iii.png)
 
-        <p><strong style="color: red;">P06. What recordings measure.</strong> Explain how EEG, ECoG and LFP relate to extracellular currents, and why recorded gamma depends on spatial scale and recording method [\[7\]](#ref-7).</p>
+<figcaption><strong>Figure 1. Synchronised oscillatory firing across separated visual cortical sites.</strong> [Gray and colleagues (1989)](https://doi.org/10.1038/338334a0), Fig. 3d, condition III. Cross-correlation of multi-unit spike trains recorded at sites separated by 7 mm in cat visual cortex, while one light bar crossed both receptive fields. The central peak indicates near-zero-lag synchronisation; side peaks show oscillatory modulation. The horizontal axis spans −50 to 50 ms; the vertical scale bar represents 22 spike-count units. Filled and outlined histograms represent the two directions of movement. The other stimulus conditions are not reproduced here. Single plot cropped from the published figure, with white margins added; no data redrawn.</figcaption>
+</figure>
 
-        <p><strong style="color: red;">P07. Rhythmic gamma versus spectral power.</strong> Distinguish narrowband oscillations, broadband high-frequency activity and aperiodic spectral changes [\[8\]](#ref-8); [\[9\]](#ref-9). End by establishing that increased gamma-band power alone does not demonstrate a stronger oscillation.</p>
+<p>Attention provided a comparison in which the sensory display could remain unchanged. [Fries and colleagues (2001)](https://doi.org/10.1126/science.1055465) recorded spikes and local field potentials in macaque visual area V4 while the animal attended different stimuli. Stronger gamma-frequency synchronisation for attended representations associated the rhythm with behavioural selection under matched sensory conditions.</p>
 
-    2. _Gamma theories and circuit dynamics_
+<p>Explaining these observations also required a circuit account of gamma generation. Pyramidal–interneuron network gamma (PING) describes a feedback cycle in which pyramidal firing recruits inhibitory interneurons, inhibition suppresses further excitation, and recovery permits another volley. [Börgers and Kopell (2003)](https://doi.org/10.1162/089976603321192059) examined this mechanism in simulations with sparse, random connectivity. Synchronisation persisted under suitable connectivity and synaptic conditions, extending the analysis beyond idealised all-to-all networks. Experimental evidence for the feedback account came from carbachol-induced gamma in rat hippocampal slices. Using electrode arrays, voltage-sensitive imaging and single-neuron recordings, [Mann and colleagues (2005)](https://doi.org/10.1016/j.neuron.2004.12.016) identified rhythmic inhibition around pyramidal cell bodies from perisomatic-targeting interneurons. Recurrent excitation mediated by AMPA receptors was necessary for synchronising interneuron discharge. The combination of excitatory recruitment and inhibitory feedback supported a PING-type mechanism in this preparation.</p>
 
-        <p><strong style="color: red;">P08. PING and ING mechanisms.</strong> Explain how pyramidal–interneuron network gamma (PING) arises through interactions between excitatory pyramidal cells and inhibitory interneurons, and how interneuron network gamma (ING) can arise within inhibitory networks. Describe the sequence of excitation, inhibition and recovery in each mechanism, and distinguish population rhythms from individual firing rates [\[1\]](#ref-1); [\[10\]](#ref-10); [\[11\]](#ref-11); [\[12\]](#ref-12).</p>
+<p>[Sohal and colleagues (2009)](https://doi.org/10.1038/nature07991) tested the feedback interaction directly by constructing an experimentally controlled loop in mouse cortical slices. They supplied non-rhythmic excitatory inputs to pyramidal neurons and used pyramidal spikes to trigger optogenetic activation of parvalbumin interneurons, which returned inhibition to the pyramidal cell. Adding the feedback enhanced gamma-frequency structure in pyramidal firing. This demonstrated how the excitatory–inhibitory interaction could generate rhythmic timing from non-rhythmic input, providing a causal test of the generative principle underlying PING.</p>
 
-        <p><strong style="color: red;">P09. Synaptic dynamics, irregular firing and noisy drive.</strong> Explain how synaptic kinetics, excitation–inhibition balance and external drive influence gamma frequency and synchronisation. Introduce the possibility of coherent population oscillations despite irregular individual firing, and describe how noisy drive can alter or disrupt rhythmic activity [\[13\]](#ref-13); [\[14\]](#ref-14); [\[15\]](#ref-15).</p>
+### 1.2 Gamma theories
 
-        <p><strong style="color: red;">P10. Balanced and asynchronous comparison regimes.</strong> Define excitation–inhibition balance and asynchronous irregular activity. Explain why balance, irregular firing and population synchrony describe different properties, then establish asynchronous regimes as comparison conditions for investigating gamma’s computational effects [\[16\]](#ref-16); [\[17\]](#ref-17); [\[18\]](#ref-18).</p>
+<p>Gamma activity has been recorded in the neocortex, hippocampus, entorhinal cortex, olfactory bulb and amygdala, among other structures [Buzsáki and Wang (2012)](https://doi.org/10.1146/annurev-neuro-062111-150444). Its occurrence across these regions does not imply a single common generator. Local cellular architecture, synaptic organisation and patterns of input differ between circuits, so a shared frequency range can encompass distinct physiological processes.</p>
 
-        <p><strong style="color: red;">P11. Interneuron diversity and biological constraints.</strong> Explain why treating inhibition as a single homogeneous population is a modelling simplification. Introduce parvalbumin and somatostatin interneurons, their differing circuit roles, and evidence that gamma generation depends on circuit and stimulus conditions. Identify the resulting limits on generalising from simplified PING or ING models [\[19\]](#ref-19); [\[20\]](#ref-20).</p>
+<p>In cortical and hippocampal circuits, pyramidal cells provide glutamatergic excitation, including fast excitation of interneurons through AMPA receptors. Interneurons release gamma-aminobutyric acid (GABA), with fast inhibition through GABA<sub>A</sub> receptors contributing to gamma timing [Buzsáki and Wang (2012)](https://doi.org/10.1146/annurev-neuro-062111-150444). Fast-spiking, parvalbumin-expressing interneurons often target pyramidal cell bodies and nearby compartments, where inhibition can tightly regulate spike timing [Bartos and colleagues (2007)](https://doi.org/10.1038/nrn2044). Other cell types also contribute: dendrite-targeting somatostatin interneurons are important for a context-dependent visual gamma rhythm in mouse cortex [Veit and colleagues (2017)](https://doi.org/10.1038/nn.4562). The cells participating in gamma therefore depend on the circuit and stimulus conditions.</p>
 
-    3. _Proposed functional roles and competing explanations_
+<p>Gamma oscillations can arise through several interacting processes, but the principal network accounts are pyramidal–interneuron network gamma (PING) and interneuron network gamma (ING). They differ in which interactions sustain the rhythm.</p>
 
-        <p><strong style="color: red;">P12. Efficiency, robustness and local selection.</strong> Introduce the proposal that rhythmic inhibition restricts firing to strongly driven cells and improves signal selection. Explain how this might affect efficiency and robustness, compare gamma with asynchronous computation, and distinguish demonstrated benefits under particular conditions from claims of a general computational advantage. [\[21\]](#ref-21); [\[22\]](#ref-22); [\[23\]](#ref-23); [\[24\]](#ref-24); [\[3\]](#ref-3).</p>
+<p>In PING, pyramidal cells recruit inhibitory interneurons, whose feedback temporarily suppresses further pyramidal firing. As inhibition decays, sufficiently driven pyramidal cells can fire again and initiate another volley. The rhythm therefore emerges from repeated excitation, inhibition and recovery. Its frequency depends on inhibitory kinetics, synaptic delays, neuronal responsiveness and external drive. Individual pyramidal cells need not participate in every cycle: irregular cellular firing can coexist with rhythmic population activity. [Figure 2](#gamma-feedback) shows increased gamma-frequency power in pyramidal firing when feedback inhibition is added. [Börgers and Kopell (2003)](https://doi.org/10.1162/089976603321192059) demonstrated how this coordination can persist in sparsely and randomly connected networks.</p>
 
-        <p><strong style="color: red;">P13. Selective communication, attention and sensory routing.</strong> Explain communication through coherence as the proposal that relative oscillatory timing regulates effective transmission between populations. Connect routing models with attention-related recordings, then introduce constraints from transmission delays, competing inputs and frequency differences. Contrast selective routing with explanations in which coherence follows communication or changes in local activity. [\[2\]](#ref-2); [\[25\]](#ref-25); [\[26\]](#ref-26); [\[27\]](#ref-27); [\[28\]](#ref-28); [\[29\]](#ref-29); [\[30\]](#ref-30); [\[31\]](#ref-31); [\[32\]](#ref-32).</p>
+<figure id="gamma-feedback">
 
-        <p><strong style="color: red;">P14. Perceptual binding and grouping.</strong> Introduce the proposal that synchronisation groups distributed neuronal responses into representations of the same object. Relate the original visual cortical observations to this hypothesis, then present critical and negative evidence. Contrast temporal binding with grouping through firing-rate changes, and distinguish stimulus-related synchrony from evidence that synchrony is necessary for perception. [\[5\]](#ref-5); [\[33\]](#ref-33); [\[34\]](#ref-34); [\[35\]](#ref-35).</p>
+![Pyramidal spike-train power spectra with and without optogenetically controlled feedback inhibition.](./first-year-report/figures/sohal-fig2-e.png)
 
-        <p><strong style="color: red;">P15. Sensory gain, temporal gating and phase coding.</strong> Explain how rhythmic changes in excitability could create windows of greater sensory responsiveness and make spike timing relative to phase informative. Introduce experimental evidence for phase-dependent responses and firing. Distinguish changes in gain, temporal gating and phase coding, and assess when gamma may enhance or suppress sensory processing. [\[36\]](#ref-36); [\[37\]](#ref-37); [\[38\]](#ref-38); [\[39\]](#ref-39); [\[3\]](#ref-3).</p>
+<figcaption><strong>Figure 2. Feedback inhibition generates gamma-frequency structure in pyramidal firing.</strong> [Sohal and colleagues (2009)](https://doi.org/10.1038/nature07991), Fig. 2e. Example pyramidal-cell spike-train spectra during non-rhythmic excitatory input, without feedback inhibition (black) and with spike-triggered optogenetic recruitment of parvalbumin interneurons (red). Frequency is in Hz and power in spikes². Adding the inhibitory feedback produces a gamma-frequency peak. This is a representative cell, not a population-average spectrum or a field-potential recording. Single plot cropped from the published figure, with white margins added; no data redrawn. © 2009 Macmillan Publishers Limited.</figcaption>
+</figure>
 
-        <p><strong style="color: red;">P16. Prediction-error signalling and alternative predictive functions.</strong> Introduce the proposal that gamma carries feedforward prediction-error signals within predictive-processing circuits. Relate the framework to experimental findings, then contrast it with accounts linking gamma to predictable sensory structure and predictive routing. Explain why gamma power alone cannot identify the represented quantity or establish a unique predictive function. [\[40\]](#ref-40); [\[41\]](#ref-41); [\[42\]](#ref-42); [\[43\]](#ref-43); [\[44\]](#ref-44).</p>
+<p>ING places the rhythm-generating interaction within the inhibitory population. Sufficiently driven interneurons coordinate through mutual inhibition, with recovery from one inhibitory volley permitting subsequent firing. Pyramidal cells may become phase-locked to the resulting rhythm without being required to generate it. [Wang and Buzsáki (1996)](https://doi.org/10.1523/JNEUROSCI.16-20-06402.1996) showed in simulations that inhibitory networks could synchronise at gamma frequencies under suitable conditions of drive, connectivity and synaptic kinetics. Rhythmic pyramidal activity alone therefore does not identify a PING mechanism.</p>
 
-        <p><strong style="color: red;">P17. Memory organisation, sequencing and routing.</strong> Explain proposals that gamma cycles organise items within slower theta rhythms and that different gamma frequencies support distinct communication pathways. Relate these models to working-memory bursts and hippocampal recordings. Distinguish sustained oscillations from transient events, and assess whether observed coupling establishes a necessary mechanism for memory organisation. [\[45\]](#ref-45); [\[46\]](#ref-46); [\[47\]](#ref-47); [\[48\]](#ref-48); [\[49\]](#ref-49); [\[50\]](#ref-50).</p>
+<p>Cellular properties also shape these network dynamics. Membrane conductances can favour rhythmic bursting or responsiveness within particular frequency ranges, influencing neuronal recruitment and the timescales available to the circuit. Such intrinsic preferences require network interactions to explain coordinated population activity. [Buzsáki and Wang (2012)](https://doi.org/10.1146/annurev-neuro-062111-150444).</p>
 
-        <p><strong style="color: red;">P18. Synaptic plasticity and spike timing.</strong> Explain how rhythmic coordination could organise pre- and postsynaptic spike timing and thereby influence synaptic modification. Introduce evidence for phase-sensitive plasticity and changes associated with gamma, alongside spike-timing-dependent plasticity. Distinguish a rhythm providing favourable timing conditions from evidence that gamma itself is required for learning. [\[51\]](#ref-51); [\[52\]](#ref-52); [\[53\]](#ref-53).</p>
+<p>Electrical coupling provides another contribution. Gap junctions pass current directly between interneurons and can promote synchronisation alongside chemical inhibitory connections. They can therefore support inhibition-based gamma without constituting a separate generator. [Bartos and colleagues (2007)](https://doi.org/10.1038/nrn2044). These contributions can coexist, with the relative importance of PING, ING and cellular synchronising mechanisms changing across circuits and operating conditions. [Tiesinga and Sejnowski (2009)](https://doi.org/10.1016/j.neuron.2009.09.009).</p>
 
-    4. _Causal evidence and outstanding gaps_
+### 1.3 Proposed functional roles
 
-        <p><strong style="color: red;">P19. Epiphenomenal and evolutionary accounts.</strong> Consider whether gamma contributes to computation or arises as a consequence of circuit interactions that serve other functions. Explain why widespread occurrence does not establish adaptive value, and distinguish present-day causal function from evolutionary origin. Identify the evidence each explanation would require without treating an evolutionary account as established.</p>
+<p>Gamma has been proposed to influence computation by organising when neurons fire and when their inputs are effective. These proposals range from local competition between cells to communication between areas, memory organisation and learning. They share an interest in temporal coordination, but make different predictions about what the coordination achieves.</p>
 
-        <p><strong style="color: red;">P20. Experimental limits on studying distributed network phenomena.</strong> Explain the difficulty of measuring and manipulating relative timing across distributed populations while preserving other circuit properties. Discuss incomplete sampling, restricted intervention targets and differences between local and network-wide effects. Establish why results from one circuit, task or stimulation protocol may not generalise to gamma across the brain.</p>
+<p>At the local circuit level, rhythmic inhibition could select which cells participate in a response. In the E%-max mechanism proposed by [de Almeida and colleagues (2009)](https://doi.org/10.1523/JNEUROSCI.6044-08.2009), strongly excited cells fire before inhibition prevents weaker competitors from responding. The resulting selection depends on relative excitation, allowing the participating population to change with the input. Related models connect gamma-mediated competition with stimulus selection [Börgers and Kopell (2008)](https://doi.org/10.1162/neco.2007.07-06-289).</p>
 
-        <p><strong style="color: red;">P21. Cell-type and timing interventions.</strong> Introduce interventions targeting inhibitory cell types or the timing of neuronal activity, and explain what they reveal about sensory responses and behaviour. Assess how specifically each intervention isolates rhythmic coordination. Separate effects of oscillatory timing from accompanying changes in inhibition, firing rate and excitability, and identify the controls needed for causal interpretation. [\[36\]](#ref-36); [\[22\]](#ref-22); [\[54\]](#ref-54); [\[55\]](#ref-55).</p>
+<p>Such selection could improve robustness by suppressing distracting activity or concentrate processing on strongly supported signals. Whether it also improves efficiency or latency requires a task-specific comparison with asynchronous activity. [Susin and Destexhe (2021)](https://doi.org/10.1371/journal.pcbi.1009416) show that integration, coincidence detection and resonance depend on network state. Different operations may therefore favour different regimes; fewer spikes alone would not establish an overall computational advantage.</p>
 
-        <p><strong style="color: red;">P22. Coherence as cause or consequence.</strong> Explain why coherence between areas may facilitate transmission, arise from existing communication, or reflect shared drive. Introduce connectivity, oscillatory power and frequency shifts as competing explanations for coherence changes. Describe how timing perturbations and measurements of transmitted information could help distinguish these possibilities beyond observing coherence alone. [\[31\]](#ref-31); [\[56\]](#ref-56); [\[57\]](#ref-57).</p>
+<p>Rhythmic inhibition also changes the conditions under which sensory input evokes a response. [Cardin and colleagues (2009)](https://doi.org/10.1038/nature08002) demonstrated that sensory-response amplitude and precision depended on input timing relative to an induced gamma cycle. Gamma could consequently provide recurring windows of responsiveness. This temporal gating is related to gamma-rhythmic gain modulation, in which response strength varies across the cycle [Ni and colleagues (2016)](https://doi.org/10.1016/j.neuron.2016.09.003).</p>
 
-        <p><strong style="color: red;">P23. Inference and measurement limits.</strong> Explain how shared sources, volume conduction and analysis choices can complicate functional-connectivity estimates. Discuss apparent cross-frequency coupling and the separation of periodic from aperiodic spectral activity. Conclude by distinguishing evidence for an oscillation, evidence for an association with computation, and evidence that the oscillation causally contributes to that computation. [\[50\]](#ref-50); [\[49\]](#ref-49); [\[9\]](#ref-9).</p>
+<p>Phase coding makes a further proposal: the timing of a spike within the cycle could itself represent information. Stimulus-related shifts in spike phase, such as those described by [Vinck and colleagues (2010)](https://doi.org/10.1523/JNEUROSCI.1623-09.2010), motivate asking whether phase supplies information beyond firing rate. A phase-dependent response and a code read out through phase are distinct possibilities.</p>
 
-3. **Methods**
-    1. _Computational methods and modelling assumptions_
+<p>The same dependence on arrival time could regulate communication between populations. Communication through coherence proposes that inputs reaching a receiver during a more excitable phase exert greater influence [Fries (2015)](https://doi.org/10.1016/j.neuron.2015.09.034). Adjusting relative timing could therefore favour one of several converging signals without changing anatomical connections. This provides a proposed mechanism for attention and flexible routing. In [Figure 3](#gamma-attention), attention increases gamma-frequency spike–field coordination in V4. Routing effectiveness depends on how signals are organised: competing streams can interfere, and transmission delays alter the useful phase relationship [Akam and Kullmann (2012)](https://doi.org/10.1371/journal.pcbi.1002760). Increased coherence must consequently be distinguished from increased transmission of relevant information.</p>
 
-        <p><strong style="color: red;">P24.</strong> Simulation and circuit regimes — [\[11\]](#ref-11); [\[17\]](#ref-17); [\[24\]](#ref-24).</p>
+<figure id="gamma-attention">
 
-        <p><strong style="color: red;">P25.</strong> Training, surrogate gradients and fixed excitatory–inhibitory connections — [\[58\]](#ref-58); [\[59\]](#ref-59); [\[60\]](#ref-60); [\[61\]](#ref-61).</p>
+![Spectra of spike-triggered local field potential averages for attended and unattended visual stimuli.](./first-year-report/figures/fries-fig1-j.png)
 
-        <p><strong style="color: red;">P26.</strong> SNNLab toolbox and implementation</p>
+<figcaption><strong>Figure 3. Attention increases gamma-frequency spike–field coordination.</strong> [Fries and colleagues (2001)](https://doi.org/10.1126/science.1055465), Fig. 1J. Spectra of spike-triggered averages (STA) of the local field potential, using spikes and field potentials from separate electrodes in macaque V4. Red denotes attention inside the recorded neurons’ receptive fields and blue attention outside them. The example uses 300 correct trials per condition and the sustained stimulus period, beginning 300 ms after stimulus onset. Frequency is in Hz and STA power in µV². These spectra describe the component of the field signal aligned with spikes, rather than raw field-potential power. Single plot cropped from the published figure, with white margins added; no data redrawn. © 2001 American Association for the Advancement of Science.</figcaption>
+</figure>
 
-4. **Research Plan**
-    1. _Efficiency, robustness_ — [\[21\]](#ref-21); [\[22\]](#ref-22); [\[23\]](#ref-23); [\[24\]](#ref-24); [\[3\]](#ref-3).
+<p>Temporal binding assigns synchrony a representational role. Neurons encoding different features of one object would share timing, distinguishing their activity from responses belonging to another object. The decoding requirements and experimental support for this proposal remain disputed [Shadlen and Movshon (1999)](https://doi.org/10.1016/S0896-6273(00)80822-3). Rate-based accounts instead express grouping through enhanced activity within assemblies [Roelfsema (2023)](https://doi.org/10.1016/j.neuron.2023.03.016).</p>
 
-        <p><strong style="color: red;">P27.</strong> Task training: MNIST, Spiking Heidelberg Digits and scikit-learn digits — [\[62\]](#ref-62); [\[63\]](#ref-63); [\[64\]](#ref-64).</p>
+<p>Predictive-processing theories place gamma within exchanges between sensory evidence and expectations. One framework associates feedforward gamma with prediction-error signalling [Bastos and colleagues (2012)](https://doi.org/10.1016/j.neuron.2012.10.038). Other accounts connect gamma synchronisation with the integration of predictable visual structure [Vinck and Bosman (2016)](https://doi.org/10.3389/fnsys.2016.00035), while predictive routing concerns how expectations regulate communication [Bastos and colleagues (2020)](https://doi.org/10.1073/pnas.2014868117). These accounts assign different roles to gamma, so they cannot be tested by treating gamma power as a general measure of prediction.</p>
 
-        <p><strong style="color: red;">P28.</strong> Robustness in asynchronous irregular and PING regimes — [\[17\]](#ref-17); [\[14\]](#ref-14); [\[24\]](#ref-24).</p>
+<p>Memory theories use oscillatory timing to organise representations across timescales. Theta–gamma models propose that successive gamma cycles within a slower theta cycle can represent different items or positions in a sequence [Lisman and Jensen (2013)](https://doi.org/10.1016/j.neuron.2013.03.007). Different hippocampal gamma frequencies have also been associated with different communication pathways [Colgin and colleagues (2009)](https://doi.org/10.1038/nature08573). Working-memory recordings emphasising brief gamma and beta bursts broaden this picture beyond continuously maintained rhythms [Lundqvist and colleagues (2016)](https://doi.org/10.1016/j.neuron.2016.02.028).</p>
 
-        <p><strong style="color: red;">P29.</strong> Efficiency, latency and biological energy costs — [\[65\]](#ref-65).</p>
+<p>Finally, coordinating spike timing could influence synaptic modification. Spike-timing-dependent plasticity establishes a dependence of synaptic change on relative presynaptic and postsynaptic timing [Bi and Poo (1998)](https://doi.org/10.1523/JNEUROSCI.18-24-10464.1998), while experiments in oscillating visual cortical cells demonstrate phase-sensitive modification [Wespatat and colleagues (2004)](https://doi.org/10.1523/JNEUROSCI.2221-04.2004). Gamma could thus help organise activity into relationships favourable for learning. Establishing when this occurs requires connecting the timing mechanism to changes in synaptic efficacy and subsequent task performance.</p>
 
-        <p><strong style="color: red;">P30.</strong> Mechanism: evidence obtained and unresolved explanations</p>
+### 1.4 Outstanding gaps
 
-        <p><strong style="color: red;">P31.</strong> Applications: performance demonstrated</p>
+<p>The causal role of gamma remains difficult to isolate. Increased gamma-band power can reflect changes in aperiodic activity [Donoghue and colleagues (2020)](https://doi.org/10.1038/s41593-020-00744-x), while coherence can arise from existing communication [Schneider and colleagues (2021)](https://doi.org/10.1016/j.neuron.2021.09.037). Interventions provide stronger evidence, but manipulating inhibitory neurons also changes firing rates and excitability. Timing-specific experiments narrow the question: [Drebitz and colleagues (2025)](https://doi.org/10.1038/s41467-025-62732-8) showed that behavioural disruption depended on receiver gamma phase. Establishing which computations require endogenous gamma coordination remains a task for experiments that distinguish timing effects from accompanying changes in activity.</p>
 
-        <p><strong style="color: red;">P32.</strong> Limitations and assessment of hypotheses</p>
+<p>The interpretation of these results also depends on how well models represent the relevant circuitry. PING and ING capture useful interactions, but simplify neuronal diversity, connectivity and spatial structure. Somatostatin-dependent visual gamma illustrates the contribution of inhibitory populations beyond those commonly represented in simplified models [Veit and colleagues (2017)](https://doi.org/10.1038/nn.4562). Transmission delays, changing frequencies and interference further constrain proposed routing mechanisms [Akam and Kullmann (2012)](https://doi.org/10.1371/journal.pcbi.1002760). Whether useful coordination can emerge through learning and remain effective under changing task demands is therefore an important extension of demonstrations using imposed rhythms.</p>
 
-        <ol><li>Emergence of PING under training conditions</li></ol>
-    2. _Selective communication, attention and sensory routing_ — [\[2\]](#ref-2); [\[25\]](#ref-25); [\[26\]](#ref-26); [\[27\]](#ref-27); [\[28\]](#ref-28); [\[29\]](#ref-29); [\[30\]](#ref-30); [\[31\]](#ref-31); [\[32\]](#ref-32).
+<p>Connecting a mechanism to a computational benefit requires explicit predictions about the information represented and how downstream circuits use it. Comparisons with asynchronous networks should provide comparable training opportunities, resources and inputs, with additional controls for firing rate and inhibition. Different operations may favour different regimes [Susin and Destexhe (2021)](https://doi.org/10.1371/journal.pcbi.1009416), so accuracy, robustness and latency need to be assessed alongside resource costs. Reduced spike counts alone do not establish energy savings. Benefits demonstrated in a particular task would identify useful operating conditions, while broader biological functions and evolutionary explanations would require further evidence.</p>
 
-        <p><strong style="color: red;">P33.</strong> Selective transmission of competing spatial inputs — [\[25\]](#ref-25); [\[23\]](#ref-23); [\[66\]](#ref-66); [\[67\]](#ref-67); [\[29\]](#ref-29); [\[30\]](#ref-30).</p>
+## 2. Methods
 
-        <p><strong style="color: red;">P34.</strong> Mechanism: evidence obtained and unresolved explanations</p>
+### 2.1 Simulation
 
-        <p><strong style="color: red;">P35.</strong> Applications: performance demonstrated</p>
+### 2.2 Circuits
 
-        <p><strong style="color: red;">P36.</strong> Limitations and assessment of hypotheses</p>
+### 2.3 Training
 
-    3. _Perceptual binding and grouping_ — [\[5\]](#ref-5); [\[33\]](#ref-33); [\[34\]](#ref-34); [\[35\]](#ref-35).
-    4. _Sensory gain, temporal gating and phase coding_ — [\[36\]](#ref-36); [\[37\]](#ref-37); [\[38\]](#ref-38); [\[39\]](#ref-39); [\[3\]](#ref-3).
-    5. _Prediction-error signalling and alternative predictive functions_ — [\[40\]](#ref-40); [\[41\]](#ref-41); [\[42\]](#ref-42); [\[43\]](#ref-43); [\[44\]](#ref-44).
-    6. _Memory organisation, sequencing and routing_ — [\[45\]](#ref-45); [\[46\]](#ref-46); [\[47\]](#ref-47); [\[48\]](#ref-48); [\[49\]](#ref-49); [\[50\]](#ref-50).
-    7. _Synaptic plasticity and spike timing_ — [\[51\]](#ref-51); [\[52\]](#ref-52); [\[53\]](#ref-53).
-5. **Discussion and outlook**
-    1. _What the completed work establishes_
-    2. _Biological implications and limits_ — [\[1\]](#ref-1); [\[3\]](#ref-3); [\[65\]](#ref-65).
-    3. _Expected contribution of the remaining PhD_
-6. **Appendices**
-    1. _Model specifications and parameters_
-    2. _Supporting methods and results_
-7. **References**
+### 2.4 Toolbox and implementation
 
-   <span id="ref-1" /> **[1]** György Buzsáki; Xiao-Jing Wang (2012). [Mechanisms of Gamma Oscillations](https://doi.org/10.1146/annurev-neuro-062111-150444). _Annual Review of Neuroscience_. {import.meta.env.DEV && <a href="/papers/buzsaki-wang-2012.pdf">Local PDF</a>}
+## 3. Research Plan
 
-   <span id="ref-2" /> **[2]** Pascal Fries (2015). [Rhythms for Cognition: Communication through Coherence](https://doi.org/10.1016/j.neuron.2015.09.034). _Neuron (author manuscript)_. {import.meta.env.DEV && <a href="/papers/fries-2015.pdf">Local PDF</a>}
+### 3.1 Efficiency and robustness
 
-   <span id="ref-3" /> **[3]** Supratim Ray; John H.R. Maunsell (2015). [Do gamma oscillations play a role in cerebral cortex?](https://doi.org/10.1016/j.tics.2014.12.002). _Trends in Cognitive Sciences_. {import.meta.env.DEV && <a href="/papers/ray-maunsell-2015.pdf">Local PDF</a>}
+### 3.2 Selective communication and attention
 
-   <span id="ref-4" /> **[4]** Omar J Ahmed; Sydney S Cash (2013). [Finding synchrony in the desynchronized EEG: the history and interpretation of gamma rhythms](https://doi.org/10.3389/fnint.2013.00058). _Frontiers in Integrative Neuroscience_. {import.meta.env.DEV && <span>(Local PDF unavailable.)</span>}
+### 3.3 Perceptual binding and grouping
 
-   <span id="ref-5" /> **[5]** C M Gray; P König; A K Engel; W Singer (1989). [Oscillatory responses in cat visual cortex exhibit inter-columnar synchronization which reflects global stimulus properties](https://doi.org/10.1038/338334a0). _Nature_. {import.meta.env.DEV && <a href="/papers/gray-et-al-1989.pdf">Local PDF</a>}
+### 3.4 Sensory gain, temporal gating and phase coding
 
-   <span id="ref-6" /> **[6]** Pascal Fries; John H. Reynolds; Alan E. Rorie; Robert Desimone (2001). [Modulation of Oscillatory Neuronal Synchronization by Selective Visual Attention](https://doi.org/10.1126/science.1055465). _Science_. {import.meta.env.DEV && <a href="/papers/fries-et-al-2001.pdf">Local PDF</a>}
+### 3.5 Prediction-error signalling and alternative predictive functions
 
-   <span id="ref-7" /> **[7]** György Buzsáki; Costas A. Anastassiou; Christof Koch (2012). [The origin of extracellular fields and currents — EEG, ECoG, LFP and spikes](https://doi.org/10.1038/nrn3241). _Nature Reviews Neuroscience_. {import.meta.env.DEV && <a href="/papers/buzsaki-et-al-2012.pdf">Local PDF</a>}
+### 3.6 Memory organisation, sequencing and routing
 
-   <span id="ref-8" /> **[8]** Supratim Ray; John H. R. Maunsell (2011). [Different Origins of Gamma Rhythm and High-Gamma Activity in Macaque Visual Cortex](https://doi.org/10.1371/journal.pbio.1000610). _PLoS Biology_. {import.meta.env.DEV && <a href="/papers/ray-maunsell-2011.pdf">Local PDF</a>}
+### 3.7 Synaptic plasticity and spike timing
 
-   <span id="ref-9" /> **[9]** Thomas Donoghue et al. (2020). [Parameterizing neural power spectra into periodic and aperiodic components](https://doi.org/10.1038/s41593-020-00744-x). _Nature Neuroscience_. {import.meta.env.DEV && <a href="/papers/donoghue-et-al-2020.pdf">Local PDF</a>}
+## 4. Discussion and outlook
 
-   <span id="ref-10" /> **[10]** Paul Tiesinga; Terrence J. Sejnowski (2009). [Cortical Enlightenment: Are Attentional Gamma Oscillations Driven by ING or PING?](https://doi.org/10.1016/j.neuron.2009.09.009). _Neuron_. {import.meta.env.DEV && <a href="/papers/tiesinga-sejnowski-2009.pdf">Local PDF</a>}
+### 4.1 What the completed work establishes
 
-   <span id="ref-11" /> **[11]** Christoph Börgers; Nancy Kopell (2003). [Synchronization in Networks of Excitatory and Inhibitory Neurons with Sparse, Random Connectivity](https://doi.org/10.1162/089976603321192059). _Neural Computation_. {import.meta.env.DEV && <a href="/papers/borgers-kopell-2003.pdf">Local PDF</a>}
+### 4.2 Biological implications and limits
 
-   <span id="ref-12" /> **[12]** Xiao-Jing Wang; György Buzsáki (1996). [Gamma Oscillation by Synaptic Inhibition in a Hippocampal Interneuronal Network Model](https://doi.org/10.1523/jneurosci.16-20-06402.1996). _The Journal of Neuroscience_. {import.meta.env.DEV && <a href="/papers/wang-buzsaki-1996.pdf">Local PDF</a>}
+### 4.3 Expected contribution of the remaining PhD
 
-   <span id="ref-13" /> **[13]** Nicolas Brunel; Xiao-Jing Wang (2003). [What Determines the Frequency of Fast Network Oscillations With Irregular Neural Discharges? I. Synaptic Dynamics and Excitation-Inhibition Balance](https://doi.org/10.1152/jn.01095.2002). _Journal of Neurophysiology_. {import.meta.env.DEV && <a href="/papers/brunel-wang-2003.pdf">Local PDF</a>}
+## 5. Appendices
 
-   <span id="ref-14" /> **[14]** Christoph Börgers; Nancy Kopell (2005). [Effects of Noisy Drive on Rhythms in Networks of Excitatory and Inhibitory Neurons](https://doi.org/10.1162/0899766053019908). _Neural Computation_. {import.meta.env.DEV && <a href="/papers/borgers-kopell-2005.pdf">Local PDF</a>}
+### 5.1 Model specifications and parameters
 
-   <span id="ref-15" /> **[15]** Bassam V. Atallah; Massimo Scanziani (2009). [Instantaneous Modulation of Gamma Oscillation Frequency by Balancing Excitation with Inhibition](https://doi.org/10.1016/j.neuron.2009.04.027). _Neuron_. {import.meta.env.DEV && <a href="/papers/atallah-scanziani-2009.pdf">Local PDF</a>}
-
-   <span id="ref-16" /> **[16]** C. van Vreeswijk; H. Sompolinsky (1996). [Chaos in Neuronal Networks with Balanced Excitatory and Inhibitory Activity](https://doi.org/10.1126/science.274.5293.1724). _Science_. {import.meta.env.DEV && <a href="/papers/van-vreeswijk-sompolinsky-1996.pdf">Local PDF</a>}
-
-   <span id="ref-17" /> **[17]** Nicolas Brunel (2000). [Dynamics of Sparsely Connected Networks of Excitatory and Inhibitory Spiking Neurons](https://doi.org/10.1023/A:1008925309027). _Journal of Computational Neuroscience_. {import.meta.env.DEV && <a href="/papers/brunel-2000.pdf">Local PDF</a>}
-
-   <span id="ref-18" /> **[18]** Alfonso Renart et al. (2010). [The Asynchronous State in Cortical Circuits](https://doi.org/10.1126/science.1179850). _Science_. {import.meta.env.DEV && <a href="/papers/renart-et-al-2010.pdf">Local PDF</a>}
-
-   <span id="ref-19" /> **[19]** Marlene Bartos; Imre Vida; Peter Jonas (2007). [Synaptic mechanisms of synchronized gamma oscillations in inhibitory interneuron networks](https://doi.org/10.1038/nrn2044). _Nature Reviews Neuroscience_. {import.meta.env.DEV && <a href="/papers/bartos-et-al-2007.pdf">Local PDF</a>}
-
-   <span id="ref-20" /> **[20]** Julia Veit et al. (2017). [Cortical gamma band synchronization through somatostatin interneurons](https://doi.org/10.1038/nn.4562). _Nature Neuroscience_. {import.meta.env.DEV && <a href="/papers/veit-et-al-2017.pdf">Local PDF</a>}
-
-   <span id="ref-21" /> **[21]** L. de Almeida; M. Idiart; J. E. Lisman (2009). [A Second Function of Gamma Frequency Oscillations: An E%-Max Winner-Take-All Mechanism Selects Which Cells Fire](https://doi.org/10.1523/JNEUROSCI.6044-08.2009). _Journal of Neuroscience_. {import.meta.env.DEV && <a href="/papers/de-almeida-et-al-2009.pdf">Local PDF</a>}
-
-   <span id="ref-22" /> **[22]** Vikaas S. Sohal; Feng Zhang; Ofer Yizhar; Karl Deisseroth (2009). [Parvalbumin neurons and gamma rhythms enhance cortical circuit performance](https://doi.org/10.1038/nature07991). _Nature_. {import.meta.env.DEV && <a href="/papers/sohal-et-al-2009.pdf">Local PDF</a>}
-
-   <span id="ref-23" /> **[23]** Christoph Börgers; Nancy J. Kopell (2008). [Gamma Oscillations and Stimulus Selection](https://doi.org/10.1162/neco.2007.07-06-289). _Neural Computation_. {import.meta.env.DEV && <a href="/papers/borgers-kopell-2008.pdf">Local PDF</a>}
-
-   <span id="ref-24" /> **[24]** Eduarda Susin; Alain Destexhe (2021). [Integration, coincidence detection and resonance in networks of spiking neurons expressing Gamma oscillations and asynchronous states](https://doi.org/10.1371/journal.pcbi.1009416). _PLOS Computational Biology_. {import.meta.env.DEV && <a href="/papers/susin-destexhe-2021.pdf">Local PDF</a>}
-
-   <span id="ref-25" /> **[25]** Thomas Akam; Dimitri M. Kullmann (2010). [Oscillations and Filtering Networks Support Flexible Routing of Information](https://doi.org/10.1016/j.neuron.2010.06.019). _Neuron_. {import.meta.env.DEV && <a href="/papers/akam-kullmann-2010.pdf">Local PDF</a>}
-
-   <span id="ref-26" /> **[26]** Andre M Bastos; Julien Vezoli; Pascal Fries (2015). [Communication through coherence with inter-areal delays](https://doi.org/10.1016/j.conb.2014.11.001). _Current Opinion in Neurobiology_. {import.meta.env.DEV && <a href="/papers/bastos-et-al-2015.pdf">Local PDF</a>}
-
-   <span id="ref-27" /> **[27]** Conrado A. Bosman et al. (2012). [Attentional Stimulus Selection through Selective Synchronization between Monkey Visual Areas](https://doi.org/10.1016/j.neuron.2012.06.037). _Neuron (author manuscript)_. {import.meta.env.DEV && <a href="/papers/bosman-et-al-2012.pdf">Local PDF</a>}
-
-   <span id="ref-28" /> **[28]** André Moraes Bastos et al. (2015). [Visual Areas Exert Feedforward and Feedback Influences through Distinct Frequency Channels](https://doi.org/10.1016/j.neuron.2014.12.018). _Neuron_. {import.meta.env.DEV && <a href="/papers/bastos-et-al-2015-frequency-channels.pdf">Local PDF</a>}
-
-   <span id="ref-29" /> **[29]** Thomas E. Akam; Dimitri M. Kullmann (2012). [Efficient “Communication through Coherence” Requires Oscillations Structured to Minimize Interference between Signals](https://doi.org/10.1371/journal.pcbi.1002760). _PLoS Computational Biology_. {import.meta.env.DEV && <a href="/papers/akam-kullmann-2012.pdf">Local PDF</a>}
-
-   <span id="ref-30" /> **[30]** Priscilla E. Greenwood; Lawrence M. Ward (2024). [Attentional selection and communication through coherence: Scope and limitations](https://doi.org/10.1371/journal.pcbi.1011431). _PLOS Computational Biology_. {import.meta.env.DEV && <a href="/papers/greenwood-ward-2024.pdf">Local PDF</a>}
-
-   <span id="ref-31" /> **[31]** Marius Schneider et al. (2021). [A mechanism for inter-areal coherence through communication based on connectivity and oscillatory power](https://doi.org/10.1016/j.neuron.2021.09.037). _Neuron_. {import.meta.env.DEV && <a href="/papers/schneider-et-al-2021.pdf">Local PDF</a>}
-
-   <span id="ref-32" /> **[32]** Matthew Chalk et al. (2010). [Attention Reduces Stimulus-Driven Gamma Frequency Oscillations and Spike Field Coherence in V1](https://doi.org/10.1016/j.neuron.2010.03.013). _Neuron_. {import.meta.env.DEV && <a href="/papers/chalk-et-al-2010.pdf">Local PDF</a>}
-
-   <span id="ref-33" /> **[33]** Michael N. Shadlen; J. Anthony Movshon (1999). [Synchrony Unbound: A Critical Evaluation of the Temporal Binding Hypothesis](https://doi.org/10.1016/s0896-6273(00)80822-3). _Neuron_. {import.meta.env.DEV && <a href="/papers/shadlen-movshon-1999.pdf">Local PDF</a>}
-
-   <span id="ref-34" /> **[34]** Alexander Thiele; Gene Stoner (2003). [Neuronal synchrony does not correlate with motion coherence in cortical area MT](https://doi.org/10.1038/nature01285). _Nature_. {import.meta.env.DEV && <a href="/papers/thiele-stoner-2003.pdf">Local PDF</a>}
-
-   <span id="ref-35" /> **[35]** Pieter R. Roelfsema (2023). [Solving the binding problem: Assemblies form when neurons enhance their firing rate—they don’t need to oscillate or synchronize](https://doi.org/10.1016/j.neuron.2023.03.016). _Neuron_. {import.meta.env.DEV && <a href="/papers/roelfsema-2023.pdf">Local PDF</a>}
-
-   <span id="ref-36" /> **[36]** Jessica A. Cardin et al. (2009). [Driving fast-spiking cells induces gamma rhythm and controls sensory responses](https://doi.org/10.1038/nature08002). _Nature_. {import.meta.env.DEV && <a href="/papers/cardin-et-al-2009.pdf">Local PDF</a>}
-
-   <span id="ref-37" /> **[37]** Jianguang Ni et al. (2016). [Gamma-Rhythmic Gain Modulation](https://doi.org/10.1016/j.neuron.2016.09.003). _Neuron_. {import.meta.env.DEV && <a href="/papers/ni-et-al-2016.pdf">Local PDF</a>}
-
-   <span id="ref-38" /> **[38]** Martin Vinck et al. (2010). [Gamma-Phase Shifting in Awake Monkey Visual Cortex](https://doi.org/10.1523/jneurosci.1623-09.2010). _The Journal of Neuroscience_. {import.meta.env.DEV && <a href="/papers/vinck-et-al-2010.pdf">Local PDF</a>}
-
-   <span id="ref-39" /> **[39]** William Sedley; Mark O. Cunningham (2013). [Do cortical gamma oscillations promote or suppress perception? An under-asked question with an over-assumed answer](https://doi.org/10.3389/fnhum.2013.00595). _Frontiers in Human Neuroscience_. {import.meta.env.DEV && <a href="/papers/sedley-cunningham-2013.pdf">Local PDF</a>}
-
-   <span id="ref-40" /> **[40]** Andre M. Bastos et al. (2012). [Canonical Microcircuits for Predictive Coding](https://doi.org/10.1016/j.neuron.2012.10.038). _Neuron_. {import.meta.env.DEV && <a href="/papers/bastos-et-al-2012.pdf">Local PDF</a>}
-
-   <span id="ref-41" /> **[41]** William Sedley et al. (2016). [Neural signatures of perceptual inference](https://doi.org/10.7554/eLife.11476). _eLife_. {import.meta.env.DEV && <a href="/papers/sedley-et-al-2016.pdf">Local PDF</a>}
-
-   <span id="ref-42" /> **[42]** André M. Bastos et al. (2020). [Layer and rhythm specificity for predictive routing](https://doi.org/10.1073/pnas.2014868117). _Proceedings of the National Academy of Sciences_. {import.meta.env.DEV && <a href="/papers/bastos-et-al-2020.pdf">Local PDF</a>}
-
-   <span id="ref-43" /> **[43]** Martin Vinck; Conrado A. Bosman (2016). [More Gamma More Predictions: Gamma-Synchronization as a Key Mechanism for Efficient Integration of Classical Receptive Field Inputs with Surround Predictions](https://doi.org/10.3389/fnsys.2016.00035). _Frontiers in Systems Neuroscience_. {import.meta.env.DEV && <a href="/papers/vinck-bosman-2016.pdf">Local PDF</a>}
-
-   <span id="ref-44" /> **[44]** Martin Vinck et al. (2025). [Large-scale interactions in predictive processing: oscillatory versus transient dynamics](https://doi.org/10.1016/j.tics.2024.09.013). _Trends in Cognitive Sciences_. {import.meta.env.DEV && <span>(Local PDF unavailable.)</span>}
-
-   <span id="ref-45" /> **[45]** John E. Lisman; Marco A. P. Idiart (1995). [Storage of 7 ± 2 Short-Term Memories in Oscillatory Subcycles](https://doi.org/10.1126/science.7878473). _Science_. {import.meta.env.DEV && <a href="/papers/lisman-idiart-1995.pdf">Local PDF</a>}
-
-   <span id="ref-46" /> **[46]** John E. Lisman; Ole Jensen (2013). [The Theta-Gamma Neural Code](https://doi.org/10.1016/j.neuron.2013.03.007). _Neuron_. {import.meta.env.DEV && <span>(Local PDF unavailable.)</span>}
-
-   <span id="ref-47" /> **[47]** Mikael Lundqvist et al. (2016). [Gamma and Beta Bursts Underlie Working Memory](https://doi.org/10.1016/j.neuron.2016.02.028). _Neuron_. {import.meta.env.DEV && <a href="/papers/lundqvist-et-al-2016.pdf">Local PDF</a>}
-
-   <span id="ref-48" /> **[48]** Laura Lee Colgin et al. (2009). [Frequency of gamma oscillations routes flow of information in the hippocampus](https://doi.org/10.1038/nature08573). _Nature_. {import.meta.env.DEV && <a href="/papers/colgin-et-al-2009.pdf">Local PDF</a>}
-
-   <span id="ref-49" /> **[49]** Juhan Aru et al. (2015). [Untangling cross-frequency coupling in neuroscience](https://doi.org/10.1016/j.conb.2014.08.002). _Current Opinion in Neurobiology (preprint: arXiv:1405.7965v2)_. {import.meta.env.DEV && <a href="/papers/aru-et-al-2015.pdf">Local PDF</a>}
-
-   <span id="ref-50" /> **[50]** André M. Bastos; Jan-Mathijs Schoffelen (2016). [A Tutorial Review of Functional Connectivity Analysis Methods and Their Interpretational Pitfalls](https://doi.org/10.3389/fnsys.2015.00175). _Frontiers in Systems Neuroscience_. {import.meta.env.DEV && <a href="/papers/bastos-schoffelen-2016.pdf">Local PDF</a>}
-
-   <span id="ref-51" /> **[51]** Valérie Wespatat; Frank Tennigkeit; Wolf Singer (2004). [Phase Sensitivity of Synaptic Modifications in Oscillating Cells of Rat Visual Cortex](https://doi.org/10.1523/JNEUROSCI.2221-04.2004). _The Journal of Neuroscience_. {import.meta.env.DEV && <a href="/papers/wespatat-et-al-2004.pdf">Local PDF</a>}
-
-   <span id="ref-52" /> **[52]** Ralf A. W. Galuske; Matthias H. J. Munk; Wolf Singer (2019). [Relation between gamma oscillations and neuronal plasticity in the visual cortex](https://doi.org/10.1073/pnas.1901277116). _Proceedings of the National Academy of Sciences_. {import.meta.env.DEV && <a href="/papers/galuske-et-al-2019.pdf">Local PDF</a>}
-
-   <span id="ref-53" /> **[53]** Guo-qiang Bi; Mu-ming Poo (1998). [Synaptic Modifications in Cultured Hippocampal Neurons: Dependence on Spike Timing, Synaptic Strength, and Postsynaptic Cell Type](https://doi.org/10.1523/jneurosci.18-24-10464.1998). _The Journal of Neuroscience_. {import.meta.env.DEV && <a href="/papers/bi-poo-1998.pdf">Local PDF</a>}
-
-   <span id="ref-54" /> **[54]** Joshua H Siegle; Dominique L Pritchett; Christopher I Moore (2014). [Gamma-range synchronization of fast-spiking interneurons can enhance detection of tactile stimuli](https://doi.org/10.1038/nn.3797). _Nature Neuroscience_. {import.meta.env.DEV && <a href="/papers/siegle-et-al-2014.pdf">Local PDF</a>}
-
-   <span id="ref-55" /> **[55]** Eric Drebitz; Lukas-Paul Rausch; Andreas K. Kreiter (2025). [Gamma-band synchronization between neurons in the visual cortex is causal for effective information processing and behavior](https://doi.org/10.1038/s41467-025-62732-8). _Nature Communications_. {import.meta.env.DEV && <a href="/papers/drebitz-et-al-2025.pdf">Local PDF</a>}
-
-   <span id="ref-56" /> **[56]** Jarrod Robert Dowdall; Marius Schneider; Martin Vinck (2023). [Attentional modulation of inter-areal coherence explained by frequency shifts](https://doi.org/10.1016/j.neuroimage.2023.120256). _NeuroImage (author manuscript)_. {import.meta.env.DEV && <a href="/papers/dowdall-et-al-2023.pdf">Local PDF</a>}
-
-   <span id="ref-57" /> **[57]** Edmund T. Rolls; Tristan J. Webb; Gustavo Deco (2012). [Communication before coherence](https://doi.org/10.1111/j.1460-9568.2012.08188.x). _European Journal of Neuroscience_. {import.meta.env.DEV && <a href="/papers/rolls-et-al-2012.pdf">Local PDF</a>}
-
-   <span id="ref-58" /> **[58]** Emre O. Neftci; Hesham Mostafa; Friedemann Zenke (2019). [Surrogate Gradient Learning in Spiking Neural Networks: Bringing the Power of Gradient-Based Optimization to Spiking Neural Networks](https://doi.org/10.1109/msp.2019.2931595). _IEEE Signal Processing Magazine (preprint: arXiv:1901.09948v2)_. {import.meta.env.DEV && <a href="/papers/neftci-et-al-2019.pdf">Local PDF</a>}
-
-   <span id="ref-59" /> **[59]** Jason K. Eshraghian et al. (2023). [Training Spiking Neural Networks Using Lessons From Deep Learning](https://arxiv.org/abs/2109.12894v6). _arXiv:2109.12894v6_. {import.meta.env.DEV && <a href="/papers/eshraghian-et-al-2023.pdf">Local PDF</a>}
-
-   <span id="ref-60" /> **[60]** Friedemann Zenke; Tim P. Vogels (2021). [The Remarkable Robustness of Surrogate Gradient Learning for Instilling Complex Function in Spiking Neural Networks](https://doi.org/10.1162/neco_a_01367). _Neural Computation_. {import.meta.env.DEV && <a href="/papers/zenke-vogels-2021.pdf">Local PDF</a>}
-
-   <span id="ref-61" /> **[61]** T. P. Vogels et al. (2011). [Inhibitory Plasticity Balances Excitation and Inhibition in Sensory Pathways and Memory Networks](https://doi.org/10.1126/science.1211095). _Science (advance online publication)_. {import.meta.env.DEV && <a href="/papers/vogels-et-al-2011.pdf">Local PDF</a>}
-
-   <span id="ref-62" /> **[62]** Yann LeCun; Léon Bottou; Yoshua Bengio; Patrick Haffner (1998). [Gradient-based learning applied to document recognition](https://doi.org/10.1109/5.726791). _Proceedings of the IEEE (author manuscript)_. {import.meta.env.DEV && <a href="/papers/lecun-et-al-1998.pdf">Local PDF</a>}
-
-   <span id="ref-63" /> **[63]** Benjamin Cramer; Yannik Stradmann; Johannes Schemmel; Friedemann Zenke (2022). [The Heidelberg Spiking Data Sets for the Systematic Evaluation of Spiking Neural Networks](https://doi.org/10.1109/tnnls.2020.3044364). _IEEE Transactions on Neural Networks and Learning Systems_. {import.meta.env.DEV && <a href="/papers/cramer-et-al-2022.pdf">Local PDF</a>}
-
-   <span id="ref-64" /> **[64]** Fabian Pedregosa et al. (2011). [Scikit-learn: Machine Learning in Python](https://www.jmlr.org/papers/v12/pedregosa11a.html). _Journal of Machine Learning Research_. {import.meta.env.DEV && <a href="/papers/pedregosa-et-al-2011.pdf">Local PDF</a>}
-
-   <span id="ref-65" /> **[65]** David Attwell; Simon B. Laughlin (2001). [An Energy Budget for Signaling in the Grey Matter of the Brain](https://doi.org/10.1097/00004647-200110000-00001). _Journal of Cerebral Blood Flow & Metabolism_. {import.meta.env.DEV && <a href="/papers/attwell-laughlin-2001.pdf">Local PDF</a>}
-
-   <span id="ref-66" /> **[66]** Mark Wildie; Murray Shanahan (2012). [Establishing communication between neuronal populations through competitive entrainment](https://doi.org/10.3389/fncom.2011.00062). _Frontiers in Computational Neuroscience_. {import.meta.env.DEV && <a href="/papers/wildie-shanahan-2012.pdf">Local PDF</a>}
-
-   <span id="ref-67" /> **[67]** Marije ter Wal; Paul H. Tiesinga (2017). [Phase Difference between Model Cortical Areas Determines Level of Information Transfer](https://doi.org/10.3389/fncom.2017.00006). _Frontiers in Computational Neuroscience_. {import.meta.env.DEV && <a href="/papers/ter-wal-tiesinga-2017.pdf">Local PDF</a>}
-
-   <span id="ref-68" /> **[68]** Andrea Banino et al. (2018). [Vector-based navigation using grid-like representations in artificial agents](https://doi.org/10.1038/s41586-018-0102-6). _Nature_. {import.meta.env.DEV && <a href="/papers/banino-et-al-2018.pdf">Local PDF</a>}
-
-   <span id="ref-69" /> **[69]** Yoram Burak; Ila R. Fiete (2009). [Accurate Path Integration in Continuous Attractor Network Models of Grid Cells](https://doi.org/10.1371/journal.pcbi.1000291). _PLoS Computational Biology_. {import.meta.env.DEV && <a href="/papers/burak-fiete-2009.pdf">Local PDF</a>}
-
-   <span id="ref-70" /> **[70]** Guillaume Bellec et al. (2020). [A solution to the learning dilemma for recurrent networks of spiking neurons](https://doi.org/10.1038/s41467-020-17236-y). _Nature Communications_. {import.meta.env.DEV && <a href="/papers/bellec-et-al-2020.pdf">Local PDF</a>}
-
-   <span id="ref-71" /> **[71]** Giacomo Indiveri et al. (2011). [Neuromorphic Silicon Neuron Circuits](https://doi.org/10.3389/fnins.2011.00073). _Frontiers in Neuroscience_. {import.meta.env.DEV && <a href="/papers/indiveri-et-al-2011.pdf">Local PDF</a>}
-
-   <span id="ref-72" /> **[72]** Mike Davies et al. (2018). [Loihi: A Neuromorphic Manycore Processor with On-Chip Learning](https://doi.org/10.1109/mm.2018.112130359). _IEEE Micro_. {import.meta.env.DEV && <a href="/papers/davies-et-al-2018.pdf">Local PDF</a>}
-
-   <span id="ref-73" /> **[73]** Steve B. Furber; Francesco Galluppi; Steve Temple; Luis A. Plana (2014). [The SpiNNaker Project](https://doi.org/10.1109/jproc.2014.2304638). _Proceedings of the IEEE_. {import.meta.env.DEV && <a href="/papers/furber-et-al-2014.pdf">Local PDF</a>}
+### 5.2 Supporting methods and results
